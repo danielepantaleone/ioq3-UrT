@@ -240,18 +240,6 @@ static client_t *SV_GetPlayerByHandle(void) {
 }
 
 /////////////////////////////////////////////////////////////////////
-// Name        : SV_StripExtension
-// Description : Remove the extension from a given file name
-// Author      : Fenix
-/////////////////////////////////////////////////////////////////////
-static void SV_StripExtension(const char *in, char *out) {
-    while (*in && *in != '.') {
-        *out++ = *in++;
-    }
-    *out = 0;
-}
-
-/////////////////////////////////////////////////////////////////////
 // Name        : SV_SortMaps
 // Description : Array sorting comparison function (for qsort)
 // Author      : Fenix
@@ -265,82 +253,79 @@ static int QDECL SV_SortMaps(const void *a, const void *b) {
 // Description : Retrieve a full map name given a substring of it
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
-static char *SV_GetMapSoundingLike(const char *s) {
+static void SV_GetMapSoundingLike(char *dest, const char *s, int size) {
 
-    int  i, mapcount;
-    int  len = 0, count = 0;
+    int  i;
+    int  len = 0;
+    int  count = 0;
+    int  mapcount;
+    char *search;
     char *matches[MAX_MAPLIST_SIZE];
-    char *searchmap;
     char expanded[MAX_QPATH];
-    char mapname[MAX_QPATH];
     static char maplist[MAX_MAPLIST_STRING];
 
-    // instead of iterating through all the maps matching both full and partial name, 
-    // search just for the exact map name and return it if the match is found
-    Com_sprintf(mapname, sizeof(mapname), s);
     Com_sprintf(expanded, sizeof(expanded), "maps/%s.bsp", s);
     if (FS_ReadFile(expanded, NULL) > 0) {
-        searchmap = mapname;
-        return searchmap;
+        Q_strncpyz(dest, s, size);
+        return;
     }
 
-    // we didn't found an exact name match. keep iterating through all the
-    // available maps matching partial substrings
+    // we didn't found an exact name match. Keep iterating
+    // through all the available maps matching partial substrings
     if (!(mapcount = FS_GetFileList("maps", ".bsp", maplist, sizeof(maplist)))) {
-        Com_Printf("Unable to retrieve map list\n");
-        return NULL;
+        Com_Printf("^7[^1ERROR^7] Could not retrieve maplist!\n");
+        *dest = 0;
+        return;
     }
 
-    searchmap = maplist;
-    for (i = 0; i < mapcount && count < MAX_MAPLIST_SIZE; i++, searchmap += len + 1) {
+    search = maplist;
+    for (i = 0; i < mapcount && count < MAX_MAPLIST_SIZE; i++, search += len + 1) {
 
-        len = strlen(searchmap);
-        SV_StripExtension(searchmap, searchmap);
+        len = strlen(search);
+        COM_StripExtension(search, search);
 
         // check for substring match
-        if (Q_strisub(searchmap, s)) {
-            matches[count] = searchmap;
+        if (Q_strisub(search, s)) {
+            matches[count] = search;
             count++;
         }
 
     }
 
     if (count == 0) {
+        Com_Printf("Could not find any map matching %s%s%s\n", S_COLOR_YELLOW, s, S_COLOR_WHITE);
+        *dest = 0;
+        return;
+    }
 
-        // no match found for the given map name input
-        Com_Printf("No map found matching \"%s\"\n", s);
-        return NULL;
+    if (count > 1) {
 
-    } else if (count > 1) {
+        Com_Printf("Maps found matching %s%s%s:\n", S_COLOR_YELLOW, s, S_COLOR_WHITE);
 
-        // multiple matches found for the given map name
-        Com_Printf("Multiple maps found matching \"%s\":\n", s);
-
-        // Sorting the short map list alphabetically
+        // Sort maps before displaying the short list
         qsort(matches, count, sizeof(char *), SV_SortMaps);
 
         for (i = 0; i < count; i++) {
-            // printing a short map list so the user can retry with a more specific name
+            // Printing a short map list so the user can retry with a more specific name
             Com_Printf(" %2d: [%s]\n", i + 1, matches[i]);
         }
 
-        if (count >= MAX_MAPLIST_SIZE) {
-            // tell the user that there are actually more
+        if (count > MAX_MAPLIST_SIZE) {
+            // Tell the user that there are actually more
             // maps matching the given substring, although
             // we are not displaying them....
             Com_Printf("...and more\n");
         }
 
-        return NULL;
+        *dest = 0;
+        return;
 
     }
 
-
-    // if we got here means that we just have a match
-    // for the given string. We found our map!
-    return matches[0];
+    Q_strncpyz(dest, matches[0], size);
 
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -355,7 +340,6 @@ static char *SV_GetMapSoundingLike(const char *s) {
 static void SV_Map_f(void) {
 
     char      *cmd;
-    char      *searchmap;
     char      mapname[MAX_QPATH];
     qboolean  killBots, cheat;
 
@@ -363,8 +347,8 @@ static void SV_Map_f(void) {
         return;
     }
 
-    searchmap = SV_GetMapSoundingLike(Cmd_Argv(1));
-    if (!searchmap) {
+    SV_GetMapSoundingLike(mapname, Cmd_Argv(1), sizeof(mapname));
+    if (!mapname[0]) {
         return;
     }
 
@@ -396,11 +380,7 @@ static void SV_Map_f(void) {
         }
 
     }
-
-    // save the map name here cause on a map restart we reload the q3config.cfg
-    // and thus nuke the arguments of the map command
-    Q_strncpyz(mapname, searchmap, sizeof(mapname));
-
+    
     // start up the map
     SV_SpawnServer(mapname, killBots);
 
