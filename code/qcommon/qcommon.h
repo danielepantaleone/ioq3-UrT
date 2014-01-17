@@ -573,6 +573,7 @@ fileHandle_t	FS_FOpenFileWrite( const char *qpath );
 
 int		FS_filelength( fileHandle_t f );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
+fileHandle_t FS_FOpenFileAppend( const char *filename );
 int		FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
 void	FS_SV_Rename( const char *from, const char *to );
 int		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );

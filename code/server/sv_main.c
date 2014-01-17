@@ -69,7 +69,6 @@ cvar_t    *sv_authServerIP;
 cvar_t    *sv_auth_engine;
 #endif
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
 //  UTILITIES                                                                                               //
@@ -81,15 +80,22 @@ cvar_t    *sv_auth_engine;
 // Description : Print in the log file
 /////////////////////////////////////////////////////////////////////
 void QDECL SV_LogPrintf(const char *fmt, ...) {
-        
-    cvar_t      *g_log;
-    va_list     argptr;
-    char        buffer[MAX_STRING_CHARS];
-    int         min, tens, sec;
+    
+    cvar_t        *cvar;
+    va_list       argptr;
+    fileHandle_t  file;
+    char          buffer[MAX_STRING_CHARS];
+    int           min, tens, sec;
     
     // get the log file cvar and exit if it's not valid
-    g_log = Cvar_Get("g_log", "games.log", CVAR_ARCHIVE);
-    if (!g_log || !g_log->string[0]) {
+    cvar = Cvar_Get("g_log", "games.log", CVAR_ARCHIVE);
+    if (!cvar || !cvar->string[0]) {
+        return;
+    }
+    
+    // opening the log file
+    FS_FOpenFileByMode(cvar->string, &file, FS_APPEND_SYNC);
+    if (!file) {
         return;
     }
     
@@ -109,7 +115,8 @@ void QDECL SV_LogPrintf(const char *fmt, ...) {
     va_end(argptr);
     
     // write in the log file
-    FS_WriteFile(g_log->string, buffer, sizeof(buffer));
+    FS_Write(buffer, strlen(buffer), file);
+    FS_FCloseFile(file);
         
 }
 
