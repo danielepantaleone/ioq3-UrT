@@ -884,7 +884,7 @@ int Q_stricmp (const char *s1, const char *s2) {
 ////////////////////////////////////////////////////////////////////////
 int Q_strsub (const char *s1, const char *s2) {
 
-    int i, j, match;
+    int i, j, match = 0;
     int len1 = strlen(s1);
     int len2 = strlen(s2);
 
@@ -893,9 +893,9 @@ int Q_strsub (const char *s1, const char *s2) {
         return 0;
     }
 
-    for(i = 0; i <= len1 - len2; i++) {
+    for (i = 0; i <= len1 - len2; i++) {
 
-        for(j = i; j < i + len2; j++) {
+        for (j = i; j < i + len2; j++) {
             match = 1;
             if (s1[j] != s2[j-i]) {
                 match = 0;
@@ -904,7 +904,10 @@ int Q_strsub (const char *s1, const char *s2) {
         }
 
         // We got a substring
-        if (match == 1) break;
+        if (match == 1) {
+            break; 
+        }
+        
    }
 
    return match;
@@ -919,7 +922,7 @@ int Q_strsub (const char *s1, const char *s2) {
 //////////////////////////////////////////////////////////////////////////
 int Q_strisub (const char *s1, const char *s2) {
 
-    int i, j, match;
+    int i, j, match = 0;
     int len1 = strlen(s1);
     int len2 = strlen(s2);
 
@@ -939,7 +942,9 @@ int Q_strisub (const char *s1, const char *s2) {
         }
 
         // We got a substring
-        if (match == 1) break;
+        if (match == 1) {
+            break;
+        }
    }
 
    return match;
