@@ -69,6 +69,50 @@ cvar_t    *sv_authServerIP;
 cvar_t    *sv_auth_engine;
 #endif
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                          //
+//  UTILITIES                                                                                               //
+//                                                                                                          //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_LogPrintf
+// Description : Print in the log file
+/////////////////////////////////////////////////////////////////////
+void QDECL SV_LogPrintf(const char *fmt, ...) {
+        
+    cvar_t      *g_log;
+    va_list     argptr;
+    char        buffer[MAX_STRING_CHARS];
+    int         min, tens, sec;
+    
+    // get the log file cvar and exit if it's not valid
+    g_log = Cvar_Get("g_log", "games.log", CVAR_ARCHIVE);
+    if (!g_log || !g_log->string[0]) {
+        return;
+    }
+    
+    // get current level time
+    sec  = sv.time / 1000;
+    min  = sec / 60;
+    sec -= min * 60;
+    tens = sec / 10;
+    sec -= tens * 10;
+    
+    // prepend current level time
+    Com_sprintf(buffer, sizeof(buffer), "%3i:%i%i ", min, tens, sec);
+
+    // get the arguments
+    va_start(argptr, fmt);
+    vsprintf(buffer + 7, fmt, argptr);
+    va_end(argptr);
+    
+    // write in the log file
+    FS_WriteFile(g_log->string, buffer, sizeof(buffer));
+        
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
 //  EVENTS MESSAGES                                                                                         //
