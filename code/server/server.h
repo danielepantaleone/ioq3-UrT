@@ -177,7 +177,9 @@ typedef struct client_s {
     
     int                 oldServerTime;
     qboolean            csUpdated[MAX_CONFIGSTRINGS+1];   
-     
+    
+    vec3_t              savedPosition;          // saved client position    
+    
 } client_t;
 
 // MAX_CHALLENGES is made large to prevent a denial
@@ -301,6 +303,8 @@ extern    cvar_t    *sv_auth_engine;
 //
 void        SV_FinalMessage (char *message);
 void QDECL  SV_LogPrintf(const char *fmt, ...);
+void        SV_LoadPositionFromFile(client_t *cl, char *mapname);
+void        SV_SavePositionToFile(client_t *cl, char *mapname);
 void QDECL  SV_SendServerCommand(client_t *cl, const char *fmt, ...);
 void        SV_AddOperatorCommands (void);
 void        SV_RemoveOperatorCommands (void);

@@ -175,17 +175,17 @@ void SV_AuthorizeIpPacket(netadr_t from) {
 void SV_DirectConnect(netadr_t from) {
 
     char            userinfo[MAX_INFO_STRING];
-    int             i;
+    char            *password;
+    intptr_t        denied;
     client_t        temp;
     client_t        *cl, *newcl;
     sharedEntity_t  *ent;
-    char            *password;
+    int             i;
     int             clientNum;
     int             version;
     int             qport;
     int             challenge;
     int             startIndex;
-    intptr_t        denied;
     int             count;
 
     Com_DPrintf("SV_DirectConnect()\n");
@@ -393,7 +393,7 @@ gotnewcl:
         // we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
         char *str = VM_ExplicitArgPtr(gvm, denied);
         NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", str);
-        Com_DPrintf ("Game rejected a connection: %s.\n", str);
+        Com_DPrintf("Game rejected a connection: %s.\n", str);
         return;
     }
 
@@ -413,11 +413,14 @@ gotnewcl:
     // notice that it is from a different serverid and that the
     // gamestate message was not just sent, forcing a retransmit
     newcl->gamestateMessageNum = -1;
-
+    
+    // load the client position from a file
+    SV_LoadPositionFromFile(newcl, sv_mapname->string);
+    
     // if this was the first client on the server, or the last client
     // the server can hold, send a heartbeat to the master.
     count = 0;
-    for (i = 0,cl=svs.clients; i < sv_maxclients->integer; i++, cl++) {
+    for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
         if (svs.clients[i].state >= CS_CONNECTED) {
             count++;
         }
@@ -438,7 +441,7 @@ gotnewcl:
 /////////////////////////////////////////////////////////////////////
 void SV_DropClient(client_t *drop, const char *reason) {
     
-    int             i;
+    int            i;
     challenge_t    *challenge;
 
     if (drop->state == CS_ZOMBIE) {
@@ -483,6 +486,9 @@ void SV_DropClient(client_t *drop, const char *reason) {
     if (drop->netchan.remoteAddress.type == NA_BOT) {
         SV_BotFreeClient(drop - svs.clients);
     }
+    
+    // save client position to a file
+    SV_SavePositionToFile(drop, sv_mapname->string);
 
     // nuke user info
     SV_SetUserinfo(drop - svs.clients, "");
@@ -518,6 +524,10 @@ void SV_DropClient(client_t *drop, const char *reason) {
 void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message) {
 
     int            i;
+    fileHandle_t   file;
+    char           buffer[MAX_STRING_CHARS];
+    char           *guid;
+    char           *qpath;
     challenge_t    *challenge;
 
     if (drop->state == CS_ZOMBIE) {
@@ -564,7 +574,37 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
     if (drop->netchan.remoteAddress.type == NA_BOT) {
         SV_BotFreeClient(drop - svs.clients);
     }
-
+    
+    // check if we have to save client positions
+    if (sv_gametype->integer == GT_JUMP) {
+    
+        if ((Cvar_VariableIntegerValue("g_allowPosSaving") > 0) && 
+            (Cvar_VariableIntegerValue("g_persistentPositions") > 0)) {
+        
+            // get the client guid from the userinfo string
+            guid = Info_ValueForKey(drop->userinfo, "cl_guid");
+            if (guid != NULL && guid[0] != '\0' && (drop->savedPosition[0] != 0 || 
+                                                    drop->savedPosition[1] != 0 || 
+                                                    drop->savedPosition[2] != 0)) {
+                
+                qpath = va("positions/%s/%s.pos", sv_mapname->string, guid);
+                FS_FOpenFileByMode(qpath, &file, FS_WRITE);      
+                
+                if (file) {
+                    Com_sprintf(buffer, sizeof(buffer), "%f,%f,%f\n", drop->savedPosition[0], 
+                                                                      drop->savedPosition[1], 
+                                                                      drop->savedPosition[2]);
+                    FS_Write(buffer, strlen(buffer), file);
+                    FS_FCloseFile(file);                                                          
+                    
+                }                               
+                     
+            }
+            
+        }
+        
+    }
+    
     // nuke user info
     SV_SetUserinfo(drop - svs.clients, "");
     
@@ -1273,7 +1313,7 @@ void SV_UserinfoChanged(client_t *cl) {
     int     len;
 
     // name for C code
-    Q_strncpyz(cl->name, Info_ValueForKey (cl->userinfo, "name"), sizeof(cl->name));
+    Q_strncpyz(cl->name, Info_ValueForKey(cl->userinfo, "name"), sizeof(cl->name));
 
     // rate command
     // if the client is on the same subnet as the server and we aren't running an
@@ -1360,6 +1400,140 @@ void SV_UpdateUserinfo_f(client_t *cl) {
 
 }
 
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_SavePosition_f
+// Description : Save the current client position
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_SavePosition_f(client_t *cl) {
+    
+    int             cid;
+    playerState_t   *ps;
+    
+    // if we are not playing jump mode
+    if (sv_gametype->integer != GT_JUMP) {
+        return;
+    }
+    
+    // get the client slot
+    cid = cl - svs.clients;
+    
+    // if the guy is in spectator mode
+    if (TEAM_SPECTATOR == atoi(Info_ValueForKey(sv.configstrings[544 + cid], "t"))) {
+        return;
+    }
+    
+    // if the server doesn't allow position save/load
+    if (Cvar_VariableIntegerValue("g_allowPosSaving") < 1) {
+        return;
+    }
+    
+    // get the client playerState_t
+    ps = SV_GameClientNum(cid);
+    
+    // disallow if moving
+    if (ps->velocity[0] != 0 || ps->velocity[1] != 0 || ps->velocity[2] != 0) {
+        SV_SendServerCommand(cl, "print \"You can't save your position while moving\n\"");
+        return;
+    }
+    
+    // disallow if dead
+    if (ps->pm_type != PM_NORMAL) {
+        SV_SendServerCommand(cl, "print \"You must be alive and in-game to save your position\n\"");
+        return;
+    }
+    
+    // disallow if crouched
+    if (ps->pm_flags & PMF_DUCKED) {
+        SV_SendServerCommand(cl, "print \"You cannot save your position while being crouched\n\"");
+        return;
+    }
+    
+    // disallow if not on a solid ground
+    if (ps->groundEntityNum != ENTITYNUM_WORLD) {
+        SV_SendServerCommand(cl, "print \"You must be standing on a solid ground to save your position\n\"");
+        return;
+    }
+    
+    // save the position
+    VectorCopy(ps->origin, cl->savedPosition);
+    
+    // log command execution
+    SV_LogPrintf("ClientSavePosition: %d - %f - %f - %f\n",
+                                      cid,
+                                      cl->savedPosition[0],
+                                      cl->savedPosition[1],
+                                      cl->savedPosition[2]);
+    
+    SV_SendServerCommand(cl, "print \"Your position has been saved\n\"");
+    
+}
+
+#define ST_HEALTH          0
+#define ST_STAMINA         9
+#define UT_STAMINA_MUL   300
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_LoadPosition_f
+// Description : Load a previously saved position
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_LoadPosition_f(client_t *cl) {
+    
+    int             cid;
+    playerState_t   *ps;
+    
+    // if we are not playing jump mode
+    if (sv_gametype->integer != GT_JUMP) {
+        return;
+    }
+    
+    // get the client slot
+    cid = cl - svs.clients;
+    
+    // if the guy is in spectator mode
+    if (TEAM_SPECTATOR == atoi(Info_ValueForKey(sv.configstrings[544 + cid], "t"))) {
+        return;
+    }
+    
+    // if the server doesn't allow position save/load
+    if (Cvar_VariableIntegerValue("g_allowPosSaving") < 1) {
+        return;
+    }
+    
+    // get the client playerState_t
+    ps = SV_GameClientNum(cid);
+    
+    // if there is no position saved
+    if (!cl->savedPosition[0] || !cl->savedPosition[1] || !cl->savedPosition[2]) {
+        SV_SendServerCommand(cl, "print \"There is no position to load\n\"");
+        return;
+    }
+    
+    // disallow if dead
+    if (ps->pm_type != PM_NORMAL) {
+        SV_SendServerCommand(cl, "print \"You must be alive and in-game to load your position\n\"");
+        return;
+    }
+
+    // copy back saved position
+    VectorCopy(cl->savedPosition, ps->origin);
+    VectorClear(ps->velocity);
+    
+    // regenerate stamina
+    ps->stats[ST_STAMINA] = ps->stats[ST_HEALTH] * UT_STAMINA_MUL;
+    
+    // log command execution
+    SV_LogPrintf("ClientLoadPosition: %d - %f - %f - %f\n",
+                                      cid,
+                                      cl->savedPosition[0],
+                                      cl->savedPosition[1],
+                                      cl->savedPosition[2]);
+    
+    SV_SendServerCommand(cl, "print \"Your position has been loaded\n\"");
+    
+}
+
 typedef struct {
     char    *name;
     void    (*func)(client_t *cl);
@@ -1374,6 +1548,14 @@ static ucmd_t ucmds[] = {
     {"nextdl", SV_NextDownload_f},
     {"stopdl", SV_StopDownload_f},
     {"donedl", SV_DoneDownload_f},
+    {NULL, NULL}
+};
+
+static ucmd_t ucmds_floodcontrol[] = {
+    {"save", SV_SavePosition_f},
+    {"savepos", SV_SavePosition_f},
+    {"load", SV_LoadPosition_f},
+    {"loadpos", SV_LoadPosition_f},
     {NULL, NULL}
 };
 
@@ -1395,14 +1577,26 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
     Cmd_TokenizeString(s);
 
     // see if it is a server level command
-    for (u = ucmds; u->name ; u++) {
-        if (!strcmp (Cmd_Argv(0), u->name)) {
+    for (u = ucmds_floodcontrol; u->name ; u++) {
+        if (!Q_stricmp(Cmd_Argv(0), u->name)) {
             u->func(cl);
             bProcessed = qtrue;
             break;
         }
     }
-
+    
+    if (!bProcessed) {
+        for (u = ucmds; u->name ; u++) {
+            if (!Q_stricmp(Cmd_Argv(0), u->name)) {
+                if (clientOK) {
+                    u->func(cl);
+                }
+                bProcessed = qtrue;
+                break;
+            }
+        }
+    }
+    
     if (clientOK) {
 
         // pass unknown strings to the game

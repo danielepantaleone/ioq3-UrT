@@ -621,7 +621,11 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     int           checksum;
     qboolean      isBot;
     char          systemInfo[16384];
+    char          mapname[MAX_QPATH];
     const char    *p;
+    
+    // save the mapname (the old level) here because it's nuked later
+    Q_strncpyz(mapname, sv_mapname->string, sizeof(mapname));
 
     // shut down the existing game if it is running
     SV_ShutdownGameProgs();
@@ -734,7 +738,7 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // stop server-side demo (if any)
     Cbuf_ExecuteText(EXEC_NOW, "stopserverdemo all");
 
-    for (i = 0; i<sv_maxclients->integer; i++) {
+    for (i = 0; i < sv_maxclients->integer; i++) {
         
         // send the new gamestate to all connected clients
         if (svs.clients[i].state >= CS_CONNECTED) {
@@ -755,16 +759,30 @@ void SV_SpawnServer(char *server, qboolean killBots) {
             // connect the client again
             denied = VM_ExplicitArgPtr(gvm, VM_Call(gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot));
             if (denied) {
+            
                 // this generally shouldn't happen, because the client
                 // was connected before the level change
                 SV_DropClient(&svs.clients[i], denied);
+            
             } else {
-                if(!isBot) {
+                
+                if (!isBot) {
+                    
+                    // save the client position permanently
+                    SV_SavePositionToFile(&svs.clients[i], mapname);
+                    
+                    // clear the position vector for nextmap
+                    VectorClear(svs.clients[i].savedPosition);
+                    
+                    // load saved position (if any)
+                    SV_LoadPositionFromFile(&svs.clients[i], sv_mapname->string);
+                    
                     // when we get the next packet from a connected client,
                     // the new gamestate will be sent
                     svs.clients[i].state = CS_CONNECTED;
-                }
-                else {
+                
+                } else {
+                    
                     client_t          *client;
                     sharedEntity_t    *ent;
 
@@ -779,6 +797,7 @@ void SV_SpawnServer(char *server, qboolean killBots) {
                     VM_Call(gvm, GAME_CLIENT_BEGIN, i);
                     
                 }
+                
             }
         }
     }    
@@ -913,7 +932,7 @@ void SV_Init(void) {
     sv_gametype = Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH);
     Cvar_Get("sv_keywords", "", CVAR_SERVERINFO);
     Cvar_Get("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM);
-    sv_mapname = Cvar_Get("mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM);
+    sv_mapname  = Cvar_Get("mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM);
     sv_privateClients = Cvar_Get("sv_privateClients", "0", CVAR_SERVERINFO);
     sv_hostname = Cvar_Get("sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
     sv_maxclients = Cvar_Get("sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);

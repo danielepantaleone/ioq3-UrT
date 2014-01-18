@@ -78,6 +78,7 @@ cvar_t    *sv_auth_engine;
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_LogPrintf
 // Description : Print in the log file
+// Author      : Fenix
 /////////////////////////////////////////////////////////////////////
 void QDECL SV_LogPrintf(const char *fmt, ...) {
     
@@ -124,6 +125,108 @@ void QDECL SV_LogPrintf(const char *fmt, ...) {
     FS_Write(buffer, strlen(buffer), file);
     FS_FCloseFile(file);
         
+}
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_LoadPositionFromFile
+// Description : Load the client position from a file
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+void SV_LoadPositionFromFile(client_t *cl, char *mapname) {
+    
+    fileHandle_t   file;
+    char           buffer[MAX_STRING_CHARS];
+    char           *guid;
+    char           *qpath;
+    int            len;
+    
+    // if we are not playing jump mode
+    if (sv_gametype->integer != GT_JUMP) {
+        return;
+    }
+    
+    // if we are not supposed to save the position on a file
+    if ((Cvar_VariableIntegerValue("g_allowPosSaving") <= 0) ||
+        (Cvar_VariableIntegerValue("g_persistentPositions") <= 0)) {
+        return;
+    }
+    
+    // get the client guid from the userinfo string
+    guid = Info_ValueForKey(cl->userinfo, "cl_guid");
+    if (!guid || !guid[0]) { 
+        return;
+    }
+    
+    // open the position file
+    qpath = va("positions/%s/%s.pos", mapname, guid);
+    FS_FOpenFileByMode(qpath, &file, FS_READ);
+    
+    // if not valid
+    if (!file) {
+        return;
+    }
+    
+    // read the file in the buffer
+    len = FS_Read(buffer, sizeof(buffer), file);
+    if (len > 0) {
+        // copy back saved position
+        sscanf(buffer, "%f,%f,%f", &cl->savedPosition[0], 
+                                   &cl->savedPosition[1], 
+                                   &cl->savedPosition[2]);
+    }   
+    
+    // close the file handle
+    FS_FCloseFile(file);  
+    
+}
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_SavePositionToFile
+// Description : Save the client position to a file
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+void SV_SavePositionToFile(client_t *cl, char *mapname) {
+    
+    fileHandle_t   file;
+    char           buffer[MAX_STRING_CHARS];
+    char           *guid;
+    char           *qpath;
+    
+    // if we are not playing jump mode
+    if (sv_gametype->integer != GT_JUMP) {
+        return;
+    }
+    
+    // if we are not supposed to save the position on a file
+    if ((Cvar_VariableIntegerValue("g_allowPosSaving") <= 0) ||
+        (Cvar_VariableIntegerValue("g_persistentPositions") <= 0)) {
+        return;
+    }
+    
+    // get the client guid from the userinfo string
+    guid = Info_ValueForKey(cl->userinfo, "cl_guid");
+    if (!guid || !guid[0] || (!cl->savedPosition[0] && !cl->savedPosition[1] && !cl->savedPosition[2])) { 
+        return;
+    }
+    
+    // open the position file
+    qpath = va("positions/%s/%s.pos", mapname, guid);
+    FS_FOpenFileByMode(qpath, &file, FS_WRITE);
+    
+    // if not valid
+    if (!file) {
+        return;
+    }
+    
+    // compute the text to be stored in the .pos file
+    Com_sprintf(buffer, sizeof(buffer), "%f,%f,%f", cl->savedPosition[0], 
+                                                    cl->savedPosition[1], 
+                                                    cl->savedPosition[2]);
+    
+    // write the client position and close
+    FS_Write(buffer, strlen(buffer), file);
+    FS_FCloseFile(file);  
+    
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
