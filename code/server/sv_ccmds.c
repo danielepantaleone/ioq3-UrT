@@ -326,7 +326,6 @@ static void SV_GetMapSoundingLike(char *dest, const char *s, int size) {
 
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
 //  COMMANDS                                                                                                //
@@ -614,6 +613,77 @@ static void SV_Kick_f(void) {
 }
 
 /////////////////////////////////////////////////////////////////////
+// Name        : SV_Teleport_f
+// Description : Teleport a player
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_Teleport_f(void) {
+    
+    vec3_t          origin;
+    client_t        *cl1, *cl2 = NULL;
+    playerState_t   *ps1, *ps2;
+    
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running\n");
+        return;
+    }
+    
+    // if we are not playing jump mode
+    if (sv_gametype->integer != GT_JUMP) {
+        return;
+    }
+    
+    // check for correct number of arguments
+    if ((Cmd_Argc() != 3) && (Cmd_Argc() != 5)) {
+        Com_Printf("Usage: teleport <client> <target>\n"
+                   "       teleport <client> <x> <y> <z>\n");
+        return;
+    }
+    
+    // get the source client
+    cl1 = SV_GetPlayerByHandle();
+    if (!cl1) {
+        return;
+    }
+    
+    // get the client playerstate
+    ps1 = SV_GameClientNum(cl1 - svs.clients);
+    
+    if (Cmd_Argc() == 3) {
+        
+        // get the target client
+        cl2 = SV_GetPlayerByParam(Cmd_Argv(2));
+        if (!cl2) { 
+            return;
+        }
+        
+        ps2 = SV_GameClientNum(cl2 - svs.clients);
+        origin[0] = ps2->origin[0];
+        origin[1] = ps2->origin[1];
+        origin[2] = ps2->origin[2];
+
+    } else {
+        origin[0] = atof(Cmd_Argv(2));
+        origin[1] = atof(Cmd_Argv(3));
+        origin[2] = atof(Cmd_Argv(4));
+    }
+    
+    // teleport the player
+    VectorCopy(origin, ps1->origin);
+    VectorClear(ps1->velocity);
+    
+    // inform client(s) of what just happened
+    SV_SendServerCommand(cl1, "print \"Your have been successfully teleported\n\"");
+    
+    if (cl2 != NULL) {
+        // inform also target client
+        SV_SendServerCommand(cl2, "print \"%s has been teleported to you\n\"", cl1->name);
+    }
+
+}
+
+/////////////////////////////////////////////////////////////////////
 // Name        : SV_Status_f
 // Description : Print server status informations
 /////////////////////////////////////////////////////////////////////
@@ -651,29 +721,30 @@ static void SV_Status_f(void) {
             Com_Printf("ZMBI ");
         } else {
             ping = cl->ping < 9999 ? cl->ping : 9999;
-            Com_Printf ("%4i ", ping);
+            Com_Printf("%4i ", ping);
         }
 
-        Com_Printf ("%s", cl->name);
+        Com_Printf("%s", cl->name);
+        
         // TTimo adding a ^7 to reset the color
         // NOTE: colored names in status breaks the padding (WONTFIX)
-        Com_Printf ("^7");
+        Com_Printf("^7");
         l = 16 - strlen(cl->name);
         for (j=0 ; j<l ; j++) {
             Com_Printf (" ");
         }
 
-        Com_Printf ("%7i ", svs.time - cl->lastPacketTime);
+        Com_Printf("%7i ", svs.time - cl->lastPacketTime);
         s = NET_AdrToString(cl->netchan.remoteAddress);
-        Com_Printf ("%s", s);
+        Com_Printf("%s", s);
         l = 22 - strlen(s);
         for (j = 0; j < l; j++) {
             Com_Printf(" ");
         }
 
-        Com_Printf ("%5i", cl->netchan.qport);
-        Com_Printf (" %5i", cl->rate);
-        Com_Printf ("\n");
+        Com_Printf("%5i", cl->netchan.qport);
+        Com_Printf(" %5i", cl->rate);
+        Com_Printf("\n");
     }
 
     Com_Printf ("\n");
@@ -1399,6 +1470,7 @@ void SV_AddOperatorCommands(void) {
     Cmd_AddCommand("map_restart", SV_MapRestart_f);
     Cmd_AddCommand("sectorlist", SV_SectorList_f);
     Cmd_AddCommand("map", SV_Map_f);
+    Cmd_AddCommand("teleport", SV_Teleport_f);
     #ifndef PRE_RELEASE_DEMO
     Cmd_AddCommand("devmap", SV_Map_f);
     Cmd_AddCommand("spmap", SV_Map_f);
