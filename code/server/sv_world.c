@@ -433,11 +433,11 @@ int SV_AreaEntities(const vec3_t mins, const vec3_t maxs, int *entityList, int m
 }
 
 typedef struct {
-    vec3_t        boxmins, boxmaxs;// enclose the test object along entire move
+    vec3_t         boxmins, boxmaxs;    // enclose the test object along entire move
     const float    *mins;
-    const float *maxs;    // size of the moving object
+    const float    *maxs;               // size of the moving object
     const float    *start;
-    vec3_t        end;
+    vec3_t         end;
     trace_t        trace;
     int            passEntityNum;
     int            contentmask;
