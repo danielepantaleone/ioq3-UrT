@@ -81,20 +81,26 @@ cvar_t    *sv_auth_engine;
 /////////////////////////////////////////////////////////////////////
 void QDECL SV_LogPrintf(const char *fmt, ...) {
     
-    cvar_t        *cvar;
     va_list       argptr;
     fileHandle_t  file;
+    fsMode_t      mode;
+    char          *logfile;
     char          buffer[MAX_STRING_CHARS];
     int           min, tens, sec;
+    int           logsync;
     
-    // get the log file cvar and exit if it's not valid
-    cvar = Cvar_Get("g_log", "games.log", CVAR_ARCHIVE);
-    if (!cvar || !cvar->string[0]) {
+    // retrieve the logfile name
+    logfile = Cvar_VariableString("g_log");
+    if (!logfile[0]) {
         return;
     }
     
+    // retrieve the writing mode
+    logsync = Cvar_VariableIntegerValue("g_logSync");
+    mode = logsync ? FS_APPEND_SYNC : FS_APPEND;
+    
     // opening the log file
-    FS_FOpenFileByMode(cvar->string, &file, FS_APPEND_SYNC);
+    FS_FOpenFileByMode(logfile, &file, mode);
     if (!file) {
         return;
     }
