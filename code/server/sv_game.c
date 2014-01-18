@@ -83,14 +83,44 @@ Sends a command string to a client
 ===============
 */
 void SV_GameSendServerCommand(int clientNum, const char *text) {
+    
+    int  val[10];
+    char cmd[MAX_NAME_LENGTH];
+    char auth[MAX_NAME_LENGTH];
+    
     if (clientNum == -1) {
+        
         SV_SendServerCommand(NULL, "%s", text);
+    
     } else {
+        
         if (clientNum < 0 || clientNum >= sv_maxclients->integer) {
             return;
         }
+        
+        // FIXME: this is done several time for the same
+        // client. While this should not generate any trouble
+        // it would be better to improve the code somehow
+        if (sv_gametype->integer == GT_JUMP) {
+            
+            // scan the game command looking for the score single one
+            if (sscanf(text, "%s %i %i %i %i %i %i %i %i %i %i %s", 
+                       cmd, &val[0], &val[1], &val[2], &val[3], &val[4],  
+                            &val[5], &val[6], &val[7], &val[8], &val[9], auth) != EOF) {
+                
+                // set the jumprun flag
+                if (!Q_stricmp("scoress", cmd)) {
+                    svs.clients[val[0]].jumprun = val[6];
+                }       
+                           
+            }
+            
+        }
+                                                             
         SV_SendServerCommand(svs.clients + clientNum, "%s", text);    
+        
     }
+    
 }
 
 

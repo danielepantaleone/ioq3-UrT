@@ -1428,6 +1428,11 @@ static void SV_SavePosition_f(client_t *cl) {
         return;
     }
     
+    // if in a jumprun
+    if (cl->jumprun) {
+        return;
+    }
+    
     // get the client playerState_t
     ps = SV_GameClientNum(cid);
     
@@ -1498,6 +1503,11 @@ static void SV_LoadPosition_f(client_t *cl) {
     
     // if the server doesn't allow position save/load
     if (Cvar_VariableIntegerValue("g_allowPosSaving") < 1) {
+        return;
+    }
+    
+    // if in a jumprun
+    if (cl->jumprun) {
         return;
     }
     

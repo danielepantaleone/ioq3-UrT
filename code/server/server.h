@@ -179,6 +179,7 @@ typedef struct client_s {
     qboolean            csUpdated[MAX_CONFIGSTRINGS+1];   
     
     vec3_t              savedPosition;          // saved client position    
+    int                 jumprun;                // tells whether the client is in a jump run
     
 } client_t;
 
