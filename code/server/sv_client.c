@@ -1717,16 +1717,27 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
     // but not other people
     // We don't do this when the client hasn't been active yet since its
     // normal to spam a lot of commands when downloading
-    if (!com_cl_running->integer && cl->state >= CS_ACTIVE && 
-        sv_floodProtect->integer && svs.time < cl->nextReliableTime) {
-        // ignore any other text messages from this client but let them keep playing
-        // TTimo - moved the ignored verbose to the actual processing in SV_ExecuteClientCommand, only
-        // printing if the core doesn't intercept
-        clientOk = qfalse;
+    if (!com_cl_running->integer && cl->state >= CS_ACTIVE && sv_floodProtect->integer) {
+        
+        if ((unsigned) (svs.time - cl->lastReliableTime) < 1500u) {
+    			
+            // allow two client commands every 1.5 seconds or so.
+			if ((cl->lastReliableTime & 1u) == 0u) {
+				cl->lastReliableTime |= 1u;
+			} else {
+				// This is now at least our second client command in a period of 1.5 seconds: ignore it.
+				// TTimo - moved the ignored verbose to the actual processing in
+				// SV_ExecuteClientCommand, only printing if the core doesn't intercept
+				clientOk = qfalse;
+			}
+		}
+		else {
+		    cl->lastReliableTime = (svs.time & (~1)); // Lowest bit 0
+	    }
+        
     } 
-
-    // don't allow another command for one second
-    cl->nextReliableTime = svs.time + 1000;
+    
+    // execute the command
     SV_ExecuteClientCommand(cl, s, clientOk);
 
     cl->lastClientCommand = seq;
