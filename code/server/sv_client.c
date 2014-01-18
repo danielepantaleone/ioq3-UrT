@@ -1577,10 +1577,12 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
 
     ucmd_t        *u;
     char          *arg;
+    char          *text;
     int           argsFromOneMaxlen;
     int           charCount;
     int           dollarCount;
     int           i;
+    int           wtime;
     qboolean      bProcessed = qfalse;
     qboolean      exploitDetected = qfalse;
     
@@ -1616,17 +1618,46 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             
             argsFromOneMaxlen = -1;
             if (Q_stricmp("say", Cmd_Argv(0)) == 0 || Q_stricmp("say_team", Cmd_Argv(0)) == 0) {
+             
                 argsFromOneMaxlen = MAX_SAY_STRLEN;
+            
             } else if (Q_stricmp("tell", Cmd_Argv(0)) == 0) {
+            
                 // A command will look like "tell 12 hi" or "tell foo hi".  The "12"
                 // and "foo" in the examples will be counted towards MAX_SAY_STRLEN,
                 // plus the space.
                 argsFromOneMaxlen = MAX_SAY_STRLEN;
+            
             } else if (Q_stricmp("ut_radio", Cmd_Argv(0)) == 0) {
+                
                 // We add 4 to this value because in a command such as
                 // "ut_radio 1 1 affirmative", the args at indices 1 and 2 each
                 // have length 1 and there is a space after them.
                 argsFromOneMaxlen = MAX_RADIO_STRLEN + 4;
+            
+            } else if (!Q_stricmp("callvote", Cmd_Argv(0))) {
+                
+                // extend spamming to all the players, not just one
+                wtime = Cvar_VariableIntegerValue("g_failedvotetime") * 1000;
+                if (sv.lastVoteTime && (sv.lastVoteTime + wtime > svs.time)) {
+                    wtime = (int)(((sv.lastVoteTime + wtime) - svs.time) / 1000);
+                    if (wtime < 60) {
+                        // less than 60 seconds => display seconds
+                        text = wtime != 1 ? "seconds" : "second";
+                    } else {
+                        // more than 60 seconds => convert to minutes
+                        wtime = (int)ceil(wtime/60);
+                        text = wtime != 1 ? "minutes" : "minute";
+                    }
+                    
+                    SV_SendServerCommand(cl, "print \"You need to wait ^1%d ^7%s before calling "
+                                             "another vote\n\"", wtime, text);
+                    return;
+                }
+                
+                // mark last vote timestamp
+                sv.lastVoteTime = svs.time;
+            
             }
             
             if (argsFromOneMaxlen >= 0) {

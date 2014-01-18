@@ -76,6 +76,8 @@ typedef struct {
     int                 gameClientSize;      // will be > sizeof(playerState_t) due to game private data
     int                 restartTime;
     int                 time;
+    
+    int                 lastVoteTime;       // last callvote timestamp
 } server_t;
 
 typedef struct {
