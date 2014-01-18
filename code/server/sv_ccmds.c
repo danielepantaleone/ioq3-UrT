@@ -647,6 +647,11 @@ static void SV_Teleport_f(void) {
         return;
     }
     
+    // if in a jumprun
+    if (cl1->jumprun) {
+        return;
+    }
+    
     // get the client playerstate
     ps1 = SV_GameClientNum(cl1 - svs.clients);
     
@@ -658,12 +663,20 @@ static void SV_Teleport_f(void) {
             return;
         }
         
+        // if in a jumprun
+        if (cl2->jumprun) {
+            SV_SendServerCommand(cl1, "print \"%s is currently doing a jump run\n\"", cl2->name);
+            return;
+        }
+        
+        // get target client world coordinates
         ps2 = SV_GameClientNum(cl2 - svs.clients);
         origin[0] = ps2->origin[0];
         origin[1] = ps2->origin[1];
         origin[2] = ps2->origin[2];
 
     } else {
+        // copy given world coordinates
         origin[0] = atof(Cmd_Argv(2));
         origin[1] = atof(Cmd_Argv(3));
         origin[2] = atof(Cmd_Argv(4));
