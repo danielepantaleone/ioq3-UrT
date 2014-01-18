@@ -684,6 +684,60 @@ static void SV_Teleport_f(void) {
 }
 
 /////////////////////////////////////////////////////////////////////
+// Name        : SV_Position_f
+// Description : Retrieve player positions
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_Position_f(void) {
+    
+    int             i;
+    client_t        *cl;
+    playerState_t   *ps;
+    
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running\n");
+        return;
+    }
+    
+    if (Cmd_Argc() != 2) {
+        Com_Printf("Usage: position <client-or-all>\n");
+        return;
+    }
+    
+    if (!Q_stricmp(Cmd_Argv(1), "all")) {
+        
+        for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
+            
+            // if not connected
+            if (!cl->state) {
+                continue;
+            }
+            
+            // print the position
+            ps = SV_GameClientNum(i);
+            Com_Printf("%3i - %12f - %12f - %12f\n", i, ps->origin[0], ps->origin[1], ps->origin[2]);
+            
+        }
+        
+    } else {
+        
+        // search the client
+        cl = SV_GetPlayerByHandle();
+        if (!cl) {
+            return;
+        }
+        
+        // print the position
+        i = cl - svs.clients;
+        ps = SV_GameClientNum(i);
+        Com_Printf("%3i - %12f - %12f - %12f\n", i, ps->origin[0], ps->origin[1], ps->origin[2]);
+        
+    }
+
+}
+
+/////////////////////////////////////////////////////////////////////
 // Name        : SV_Status_f
 // Description : Print server status informations
 /////////////////////////////////////////////////////////////////////
@@ -1471,6 +1525,7 @@ void SV_AddOperatorCommands(void) {
     Cmd_AddCommand("sectorlist", SV_SectorList_f);
     Cmd_AddCommand("map", SV_Map_f);
     Cmd_AddCommand("teleport", SV_Teleport_f);
+    Cmd_AddCommand("position", SV_Position_f);
     #ifndef PRE_RELEASE_DEMO
     Cmd_AddCommand("devmap", SV_Map_f);
     Cmd_AddCommand("spmap", SV_Map_f);
