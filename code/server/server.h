@@ -350,8 +350,9 @@ void SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
 //
 // sv_ccmds.c
 //
-void SV_Heartbeat_f(void);
-void SVD_WriteDemoFile(const client_t*, const msg_t*);
+client_t *SV_GetPlayerByParam(const char *s);
+void      SV_Heartbeat_f(void);
+void      SVD_WriteDemoFile(const client_t*, const msg_t*);
 
 //
 // sv_snapshot.c

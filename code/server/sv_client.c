@@ -1544,6 +1544,39 @@ static void SV_LoadPosition_f(client_t *cl) {
     
 }
 
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_Tell_f
+// Description : Send a private message to a client
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_Tell_f(client_t *cl) { 
+    
+    char      name[MAX_NAME_LENGTH];
+    char      text[MAX_STRING_CHARS];
+    client_t *target;
+    
+    if (Cmd_Argc() < 3) {
+        SV_SendServerCommand(cl, "print \"Usage: tell <client> <text>\n\"");
+        return;
+    }
+    
+    // get the target client
+    target = SV_GetPlayerByParam(Cmd_Argv(1));
+    if (!target) {
+        return;
+    }
+    
+    // remove color codes from the client name
+    Q_strncpyz(name, target->name, sizeof(name));
+    Q_CleanStr(name);
+    
+    // compose the message and send it to the client
+    Com_sprintf(text, sizeof(text), "^6[pm] ^7%s: ^3%s", name, Cmd_ArgsFrom(2));
+    SV_LogPrintf("saytell: %d %d %s: %s\n", cl - svs.clients, target - svs.clients, name, text);
+    SV_SendServerCommand(target, "chat \"%s\n\"", text);
+
+}
+
 typedef struct {
     char    *name;
     void    (*func)(client_t *cl);
@@ -1566,6 +1599,7 @@ static ucmd_t ucmds_floodcontrol[] = {
     {"savepos", SV_SavePosition_f},
     {"load", SV_LoadPosition_f},
     {"loadpos", SV_LoadPosition_f},
+    {"tell", SV_Tell_f},
     {NULL, NULL}
 };
 

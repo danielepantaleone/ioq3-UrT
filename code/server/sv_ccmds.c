@@ -40,7 +40,7 @@ These commands can only be entered from stdin or by a remote operator datagram
 // Name        : SV_GetPlayerByParam
 // Description : Returns the player with handle read from given input
 /////////////////////////////////////////////////////////////////////
-static client_t *SV_GetPlayerByParam(const char *s) {
+client_t *SV_GetPlayerByParam(const char *s) {
 
     char        name[64];
     int         count = 0;
