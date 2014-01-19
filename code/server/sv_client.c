@@ -1574,6 +1574,7 @@ static void SV_Tell_f(client_t *cl) {
     Com_sprintf(text, sizeof(text), "^6[pm] ^7%s: ^3%s", name, Cmd_ArgsFrom(2));
     SV_LogPrintf("saytell: %d %d %s: %s\n", cl - svs.clients, target - svs.clients, name, text);
     SV_SendServerCommand(target, "chat \"%s\n\"", text);
+    SV_SendServerCommand(cl, "chat \"%s\n\"", text);
 
 }
 
