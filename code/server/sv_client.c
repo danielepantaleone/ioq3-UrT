@@ -1567,7 +1567,7 @@ static void SV_Tell_f(client_t *cl) {
     }
     
     // remove color codes from the client name
-    Q_strncpyz(name, target->name, sizeof(name));
+    Q_strncpyz(name, cl->name, sizeof(name));
     Q_CleanStr(name);
     
     // compose the message and send it to the client
