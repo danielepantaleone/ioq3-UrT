@@ -1638,7 +1638,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             } else if (!Q_stricmp("callvote", Cmd_Argv(0))) {
                 
                 // extend spamming to all the players, not just one
-                wtime = Cvar_VariableIntegerValue("g_failedvotetime") * 1000;
+                wtime = sv_failedvotetime->integer * 1000;
                 if (sv.lastVoteTime && (sv.lastVoteTime + wtime > svs.time)) {
                     wtime = (int)(((sv.lastVoteTime + wtime) - svs.time) / 1000);
                     if (wtime < 60) {

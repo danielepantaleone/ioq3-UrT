@@ -69,6 +69,8 @@ cvar_t    *sv_authServerIP;
 cvar_t    *sv_auth_engine;
 #endif
 
+cvar_t    *sv_failedvotetime;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
 //  UTILITIES                                                                                               //
@@ -614,6 +616,32 @@ void SV_FlushRedirect(char *outputbuf) {
 }
 
 /////////////////////////////////////////////////////////////////////
+// Name        : SV_ParseGameRemoteCommand
+// Description : Parse game RCON commands allowing us to perform
+//               some operations before letting the game QVM module
+//               handle the command
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+void SV_ParseGameRemoteCommand(char *text) {
+    
+    int val;
+    
+	Cmd_TokenizeString(text);	
+    
+    // if we got no tokens	
+	if (!Cmd_Argc()) {
+		return;
+	}
+    
+    // if it's a rcon veto command
+    if (!Q_stricmp(Cmd_Argv(0), "veto")) {
+        val = sv_failedvotetime->integer * 1000;
+        sv.lastVoteTime = svs.time - val;
+    }
+    
+}
+
+/////////////////////////////////////////////////////////////////////
 // Name        : SVC_RconRecoveryRemoteCommand
 // Description : An rcon packet arrived from the network.
 //               Shift down the remaining args
@@ -643,7 +671,7 @@ void SVC_RconRecoveryRemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         valid = qfalse;
-        Com_Printf ("Bad rcon recovery from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
+        Com_Printf("Bad rcon recovery from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
     
     } else {
         
@@ -654,7 +682,7 @@ void SVC_RconRecoveryRemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         valid = qtrue;
-        Com_Printf ("Rcon recovery from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
+        Com_Printf("Rcon recovery from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
 
     }
     
@@ -715,7 +743,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         valid = qfalse;
-        Com_Printf ("Bad rcon from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
+        Com_Printf("Bad rcon from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
         
     } else {
     
@@ -730,7 +758,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         valid = qtrue;
-        Com_Printf ("Rcon from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
+        Com_Printf("Rcon from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
     }
     
     lasttime = time;
@@ -764,11 +792,18 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         Q_strcat(remaining, sizeof(remaining), cmd_aux);
-        Cmd_ExecuteString (remaining);
+        
+        // additional parse for game module commands
+        // will let us perform certain operations when a
+        // game module rcon command is detected
+        SV_ParseGameRemoteCommand(remaining);
+        
+        // execute the command
+        Cmd_ExecuteString(remaining);
 
     }
 
-    Com_EndRedirect ();
+    Com_EndRedirect();
 }
 
 /////////////////////////////////////////////////////////////////////

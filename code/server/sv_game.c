@@ -348,6 +348,10 @@ The module is making a system call
 ====================
 */
 intptr_t SV_GameSystemCalls(intptr_t *args) {
+    
+    char *n;
+    char *v;
+    
     switch(args[0]) {
     case G_PRINT:
         Com_Printf("%s", (const char*)VMA(1));
@@ -364,8 +368,21 @@ intptr_t SV_GameSystemCalls(intptr_t *args) {
         Cvar_Update(VMA(1));
         return 0;
     case G_CVAR_SET:
+        // exclude sv_fps
         if (Q_stricmp((char *)VMA(1), "sv_fps") != 0) {
-            Cvar_Set((const char *)VMA(1), (const char *)VMA(2));
+            
+            n = (char *)VMA(1);
+            v = (char *)VMA(2);
+            
+            // map g_failedvotetime onto sv_failedvotetime:
+            // this will exclude the vote spamming system of 
+            // the game module and rely only on the engine one
+            if (!Q_stricmp(n, "g_failedvotetime")) {
+                n = "sv_failedvotetime";
+            }
+            
+            Cvar_Set((const char *)n, (const char *)v);
+        
         } 
         return 0;
     case G_CVAR_VARIABLE_INTEGER_VALUE:

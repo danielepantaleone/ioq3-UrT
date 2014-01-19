@@ -988,11 +988,17 @@ void SV_Init(void) {
     sv_auth_engine = Cvar_Get("sv_auth_engine", "1", CVAR_ROM);
     #endif
     
+    sv_failedvotetime = Cvar_Get("g_failedvotetime", "300", CVAR_ARCHIVE);
+    
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();
 
     // init the botlib here because we need the pre-compiler in the UI
     SV_BotInitBotLib();
+    
+    // force some game module cvar
+    Cvar_Set("g_failedvotetime", "0");
+    
 }
 
 /////////////////////////////////////////////////////////////////////

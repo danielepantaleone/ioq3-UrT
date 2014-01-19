@@ -301,6 +301,8 @@ extern    cvar_t    *sv_authServerIP;
 extern    cvar_t    *sv_auth_engine;
 #endif
 
+extern    cvar_t    *sv_failedvotetime;
+
 //
 // sv_main.c
 //
