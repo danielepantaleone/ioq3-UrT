@@ -1583,6 +1583,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
     int           dollarCount;
     int           i;
     int           wtime;
+    int           playercount = 0;
     qboolean      bProcessed = qfalse;
     qboolean      exploitDetected = qfalse;
     
@@ -1636,23 +1637,44 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                 argsFromOneMaxlen = MAX_RADIO_STRLEN + 4;
             
             } else if (!Q_stricmp("callvote", Cmd_Argv(0))) {
-                
-                // extend spamming to all the players, not just one
-                wtime = sv_failedvotetime->integer * 1000;
-                if (sv.lastVoteTime && (sv.lastVoteTime + wtime > svs.time)) {
-                    wtime = (int)(((sv.lastVoteTime + wtime) - svs.time) / 1000);
-                    if (wtime < 60) {
-                        // less than 60 seconds => display seconds
-                        text = wtime != 1 ? "seconds" : "second";
-                    } else {
-                        // more than 60 seconds => convert to minutes
-                        wtime = (int)ceil(wtime/60);
-                        text = wtime != 1 ? "minutes" : "minute";
+
+                // loop throught all the clients searching
+                // for active ones: we won't block if just 
+                // one player is currently playing the map
+                for (i = 0; i < sv_maxclients->integer; i++) {
+                    
+                    // if not connected
+                    if (!svs.clients[i].state) {
+                        continue;
                     }
                     
-                    SV_SendServerCommand(cl, "print \"You need to wait ^1%d ^7%s before calling "
-                                             "another vote\n\"", wtime, text);
-                    return;
+                    // if the guy is in spectator mode
+                    if (TEAM_SPECTATOR == atoi(Info_ValueForKey(sv.configstrings[544 + i], "t"))) {
+                        continue;
+                    }
+                    
+                    playercount++;
+                    
+                }
+                
+                if (playercount > 1) {  
+                    // extend spamming to all the players, not just one
+                    wtime = sv_failedvotetime->integer * 1000;
+                    if (sv.lastVoteTime && (sv.lastVoteTime + wtime > svs.time)) {
+                        wtime = (int)(((sv.lastVoteTime + wtime) - svs.time) / 1000);
+                        if (wtime < 60) {
+                            // less than 60 seconds => display seconds
+                            text = wtime != 1 ? "seconds" : "second";
+                        } else {
+                            // more than 60 seconds => convert to minutes
+                            wtime = (int)ceil(wtime/60);
+                            text = wtime != 1 ? "minutes" : "minute";
+                        }
+                    
+                        SV_SendServerCommand(cl, "print \"You need to wait ^1%d ^7%s before calling "
+                                                 "another vote\n\"", wtime, text);
+                        return;
+                    }
                 }
                 
                 // mark last vote timestamp
