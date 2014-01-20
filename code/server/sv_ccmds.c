@@ -751,6 +751,51 @@ static void SV_Position_f(void) {
 }
 
 /////////////////////////////////////////////////////////////////////
+// Name        : SV_SendClientCommand_f
+// Description : Send a reliable command as a specific client
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_SendClientCommand_f(void) {
+    
+    char      *cmd;
+    client_t  *cl;
+    
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running\n");
+        return;
+    }
+    
+    // check for correct parameters
+    if (Cmd_Argc() < 3 || !strlen(Cmd_Argv(2))) {
+        Com_Printf("Usage: sendclientcommand <client> <command>\n"
+                   "       sendclientcommand all <command> = send to everyone\n");
+    }
+    
+    // get the command
+    cmd = Cmd_ArgsFromRaw(2);
+    
+    if (!Q_stricmp(Cmd_Argv(1), "all")) {
+        
+        // send to everyone
+        SV_SendServerCommand(NULL, "%s", cmd);
+        
+    } else {
+        
+        // search the client
+        cl = SV_GetPlayerByHandle();
+        if (!cl) {
+            return;
+        }
+        
+        // send the command to the client
+        SV_SendServerCommand(cl, "%s", cmd);
+        
+    }
+
+}
+
+/////////////////////////////////////////////////////////////////////
 // Name        : SV_Status_f
 // Description : Print server status informations
 /////////////////////////////////////////////////////////////////////
@@ -1538,6 +1583,7 @@ void SV_AddOperatorCommands(void) {
     Cmd_AddCommand("map", SV_Map_f);
     Cmd_AddCommand("teleport", SV_Teleport_f);
     Cmd_AddCommand("position", SV_Position_f);
+    Cmd_AddCommand("sendclientcommand", SV_SendClientCommand_f);
     #ifndef PRE_RELEASE_DEMO
     Cmd_AddCommand("devmap", SV_Map_f);
     Cmd_AddCommand("spmap", SV_Map_f);
