@@ -311,6 +311,7 @@ void QDECL  SV_LogPrintf(const char *fmt, ...);
 void        SV_LoadPositionFromFile(client_t *cl, char *mapname);
 void        SV_SavePositionToFile(client_t *cl, char *mapname);
 qboolean    SV_CallvoteEnabled(char *text);
+int         SV_GetClientTeam(int cid);
 void QDECL  SV_SendServerCommand(client_t *cl, const char *fmt, ...);
 void        SV_AddOperatorCommands (void);
 void        SV_RemoveOperatorCommands (void);

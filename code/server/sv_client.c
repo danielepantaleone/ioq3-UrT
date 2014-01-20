@@ -1419,7 +1419,7 @@ static void SV_SavePosition_f(client_t *cl) {
     cid = cl - svs.clients;
     
     // if the guy is in spectator mode
-    if (TEAM_SPECTATOR == atoi(Info_ValueForKey(sv.configstrings[544 + cid], "t"))) {
+    if (SV_GetClientTeam(cid) == TEAM_SPECTATOR) {
         return;
     }
     
@@ -1497,7 +1497,7 @@ static void SV_LoadPosition_f(client_t *cl) {
     cid = cl - svs.clients;
     
     // if the guy is in spectator mode
-    if (TEAM_SPECTATOR == atoi(Info_ValueForKey(sv.configstrings[544 + cid], "t"))) {
+    if (SV_GetClientTeam(cid) == TEAM_SPECTATOR) {
         return;
     }
     
@@ -1707,7 +1707,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                         }
                     
                         // if the guy is in spectator mode
-                        if (TEAM_SPECTATOR == atoi(Info_ValueForKey(sv.configstrings[544 + i], "t"))) {
+                        if (SV_GetClientTeam(i) == TEAM_SPECTATOR) {
                             continue;
                         }
                     

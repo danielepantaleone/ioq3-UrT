@@ -341,6 +341,19 @@ qboolean SV_CallvoteEnabled(char *text) {
     
 }
 
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_GetClientTeam
+// Description : Retrieve the give client team
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+int SV_GetClientTeam(int cid) {
+    char *key, *val;
+    key = sv.configstrings[544 + cid];
+    val = Info_ValueForKey(key, "t");
+    return atoi(val);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
 //  EVENTS MESSAGES                                                                                         //

@@ -1413,7 +1413,6 @@ static void SV_StopServerDemo_f(void) {
 
 }
 
-
 #ifdef USE_AUTH
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_Auth_Whois_f
