@@ -253,7 +253,7 @@ static int QDECL SV_SortMaps(const void *a, const void *b) {
 // Description : Retrieve a full map name given a substring of it
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
-static void SV_GetMapSoundingLike(char *dest, const char *s, int size) {
+void SV_GetMapSoundingLike(char *dest, const char *s, int size) {
 
     int  i;
     int  len = 0;

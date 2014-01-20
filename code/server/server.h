@@ -311,12 +311,13 @@ void QDECL  SV_LogPrintf(const char *fmt, ...);
 void        SV_LoadPositionFromFile(client_t *cl, char *mapname);
 void        SV_SavePositionToFile(client_t *cl, char *mapname);
 qboolean    SV_CallvoteEnabled(char *text);
+qboolean    SV_CheckCallvoteArgs(void);
 int         SV_GetClientTeam(int cid);
 void QDECL  SV_SendServerCommand(client_t *cl, const char *fmt, ...);
-void        SV_AddOperatorCommands (void);
-void        SV_RemoveOperatorCommands (void);
-void        SV_MasterHeartbeat (void);
-void        SV_MasterShutdown (void);
+void        SV_AddOperatorCommands(void);
+void        SV_RemoveOperatorCommands(void);
+void        SV_MasterHeartbeat(void);
+void        SV_MasterShutdown(void);
 
 //
 // sv_init.c
@@ -353,6 +354,7 @@ void SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
 // sv_ccmds.c
 //
 client_t *SV_GetPlayerByParam(const char *s);
+void      SV_GetMapSoundingLike(char *dest, const char *s, int size);
 void      SV_Heartbeat_f(void);
 void      SVD_WriteDemoFile(const client_t*, const msg_t*);
 

@@ -341,6 +341,43 @@ qboolean SV_CallvoteEnabled(char *text) {
     
 }
 
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_CheckCallvoteArgs
+// Description : Check correct parameters for the given callvote.
+//               Will return qtrue if the callvote is legit, qfalse
+//               if it's going to be blocked by the game module
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+qboolean SV_CheckCallvoteArgs() {
+    
+    char mapname[MAX_QPATH];
+    
+    if (!Q_stricmp(Cmd_Argv(1), "map") || !Q_stricmp(Cmd_Argv(1), "nextmap")) {
+        
+        if (Cmd_Argc() < 3) {
+            return qfalse;
+        }
+        
+        SV_GetMapSoundingLike(mapname, Cmd_Argv(2), sizeof(mapname));
+        if (!mapname[0]) {
+            return qfalse;
+        }
+        
+    } else if (!Q_stricmp(Cmd_Argv(1), "kick") || !Q_stricmp(Cmd_Argv(1), "clientkick")) {
+        
+        if (Cmd_Argc() < 3) {
+            return qfalse;
+        }
+
+        if (!SV_GetPlayerByParam(Cmd_Argv(2))) {
+            return qfalse;
+        }
+        
+    }
+    
+    return qtrue;
+
+}
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_GetClientTeam
