@@ -2042,28 +2042,15 @@ extern int unzReadCurrentFile  (unzFile file, void *buf, unsigned len)
 		else
 		{
 			uLong uTotalOutBefore,uTotalOutAfter;
-			const Byte *bufBefore;
 			uLong uOutThis;
 			int flush=Z_SYNC_FLUSH;
 
 			uTotalOutBefore = pfile_in_zip_read_info->stream.total_out;
-			bufBefore = pfile_in_zip_read_info->stream.next_out;
-
-			/*
-			if ((pfile_in_zip_read_info->rest_read_uncompressed ==
-			         pfile_in_zip_read_info->stream.avail_out) &&
-				(pfile_in_zip_read_info->rest_read_compressed == 0))
-				flush = Z_FINISH;
-			*/
 			err=inflate(&pfile_in_zip_read_info->stream,flush);
 
 			uTotalOutAfter = pfile_in_zip_read_info->stream.total_out;
 			uOutThis = uTotalOutAfter-uTotalOutBefore;
-			
-			// pfile_in_zip_read_info->crc32 =
-            //    crc32(pfile_in_zip_read_info->crc32,bufBefore,
-            //            (uInt)(uOutThis));
-
+            
 			pfile_in_zip_read_info->rest_read_uncompressed -=
                 uOutThis;
 
