@@ -228,6 +228,8 @@ typedef struct {
     receipt_t       infoReceipts[MAX_INFO_RECEIPTS];
     netadr_t        redirectAddress;                    // for rcon return messages
     netadr_t        authorizeAddress;                   // for rcon return messages
+    
+    char            lastCycleMap[128];       // last mapcycle computed map
 } serverStatic_t;
 
 // The value below is how many extra characters we reserve for every instance of '$' in a

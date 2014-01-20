@@ -610,6 +610,135 @@ int SV_MakeCompressedPureList() {
 }
 
 /////////////////////////////////////////////////////////////////////
+// Name        : SV_MapExists
+// Description : Check whether a given map is available on the server
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static qboolean SV_MapExists(char *mapname) {
+    
+    char expanded[MAX_QPATH];
+    
+    Com_sprintf(expanded, sizeof(expanded), "maps/%s.bsp", mapname);
+    if (FS_ReadFile(expanded, NULL) > 0) {
+        return qtrue;
+    }
+    
+    return qfalse;     
+}
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_MapcycleSetNextmap
+// Description : Set the nextmap. Helper function called by
+//               SV_DoMapcycleRoutine. Must not be used elsewhere!!
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_MapcycleSetNextmap(char *mapname) {
+    Com_DPrintf("SV_DoMapcycleRoutine: nextmap set to '%s'\n", mapname);
+    Q_strncpyz(svs.lastCycleMap, mapname, sizeof(svs.lastCycleMap));
+    Cvar_Set("g_nextmap", mapname);
+}
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_DoMapcycleRoutine
+// Description : Compute and set the nextmap on the server.
+//               NOTE: this routine will not work if the mapcycle
+//               file lists also game CVARs: a plain map list 
+//               must be used in order for this routine to work
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_DoMapcycleRoutine(void) {
+    
+    fileHandle_t   file;
+    int            size, len;
+    qboolean       next = qfalse;
+    char           beginning[128];
+    char           *mapcycle;
+    char           *buffer;
+    char           *token;
+    
+    // if we computed already the map to be played from the mapcycle file and we are not currently 
+    // playing such map (happen after a callvote or manual nextmap/map change), reuse it.
+    if ((svs.lastCycleMap[0] != '\0') && (Q_stricmp(svs.lastCycleMap, sv_mapname->string) != 0)) {
+        Com_DPrintf("SV_DoMapcycleRoutine: reusing last computed mapcycle map: %s\n", svs.lastCycleMap);
+        SV_MapcycleSetNextmap(svs.lastCycleMap);
+        return;
+    }
+    
+    // get the mapcycle cvar value
+    mapcycle = Cvar_VariableString("g_mapcycle");
+    if (!mapcycle) {
+        Com_DPrintf("SV_DoMapcycleRoutine: could not retrieve g_mapcycle cvar value\n");
+        SV_MapcycleSetNextmap(sv_mapname->string);
+        return;
+    }    
+    
+    // open the mapcycle file
+    size = FS_FOpenFileByMode(mapcycle, &file, FS_READ);
+    if (!file) {
+        Com_DPrintf("SV_DoMapcycleRoutine: could not open mapcycle file '%s'\n", mapcycle);
+        SV_MapcycleSetNextmap(sv_mapname->string);
+        return;
+    }
+    
+    // read the mapcycle file
+    buffer = Z_Malloc(size);
+    len = FS_Read(buffer, size , file);
+    FS_FCloseFile(file);
+    
+    // if empty
+    if (!len) {
+        Com_DPrintf("SV_DoMapcycleRoutine: mapcycle file is empty\n");
+        SV_MapcycleSetNextmap(sv_mapname->string);
+        return;
+    }
+
+    // save the first map of the mapcycle file because strtok
+    // moves the pointer and it won't be accessible later
+    token = COM_Parse(&buffer);
+    Q_strncpyz(beginning, token, sizeof(beginning));
+    
+    while (token[0]) {
+
+        if (next) {
+            
+            if (!SV_MapExists(token)) {
+                Com_DPrintf("SV_DoMapcycleRoutine: skipping map %s: map is not available\n", token);
+                token = COM_Parse(&buffer);
+                continue;
+            }
+            
+            // set the nextmap
+            SV_MapcycleSetNextmap(token);
+            return;
+            
+        }
+        
+        // if we found the current map, set the next flag to
+        // qtrue in order to set g_nextmap on the next iteration
+        if (!Q_stricmp(token, sv_mapname->string)) {
+            Com_DPrintf("SV_DoMapcycleRoutine: found current map (%s) in mapcycle file\n", sv_mapname->string);
+            next = qtrue;
+        }
+        
+        // read another token
+        token = COM_Parse(&buffer);
+        
+    }
+    
+    // if we got here means that we reached
+    // the end of the file without being able to
+    // select a proper map for next cycle: use the 1st one
+    if (!SV_MapExists(beginning)) { 
+        Com_DPrintf("SV_DoMapcycleRoutine: first mapcycle map is not valid: reusing current one\n");
+        SV_MapcycleSetNextmap(sv_mapname->string);
+    } else {
+        Com_DPrintf("SV_DoMapcycleRoutine: using first mapcycle map as nextmap\n");
+        SV_MapcycleSetNextmap(beginning);
+    }
+    
+}
+
+/////////////////////////////////////////////////////////////////////
 // Name        : SV_SpawnServer
 // Description : Change the server to a new map, taking all connected
 //               clients along with it. 
@@ -909,6 +1038,9 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // and any configstring changes should be reliably transmitted
     // to all clients
     sv.state = SS_GAME;
+    
+    // compute the nextmap
+    SV_DoMapcycleRoutine();
 
     // send a heartbeat now so the master will get up to date info
     SV_Heartbeat_f();
