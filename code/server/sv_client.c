@@ -470,8 +470,8 @@ void SV_DropClient(client_t *drop, const char *reason) {
         FS_FCloseFile(drop->download);
         drop->download = 0;
     }
-
-    if (drop->demo_recording) {
+    
+    if (com_dedicated->integer && drop->demo_recording) {
         // stop the server side demo if we were recording this client
        Cbuf_ExecuteText(EXEC_NOW, va("stopserverdemo %d", (int)(drop - svs.clients)));
     }
@@ -559,7 +559,7 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
         drop->download = 0;
     }
 
-    if (drop->demo_recording) {
+    if (com_dedicated->integer && drop->demo_recording) {
         // stop the server side demo if we were recording this client
        Cbuf_ExecuteText(EXEC_NOW, va("stopserverdemo %d", (int)(drop - svs.clients)));
     }

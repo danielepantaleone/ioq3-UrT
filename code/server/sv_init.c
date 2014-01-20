@@ -735,9 +735,11 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // create a baseline for more efficient communications
     SV_CreateBaseline();
     
-    // stop server-side demo (if any)
-    Cbuf_ExecuteText(EXEC_NOW, "stopserverdemo all");
-
+    if (com_dedicated->integer) {
+        // stop server-side demo (if any)
+        Cbuf_ExecuteText(EXEC_NOW, "stopserverdemo all");
+    }
+    
     for (i = 0; i < sv_maxclients->integer; i++) {
         
         // send the new gamestate to all connected clients
@@ -1050,8 +1052,10 @@ void SV_Shutdown(char *finalmsg) {
 
     Com_Printf("----- Server Shutdown (%s) -----\n", finalmsg);
 
-    // stop server-side demos (if any)
-    Cbuf_ExecuteText(EXEC_NOW, "stopserverdemo all");
+    if (com_dedicated->integer) {
+        // stop server-side demos (if any)
+        Cbuf_ExecuteText(EXEC_NOW, "stopserverdemo all");
+    }
     
     if (svs.clients && !com_errorEntered) {
         SV_FinalMessage(finalmsg);
