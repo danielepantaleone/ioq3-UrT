@@ -388,7 +388,7 @@ qboolean SV_CheckCallvoteArgs() {
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_GetClientTeam
-// Description : Retrieve the give client team
+// Description : Retrieve the given client team
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
 int SV_GetClientTeam(int cid) {
@@ -406,6 +406,26 @@ int SV_GetClientTeam(int cid) {
 int SV_GetMatchState(void) {
     int state = atoi(sv.configstrings[1005]);
     return state;
+}
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_IsClientGhost
+// Description : Tells whether a client has ghosting activated
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+qboolean SV_IsClientGhost(client_t *cl) {
+    
+    int ghost;
+    
+    // if we are not playing jump mode
+    if (sv_gametype->integer != GT_JUMP) {
+        return qfalse;
+    }
+    
+    // get the ghosting flag from the userinfo string
+    ghost = atoi(Info_ValueForKey(cl->userinfo, "cg_ghost"));
+    return ghost > 0 ? qtrue : qfalse;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

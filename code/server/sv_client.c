@@ -1888,20 +1888,97 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
 //                                                                                                          //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define CL_RADIUS 5
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_GhostThink
+// Description : Mark the client contentmask with CONTENT_CORPSE
+//               if the client is hitting another client and ghosting
+//               is enabled clientside
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+void SV_GhostThink(client_t *cl) {
+    
+    int               i;
+    int               num;
+    int               touch[MAX_GENTITIES];
+    vec3_t            mins, maxs;
+    sharedEntity_t    *ent;
+    sharedEntity_t    *oth;
+    
+    // if we are not playing jump mode
+    if (sv_gametype->integer != GT_JUMP) {
+        return;
+    }
+    
+    // if the dude is a spectator
+    if (SV_GetClientTeam((int)(cl - svs.clients)) == TEAM_SPECTATOR) {
+        return;
+    }
+    
+    // if the dude has ghosting disabled
+    if (!SV_IsClientGhost(cl)) {
+        return;
+    }
+    
+    // get the correspondent entity
+    ent = SV_GentityNum((int)(cl - svs.clients));
+    
+    // calculate the radius box
+    for (i = 0; i < 3; i++) {
+        mins[i] = ent->r.currentOrigin[i] - CL_RADIUS;
+        maxs[i] = ent->r.currentOrigin[i] + CL_RADIUS;
+    }
+    
+    
+    // get the entities the client is touching (the bounding box)
+    num = SV_AreaEntities(mins, maxs, touch, MAX_GENTITIES);
+    
+    for (i = 0; i < num; i++) {
+        
+        // if the entity we are touching is not a client 
+        if (touch[i] < 0 || touch[i] >= sv_maxclients->integer) {
+            continue;
+        }
+        
+        // get the touched entity
+        oth = SV_GentityNum(touch[i]);
+        
+        // if the entity is the client itself
+        if (ent->s.number == oth->s.number) {
+            continue;
+        }
+        
+        // set the content mask and exit
+        ent->r.contents &= ~CONTENTS_BODY;
+        ent->r.contents |= CONTENTS_CORPSE;        
+        return;
+
+    }
+    
+    // set flag back so we can see player names
+    // below the crosshair while aiming at them
+    ent->r.contents &= ~CONTENTS_CORPSE;
+    ent->r.contents |= CONTENTS_BODY;
+    
+}
+
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_ClientThink
 // Description : Run the game client think function
 /////////////////////////////////////////////////////////////////////
 void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
-    
+
     cl->lastUsercmd = *cmd;
     if (cl->state != CS_ACTIVE) {
         // may have been kicked 
         // during the last usercmd
         return;
     }
-
+    
+    SV_GhostThink(cl);
     VM_Call(gvm, GAME_CLIENT_THINK, cl - svs.clients);
+    
 }
 
 /////////////////////////////////////////////////////////////////////

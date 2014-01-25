@@ -318,6 +318,7 @@ qboolean    SV_CallvoteEnabled(char *text);
 qboolean    SV_CheckCallvoteArgs(void);
 int         SV_GetClientTeam(int cid);
 int         SV_GetMatchState(void);
+qboolean    SV_IsClientGhost(client_t *cl);
 void QDECL  SV_SendServerCommand(client_t *cl, const char *fmt, ...);
 void        SV_AddOperatorCommands(void);
 void        SV_RemoveOperatorCommands(void);
@@ -353,6 +354,7 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
 
 void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK);
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
+void SV_GhostThink(client_t *cl);
 void SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
 
 //
