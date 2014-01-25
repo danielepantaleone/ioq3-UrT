@@ -1460,8 +1460,9 @@ static void SV_SavePosition_f(client_t *cl) {
         return;
     }
     
-    // save the position
+    // save the position anf the angles
     VectorCopy(ps->origin, cl->savedPosition);
+    VectorCopy(ps->viewangles, cl->savedPositionAngle);
     
     // log command execution
     SV_LogPrintf("ClientSavePosition: %d - %f - %f - %f\n",
@@ -1485,8 +1486,11 @@ static void SV_SavePosition_f(client_t *cl) {
 /////////////////////////////////////////////////////////////////////
 static void SV_LoadPosition_f(client_t *cl) {
     
+    int             i;
     int             cid;
+    int             angle;
     playerState_t   *ps;
+    sharedEntity_t  *ent;
     
     // if we are not playing jump mode
     if (sv_gametype->integer != GT_JUMP) {
@@ -1511,7 +1515,7 @@ static void SV_LoadPosition_f(client_t *cl) {
         return;
     }
     
-    // get the client playerState_t
+    ent = SV_GentityNum(cid);
     ps = SV_GameClientNum(cid);
     
     // if there is no position saved
@@ -1528,6 +1532,17 @@ static void SV_LoadPosition_f(client_t *cl) {
 
     // copy back saved position
     VectorCopy(cl->savedPosition, ps->origin);
+    
+    // set the view angle
+    for (i = 0; i < 3; i++) {
+        angle = ANGLE2SHORT(cl->savedPositionAngle[i]);
+        ps->delta_angles[i] = angle - cl->lastUsercmd.angles[i];
+    }
+    
+    VectorCopy(cl->savedPositionAngle, ent->s.angles);
+    VectorCopy(ent->s.angles, ps->viewangles);
+    
+    // clear client velocity!
     VectorClear(ps->velocity);
     
     // regenerate stamina

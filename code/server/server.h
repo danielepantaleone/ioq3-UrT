@@ -181,6 +181,7 @@ typedef struct client_s {
     qboolean            csUpdated[MAX_CONFIGSTRINGS+1];   
     
     vec3_t              savedPosition;          // saved client position    
+    vec3_t              savedPositionAngle;     // saved client position angle
     int                 jumprun;                // tells whether the client is in a jump run
     
 } client_t;
@@ -367,7 +368,7 @@ void      SVD_WriteDemoFile(const client_t*, const msg_t*);
 //
 void SV_AddServerCommand(client_t *client, const char *cmd);
 void SV_UpdateServerCommandsToClient(client_t *client, msg_t *msg);
-void SV_WriteFrameToClient (client_t *client, msg_t *msg);
+void SV_WriteFrameToClient(client_t *client, msg_t *msg);
 void SV_SendMessageToClient(msg_t *msg, client_t *client);
 void SV_SendClientMessages(void);
 void SV_SendClientSnapshot(client_t *client);
@@ -382,10 +383,10 @@ sharedEntity_t  *SV_GentityNum(int num);
 playerState_t   *SV_GameClientNum(int num);
 svEntity_t      *SV_SvEntityForGentity(sharedEntity_t *gEnt);
 sharedEntity_t  *SV_GEntityForSvEntity(svEntity_t *svEnt);
-void            SV_InitGameProgs (void);
-void            SV_ShutdownGameProgs (void);
+void            SV_InitGameProgs(void);
+void            SV_ShutdownGameProgs(void);
 void            SV_RestartGameProgs(void);
-qboolean        SV_inPVS (const vec3_t p1, const vec3_t p2);
+qboolean        SV_inPVS(const vec3_t p1, const vec3_t p2);
 
 //
 // sv_bot.c

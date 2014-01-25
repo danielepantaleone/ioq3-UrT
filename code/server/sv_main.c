@@ -173,9 +173,12 @@ void SV_LoadPositionFromFile(client_t *cl, char *mapname) {
     len = FS_Read(buffer, sizeof(buffer), file);
     if (len > 0) {
         // copy back saved position
-        sscanf(buffer, "%f,%f,%f", &cl->savedPosition[0], 
-                                   &cl->savedPosition[1], 
-                                   &cl->savedPosition[2]);
+        sscanf(buffer, "%f,%f,%f,%f,%f,%f", &cl->savedPosition[0], 
+                                            &cl->savedPosition[1], 
+                                            &cl->savedPosition[2],
+                                            &cl->savedPositionAngle[0],
+                                            &cl->savedPositionAngle[1],
+                                            &cl->savedPositionAngle[2]);
     }   
     
     // close the file handle
@@ -222,9 +225,12 @@ void SV_SavePositionToFile(client_t *cl, char *mapname) {
     }
     
     // compute the text to be stored in the .pos file
-    Com_sprintf(buffer, sizeof(buffer), "%f,%f,%f", cl->savedPosition[0], 
-                                                    cl->savedPosition[1], 
-                                                    cl->savedPosition[2]);
+    Com_sprintf(buffer, sizeof(buffer), "%f,%f,%f,%f,%f,%f", cl->savedPosition[0], 
+                                                             cl->savedPosition[1], 
+                                                             cl->savedPosition[2],
+                                                             cl->savedPositionAngle[0],
+                                                             cl->savedPositionAngle[1],
+                                                             cl->savedPositionAngle[2]);
     
     // write the client position and close
     FS_Write(buffer, strlen(buffer), file);
