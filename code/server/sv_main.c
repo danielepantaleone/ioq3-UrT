@@ -70,6 +70,7 @@ cvar_t    *sv_auth_engine;
 #endif
 
 cvar_t    *sv_failedvotetime;
+cvar_t    *sv_autodemo;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -389,6 +390,16 @@ int SV_GetClientTeam(int cid) {
     key = sv.configstrings[544 + cid];
     val = Info_ValueForKey(key, "t");
     return atoi(val);
+}
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_GetMatchState
+// Description : Retrieve the match state
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+int SV_GetMatchState(void) {
+    int state = atoi(sv.configstrings[1005]);
+    return state;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1353,6 +1364,52 @@ qboolean SV_CheckPaused(void) {
 }
 
 /////////////////////////////////////////////////////////////////////
+// Name        : SV_CheckDemoRecording
+// Description : Check whether we are recording online players
+//               if the feature is activated and we are in match mode
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+void SV_CheckDemoRecording(void) { 
+    
+    int        i;
+    int        state;
+    client_t   *cl;
+    
+    // if the feature is disabled
+    if (!(sv_autodemo->integer > 0)) {
+        return;
+    }
+    
+    // match mode works only in team game modes
+    if (sv_gametype->integer < GT_TEAM || sv_gametype->integer == GT_JUMP) { 
+        return;
+    }
+    
+    // get the match mode state
+    state = SV_GetMatchState();
+    
+    // if we are not in match state
+    if (!(state & 0x01) || !(state & 0x02) || !(state & 0x04)) {
+        return;
+    }
+    
+    for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
+        
+        // see if we have to skip 
+        if ((cl->state != CS_ACTIVE) ||                         // client not active  
+            (cl->netchan.remoteAddress.type == NA_BOT) ||       // client is a bot
+            (cl->demo_recording)) {                             // client is already being recorded
+            continue;
+        }
+        
+        // start the server side demo
+        Cbuf_ExecuteText(EXEC_NOW, va("startserverdemo %d", (int)(cl - svs.clients)));
+        
+    }
+
+}
+
+/////////////////////////////////////////////////////////////////////
 // Name        : SV_Frame
 // Description : Player movement occurs as a result of packet events, 
 //               which happen before SV_Frame is called
@@ -1481,5 +1538,8 @@ void SV_Frame(int msec) {
 
     // send a heartbeat to the master if needed
     SV_MasterHeartbeat();
+    
+    // check that we are recording online players
+    SV_CheckDemoRecording();
     
 }

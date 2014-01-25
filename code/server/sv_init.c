@@ -1123,6 +1123,7 @@ void SV_Init(void) {
     #endif
     
     sv_failedvotetime = Cvar_Get("sv_failedvotetime", "300", CVAR_ARCHIVE);
+    sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
     
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();

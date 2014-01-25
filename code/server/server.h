@@ -304,6 +304,7 @@ extern    cvar_t    *sv_auth_engine;
 #endif
 
 extern    cvar_t    *sv_failedvotetime;
+extern    cvar_t    *sv_autodemo;
 
 //
 // sv_main.c
@@ -315,6 +316,7 @@ void        SV_SavePositionToFile(client_t *cl, char *mapname);
 qboolean    SV_CallvoteEnabled(char *text);
 qboolean    SV_CheckCallvoteArgs(void);
 int         SV_GetClientTeam(int cid);
+int         SV_GetMatchState(void);
 void QDECL  SV_SendServerCommand(client_t *cl, const char *fmt, ...);
 void        SV_AddOperatorCommands(void);
 void        SV_RemoveOperatorCommands(void);
