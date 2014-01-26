@@ -200,7 +200,7 @@ void SV_GetUserinfo(int index, char *buffer, int bufferSize) {
     }
     
     if (index < 0 || index >= sv_maxclients->integer) {
-        Com_Error (ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
+        Com_Error(ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
     }
     
     Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
