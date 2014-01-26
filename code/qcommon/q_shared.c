@@ -1368,87 +1368,96 @@ qboolean Info_Validate( const char *s ) {
 	return qtrue;
 }
 
-/*
-==================
-Info_SetValueForKey
+/////////////////////////////////////////////////////////////////////
+// Name        : Info_SetValueForKey
+// Description : Changes or adds a key/value pair. Will return the 
+//               length of the infostring the if it exceeded the 
+//               buffer, -1 if we got illegal chars in it, 
+//               otherwise 0 
+/////////////////////////////////////////////////////////////////////
+int Info_SetValueForKey(char *s, const char *key, const char *value) {
+    
+    int         length;
+    const char* blacklist = "\\;\"";
+    char        newi[MAX_INFO_STRING];
+    
+    if (strlen(s) >= MAX_INFO_STRING) {
+        Com_Error(ERR_DROP, "^7[^1ERROR^7] Info_SetValueForKey: oversize infostring");
+    }
 
-Changes or adds a key/value pair
-==================
-*/
-void Info_SetValueForKey( char *s, const char *key, const char *value ) {
-	char	newi[MAX_INFO_STRING];
-	const char* blacklist = "\\;\"";
+    for (; *blacklist; ++blacklist) {
+        if (strchr (key, *blacklist) || strchr (value, *blacklist)) {
+            Com_Printf("^7[^3WARNING^7] Can't use keys or values with a '%c': %s = %s\n", 
+                        *blacklist, key, value);
+            return -1;
+        }
+    }
+    
+    Info_RemoveKey(s, key);
+    if (!value || !strlen(value)) {
+        return 0;
+    }
+    
+    // create a new key-value pair
+    Com_sprintf(newi, sizeof(newi), "\\%s\\%s", key, value);
+    
+    length = strlen(newi) + strlen(s);
+    if (length >= MAX_INFO_STRING) {
+        Com_Printf("^7[^3WARNING^7] Info string length exceeded\n");
+        return length;
+    }
 
-	if ( strlen( s ) >= MAX_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
-	}
-
-	for(; *blacklist; ++blacklist)
-	{
-		if (strchr (key, *blacklist) || strchr (value, *blacklist))
-		{
-			Com_Printf (S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
-			return;
-		}
-	}
-	
-	Info_RemoveKey (s, key);
-	if (!value || !strlen(value))
-		return;
-
-	Com_sprintf (newi, sizeof(newi), "\\%s\\%s", key, value);
-
-	if (strlen(newi) + strlen(s) >= MAX_INFO_STRING)
-	{
-		Com_Printf ("Info string length exceeded\n");
-		return;
-	}
-
-	strcat (newi, s);
-	strcpy (s, newi);
+    strcat(newi, s);
+    strcpy(s, newi);
+    
+    return 0;
 }
 
-/*
-==================
-Info_SetValueForKey_Big
+/////////////////////////////////////////////////////////////////////
+// Name        : Info_SetValueForKey_Big
+// Description : Changes or adds a key/value pair. Will return the 
+//               length of the infostring the if it exceeded the 
+//               buffer, -1 if we got illegal chars in it, 
+//               otherwise 0 
+/////////////////////////////////////////////////////////////////////
+int Info_SetValueForKey_Big(char *s, const char *key, const char *value) {
+    
+    int         length;
+    const char* blacklist = "\\;\"";
+    char        newi[BIG_INFO_STRING];
+    
+    if (strlen(s) >= BIG_INFO_STRING) {
+        Com_Error(ERR_DROP, "^7[^1ERROR^7] Info_SetValueForKey: oversize big infostring");
+    }
 
-Changes or adds a key/value pair
-==================
-*/
-void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
-	char	newi[BIG_INFO_STRING];
-	const char* blacklist = "\\;\"";
+    for (; *blacklist; ++blacklist) {
+        if (strchr (key, *blacklist) || strchr (value, *blacklist)) {
+            Com_Printf("^7[^3WARNING^7] Can't use keys or values with a '%c': %s = %s\n", 
+                        *blacklist, key, value);
+            return -1;
+        }
+    }
+    
+    Info_RemoveKey(s, key);
+    if (!value || !strlen(value)) {
+        return 0;
+    }
+    
+    // create a new key-value pair
+    Com_sprintf(newi, sizeof(newi), "\\%s\\%s", key, value);
+    
+    length = strlen(newi) + strlen(s);
+    if (length >= BIG_INFO_STRING) {
+        Com_Printf("^7[^3WARNING^7] BIG Info string length exceeded\n");
+        return length;
+    }
 
-	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
-	}
-
-	for(; *blacklist; ++blacklist)
-	{
-		if (strchr (key, *blacklist) || strchr (value, *blacklist))
-		{
-			Com_Printf (S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
-			return;
-		}
-	}
-
-	Info_RemoveKey_Big (s, key);
-	if (!value || !strlen(value))
-		return;
-
-	Com_sprintf (newi, sizeof(newi), "\\%s\\%s", key, value);
-
-	if (strlen(newi) + strlen(s) >= BIG_INFO_STRING)
-	{
-		Com_Printf ("BIG Info string length exceeded\n");
-		return;
-	}
-
-	strcat (s, newi);
+    strcat(newi, s);
+    strcpy(s, newi);
+    
+    return 0;
+ 
 }
-
-
-
 
 //====================================================================
 

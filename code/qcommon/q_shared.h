@@ -747,8 +747,8 @@ void Com_TruncateLongString( char *buffer, const char *s );
 char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
 void Info_RemoveKey_big( char *s, const char *key );
-void Info_SetValueForKey( char *s, const char *key, const char *value );
-void Info_SetValueForKey_Big( char *s, const char *key, const char *value );
+int Info_SetValueForKey(char *s, const char *key, const char *value);
+int Info_SetValueForKey_Big(char *s, const char *key, const char *value);
 qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
