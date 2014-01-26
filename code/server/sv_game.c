@@ -366,10 +366,11 @@ intptr_t SV_GameSystemCalls(intptr_t *args) {
         return 0;
     case G_CVAR_SET:
         // exclude some game module cvars
-        if ((Q_stricmp((char *)VMA(1), "sv_fps") != 0) || 
-            (Q_stricmp((char *)VMA(1), "g_failedvotetime") != 0)) {
-            Cvar_Set((const char *)VMA(1), (const char *)VMA(2));
-        } 
+        if (!Q_stricmp((char *)VMA(1), "sv_fps") ||
+            !Q_stricmp((char *)VMA(1), "g_failedvotetime")) {
+            return 0;
+        }
+        Cvar_Set((const char *)VMA(1), (const char *)VMA(2));
         return 0;
     case G_CVAR_VARIABLE_INTEGER_VALUE:
         return Cvar_VariableIntegerValue((const char *)VMA(1));
