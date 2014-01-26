@@ -184,6 +184,8 @@ typedef struct client_s {
     vec3_t              savedPositionAngle;     // saved client position angle
     int                 jumprun;                // tells whether the client is in a jump run
     
+    qboolean            ghost;                  // whether this client has ghosting enabled client side
+    
 } client_t;
 
 // MAX_CHALLENGES is made large to prevent a denial

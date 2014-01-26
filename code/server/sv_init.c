@@ -203,7 +203,7 @@ void SV_GetUserinfo(int index, char *buffer, int bufferSize) {
         Com_Error (ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
     }
     
-    Q_strncpyz(buffer, svs.clients[ index ].userinfo, bufferSize);
+    Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
 
 }
 

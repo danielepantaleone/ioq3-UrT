@@ -413,7 +413,7 @@ gotnewcl:
     // notice that it is from a different serverid and that the
     // gamestate message was not just sent, forcing a retransmit
     newcl->gamestateMessageNum = -1;
-    
+
     // load the client position from a file
     SV_LoadPositionFromFile(newcl, sv_mapname->string);
     
@@ -1373,6 +1373,9 @@ void SV_UserinfoChanged(client_t *cl) {
         Info_SetValueForKey(cl->userinfo, "ip", ip);
     }
     
+    // get the ghosting value for this client if we are playing the correct gametype
+    cl->ghost = sv_gametype->integer == GT_JUMP ? SV_IsClientGhost(cl) : qfalse;
+    
     // remove useless infostring values
     Info_RemoveKey(cl->userinfo, "handicap");
 
@@ -1395,8 +1398,13 @@ void SV_UpdateUserinfo_f(client_t *cl) {
     Q_strncpyz(cl->userinfo, Cmd_Argv(1), sizeof(cl->userinfo));
 
     SV_UserinfoChanged(cl);
+    
     // call prog code to allow overrides
     VM_Call(gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients);
+    
+    // get the ghosting value for this client if we are playing the correct gametype.
+    // we'll set this after qagame overriding cvar values so engine and qvm are in sync.
+    cl->ghost = sv_gametype->integer == GT_JUMP ? SV_IsClientGhost(cl) : qfalse;
 
 }
 
@@ -1917,7 +1925,7 @@ void SV_GhostThink(client_t *cl) {
     }
     
     // if the dude has ghosting disabled
-    if (!SV_IsClientGhost(cl)) {
+    if (!cl->ghost) {
         return;
     }
     
@@ -1929,7 +1937,6 @@ void SV_GhostThink(client_t *cl) {
         mins[i] = ent->r.currentOrigin[i] - CL_RADIUS;
         maxs[i] = ent->r.currentOrigin[i] + CL_RADIUS;
     }
-    
     
     // get the entities the client is touching (the bounding box)
     num = SV_AreaEntities(mins, maxs, touch, MAX_GENTITIES);
