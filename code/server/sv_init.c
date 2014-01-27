@@ -1041,6 +1041,9 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     
     // compute the nextmap
     SV_DoMapcycleRoutine();
+    
+    // mark last vote time
+    sv.lastVoteTime = svs.time;
 
     // send a heartbeat now so the master will get up to date info
     SV_Heartbeat_f();
