@@ -1586,6 +1586,7 @@ static void SV_Tell_f(client_t *cl) {
     // get the target client
     target = SV_GetPlayerByParam(Cmd_Argv(1));
     if (!target) {
+        SV_SendServerCommand(cl, "print \"No client found matching %s\n\"", Cmd_Argv(1));
         return;
     }
     
