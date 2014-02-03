@@ -940,7 +940,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         valid = qfalse;
-        Com_Printf("Bad rcon from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
+        Com_Printf("Bad rcon from %s:\n", NET_AdrToString(from));
         
     } else {
     
@@ -955,7 +955,6 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         valid = qtrue;
-        Com_Printf("Rcon from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
     }
     
     lasttime = time;
@@ -965,9 +964,9 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     Com_BeginRedirect (sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
 
     if (!strlen(sv_rconPassword->string)) {
-        Com_Printf ("No rconpassword set on the server.\n");
+        Com_Printf("No rconpassword set on the server.\n");
     } else if (!valid) {
-        Com_Printf ("Bad rconpassword.\n");
+        Com_Printf("Bad rconpassword.\n");
     } else {
         
         remaining[0] = 0;
@@ -989,6 +988,9 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         Q_strcat(remaining, sizeof(remaining), cmd_aux);
+        
+        // log rcon command
+        Com_Printf("Rcon from %s: %s\n", NET_AdrToString(from), remaining);
         
         // additional parse for game module commands
         // will let us perform certain operations when a
