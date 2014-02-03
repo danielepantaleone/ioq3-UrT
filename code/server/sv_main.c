@@ -69,6 +69,7 @@ cvar_t    *sv_authServerIP;
 cvar_t    *sv_auth_engine;
 #endif
 
+cvar_t    *sv_disableradio;
 cvar_t    *sv_failedvotetime;
 cvar_t    *sv_autodemo;
 

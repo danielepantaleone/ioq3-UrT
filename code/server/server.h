@@ -306,6 +306,7 @@ extern    cvar_t    *sv_authServerIP;
 extern    cvar_t    *sv_auth_engine;
 #endif
 
+extern    cvar_t    *sv_disableradio;
 extern    cvar_t    *sv_failedvotetime;
 extern    cvar_t    *sv_autodemo;
 

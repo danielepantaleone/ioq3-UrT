@@ -1125,6 +1125,7 @@ void SV_Init(void) {
     sv_auth_engine = Cvar_Get("sv_auth_engine", "1", CVAR_ROM);
     #endif
     
+    sv_disableradio = Cvar_Get("sv_disableradio", "0", CVAR_ARCHIVE);
     sv_failedvotetime = Cvar_Get("sv_failedvotetime", "300", CVAR_ARCHIVE);
     sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
     

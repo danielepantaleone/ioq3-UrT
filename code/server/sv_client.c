@@ -1709,6 +1709,11 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             
             } else if (Q_stricmp("ut_radio", Cmd_Argv(0)) == 0) {
                 
+                // if we are playing jump mode check if the radio is disabled
+                if (sv_gametype->integer == GT_JUMP && sv_disableradio->integer > 0) {
+                    return;
+                }
+                
                 // We add 4 to this value because in a command such as
                 // "ut_radio 1 1 affirmative", the args at indices 1 and 2 each
                 // have length 1 and there is a space after them.
