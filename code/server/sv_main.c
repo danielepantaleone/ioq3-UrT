@@ -941,7 +941,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         valid = qfalse;
-        Com_Printf("Bad rcon from %s:\n", NET_AdrToString(from));
+        Com_Printf("Bad rcon from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
         
     } else {
     
@@ -956,6 +956,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         valid = qtrue;
+        Com_Printf("Rcon from %s:\n%s\n", NET_AdrToString (from), Cmd_Argv(2));
     }
     
     lasttime = time;
@@ -989,9 +990,6 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         
         Q_strcat(remaining, sizeof(remaining), cmd_aux);
-        
-        // log rcon command
-        Com_Printf("Rcon from %s: %s\n", NET_AdrToString(from), remaining);
         
         // additional parse for game module commands
         // will let us perform certain operations when a
