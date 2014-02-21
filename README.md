@@ -38,7 +38,7 @@ both **4.1** version and **4.2*** version, although it's highly optimized to wor
 * Added RCON **teleport** command: teleport a specific client to another one or to the given world coordinates
 * Added RCON **position** command: retrieve client world coordinates
 * Unlocked **sv_fps** CVAR from game module constraint
-* Extended callvote spam protection: *sv_failedvotetime* CVAR defines the amount of secs between callvotes
+* Extended callvote spam protection: **sv_failedvotetime** CVAR defines the amount of secs between callvotes
 * Added **/tell** command: send a private message to a specific client (works with partial client name)
 * Hidden big brother bot (or similar) commands: they are visible just to the client who issued them
 * Added RCON **sendclientcommand** command: send a reliable command as a specific client
@@ -49,6 +49,8 @@ both **4.1** version and **4.2*** version, although it's highly optimized to wor
 * Added server-side ghosting feature (**EXPERIMENTAL**): should fix partial blocking in Jump Mode
 * Added RCON **forcecvar** command: force a client USERINFO CVAR to a specific value
 * Added **sv_disableradio** CVAR: totally disable radio calls in Jump Mode
+* Added **sv_ghostradius** CVAR: specify the radius of the ghosting bounding box
+* Allow client position load while being in a jump run (will reset running timer if it was running)
 
 ### Client
 
