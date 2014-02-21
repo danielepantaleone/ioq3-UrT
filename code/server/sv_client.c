@@ -1905,8 +1905,6 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
 //                                                                                                          //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define CL_RADIUS 10
-
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_GhostThink
 // Description : Mark the client contentmask with CONTENT_CORPSE
@@ -1919,6 +1917,7 @@ void SV_GhostThink(client_t *cl) {
     int               i;
     int               num;
     int               touch[MAX_GENTITIES];
+    float             rad;
     vec3_t            mins, maxs;
     sharedEntity_t    *ent;
     sharedEntity_t    *oth;
@@ -1940,11 +1939,12 @@ void SV_GhostThink(client_t *cl) {
     
     // get the correspondent entity
     ent = SV_GentityNum((int)(cl - svs.clients));
+    rad = Com_Clamp(4.0, 100.0, sv_ghostradius->value);
     
-    // calculate the radius box
+    // calculate the box
     for (i = 0; i < 3; i++) {
-        mins[i] = ent->r.currentOrigin[i] - CL_RADIUS;
-        maxs[i] = ent->r.currentOrigin[i] + CL_RADIUS;
+        mins[i] = ent->r.currentOrigin[i] - rad;
+        maxs[i] = ent->r.currentOrigin[i] + rad;
     }
     
     // get the entities the client is touching (the bounding box)
@@ -1964,6 +1964,9 @@ void SV_GhostThink(client_t *cl) {
         if (ent->s.number == oth->s.number) {
             continue;
         }
+        
+        // print in developer log so we can fine tune the ghosting box radius
+        Com_DPrintf("SV_GhostThink: client %d is touching client %d\n", ent->s.number, oth->s.number);
         
         // set the content mask and exit
         ent->r.contents &= ~CONTENTS_BODY;
