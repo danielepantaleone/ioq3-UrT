@@ -1436,11 +1436,6 @@ static void SV_SavePosition_f(client_t *cl) {
         return;
     }
     
-    // if in a jumprun
-    if (cl->jumprun) {
-        return;
-    }
-    
     // get the client playerState_t
     ps = SV_GameClientNum(cid);
     
@@ -1496,6 +1491,7 @@ static void SV_LoadPosition_f(client_t *cl) {
     
     int             i;
     int             cid;
+    int             run;
     int             angle;
     playerState_t   *ps;
     sharedEntity_t  *ent;
@@ -1505,8 +1501,8 @@ static void SV_LoadPosition_f(client_t *cl) {
         return;
     }
     
-    // get the client slot
     cid = cl - svs.clients;
+    run = cl->jumprun;
     
     // if the guy is in spectator mode
     if (SV_GetClientTeam(cid) == TEAM_SPECTATOR) {
@@ -1515,11 +1511,6 @@ static void SV_LoadPosition_f(client_t *cl) {
     
     // if the server doesn't allow position save/load
     if (Cvar_VariableIntegerValue("g_allowPosSaving") < 1) {
-        return;
-    }
-    
-    // if in a jumprun
-    if (cl->jumprun) {
         return;
     }
     
@@ -1536,6 +1527,12 @@ static void SV_LoadPosition_f(client_t *cl) {
     if (ps->pm_type != PM_NORMAL) {
         SV_SendServerCommand(cl, "print \"You must be alive and in-game to load your position\n\"");
         return;
+    }
+    
+    if (run) {
+        // stop the timers
+        Cmd_TokenizeString("ready");
+        VM_Call(gvm, GAME_CLIENT_COMMAND, cl - svs.clients);
     }
 
     // copy back saved position
@@ -1555,6 +1552,12 @@ static void SV_LoadPosition_f(client_t *cl) {
     
     // regenerate stamina
     ps->stats[ST_STAMINA] = ps->stats[ST_HEALTH] * UT_STAMINA_MUL;
+    
+    if (run) {
+        // restore ready status
+        Cmd_TokenizeString("ready");
+        VM_Call(gvm, GAME_CLIENT_COMMAND, cl - svs.clients);
+    }
     
     // log command execution
     SV_LogPrintf("ClientLoadPosition: %d - %f - %f - %f\n",
