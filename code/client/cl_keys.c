@@ -320,8 +320,13 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 	char	str[MAX_STRING_CHARS];
 	int		i;
 
-	drawLen = edit->widthInChars - 1; // - 1 so there is always a space for the cursor
-	len = strlen( edit->buffer );
+    drawLen = edit->widthInChars;
+    len = strlen(edit->buffer) + 1;
+ 
+    // draw only inside given width
+    if (drawLen * SMALLCHAR_WIDTH > width) {
+        drawLen = width / SMALLCHAR_WIDTH;
+    }
 
 	// guarantee that cursor will be visible
 	if ( len <= drawLen ) {

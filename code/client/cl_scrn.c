@@ -32,6 +32,7 @@ cvar_t        *cl_graphheight;
 cvar_t        *cl_graphscale;
 cvar_t        *cl_graphshift;
 cvar_t        *cl_drawclock;
+cvar_t        *cl_keepvidaspect;
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawNamedPic
@@ -52,24 +53,30 @@ void SCR_DrawNamedPic(float x, float y, float width, float height, const char *p
 // Description : Adjusted for resolution and screen aspect ratio
 /////////////////////////////////////////////////////////////////////
 void SCR_AdjustFrom640(float *x, float *y, float *w, float *h) {
-    float    xscale;
-    float    yscale;
+    
+    float  xscale;
+    float  yscale;
+    float  xbias = 0.0;
+    float  ybias = 0.0;
 
-#if 0
-    // adjust for wide screens
-    if (cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640) {
-        *x += 0.5 * (cls.glconfig.vidWidth - (cls.glconfig.vidHeight * 640 / 480));
-    }
-#endif
-
-    // scale for screen sizes
     xscale = cls.glconfig.vidWidth / 640.0;
     yscale = cls.glconfig.vidHeight / 480.0;
+    
+    if (cl_keepvidaspect->integer) {
+ 		if (cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640) {
+			xbias = 0.5 * (cls.glconfig.vidWidth - (cls.glconfig.vidHeight * 640 / 480));
+			xscale = yscale;
+		} else if (cls.glconfig.vidWidth * 480 < cls.glconfig.vidHeight * 640) {
+			ybias = 0.5 * (cls.glconfig.vidHeight - (cls.glconfig.vidWidth * 480.0 / 640.0));
+			yscale = xscale;
+ 		}
+	}
+
     if (x) {
-        *x *= xscale;
+        *x = xbias + *x * xscale;
     }
     if (y) {
-        *y *= yscale;
+        *y = ybias + *y * yscale;
     }
     if (w) {
         *w *= xscale;
@@ -404,6 +411,7 @@ void SCR_Init(void) {
     cl_graphscale = Cvar_Get("graphscale", "1", CVAR_CHEAT);
     cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
     cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
+    cl_keepvidaspect = Cvar_Get("cl_keepvidaspect", "0", CVAR_ARCHIVE);
     scr_initialized = qtrue;
 }
 
