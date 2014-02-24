@@ -1154,10 +1154,10 @@ void Sys_SetSingleCore(void)
 	}
 	if (cpus < 1) 
 	{
-		Com_Printf("OK: Single core found.\n");
+		Com_Printf("single core found.\n");
 		return;
 	}
-	Com_Printf("OK: Found %d CPU cores: ", cpus);
+	Com_Printf("found %d CPU cores: ", cpus);
 	
 	// Use USER processor mask if we have one, else use last core.
 	if (dwuserprocmask != 0x00000000) dwprocmask = dwuserprocmask;
@@ -1178,11 +1178,11 @@ void Sys_SetSingleCore(void)
 
 	if (dwuserprocmask != 0x00000000)
 	{
-		Com_Printf("Using user selected single core: %d\n", com_singlecore->integer);
+		Com_Printf("using user selected single core: %d\n", com_singlecore->integer);
 	}
 	else
 	{
-		Com_Printf("Using single core: %d\n", cpus);
+		Com_Printf("using single core: %d\n", cpus);
 	}
 }
 
