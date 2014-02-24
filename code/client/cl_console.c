@@ -573,9 +573,9 @@ void Con_DrawSolidConsole(float frac) {
         y = con.yadjust;
     } else {
         // dark grey
-        color[0] = 0.04f;
-        color[1] = 0.04f;
-        color[2] = 0.04f;
+        color[0] = 0.01f;
+        color[1] = 0.01f;
+        color[2] = 0.01f;
         color[3] = 1.00f;
         SCR_FillRect(0, 0, SCREEN_WIDTH, y, color);
     }
