@@ -651,14 +651,14 @@ void Con_DrawSolidConsole(float frac) {
             continue;    
         }
 
-        text = con.text + (row % con.totallines)*con.linewidth;
+        text = con.text + (row % con.totallines) * con.linewidth;
         for (x = 0 ; x < con.linewidth ; x++) {
             
             if ((text[x] & 0xff) == ' ') {
                 continue;
             }
 
-            if (((text[x] >> 8) & 7) != currentColor) {
+            if (((text[x] >> 8) % 10) != currentColor) {
                 currentColor = (text[x] >> 8) % 10;
                 re.SetColor(g_color_table[currentColor]);
             }
