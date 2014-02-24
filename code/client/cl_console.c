@@ -621,11 +621,15 @@ void Con_DrawSolidConsole(float frac) {
 
     // draw from the bottom up
     if (con.display != con.current) {
-        // draw arrows to show the buffer is backscrolled
-        re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
+        // draw asterisks to show the buffer is backscrolled
+        color[0] = 1.00f;
+        color[1] = 0.40f;
+        color[2] = 0.00f;
+        color[3] = 1.00f;
+        re.SetColor(color);
         if (y >= con.yadjust) {
-            for (x = 0 ; x < con.linewidth ; x += 4) {
-                SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, '^');
+            for (x = 0 ; x < con.linewidth ; x += 2) {
+                SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, '*');
             }
             y -= SMALLCHAR_HEIGHT;
             rows--;
