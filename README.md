@@ -23,7 +23,7 @@ both **4.1** version and **4.2*** version, although it's highly optimized to wor
 * Change to the directory containing this readme
 * Run 'cross-make-mingw.sh'
 
-### Max OS
+### Mac OS
 
 *I still have to find a 'human comprehensible way' to compile this engine under OSX Mavericks: for older versions of OSX, please refer to the original repository README*
 
@@ -55,6 +55,9 @@ both **4.1** version and **4.2*** version, although it's highly optimized to wor
 ### Client
 
 * Fixed clipboard data paste crashing the client engine on unix systems
+* Added **cl_keepvidaspect** cvar: keeps the aspect ratio of cinematics when using non 4:3 video modes
+* Correctly draw new game module color codes in console
+* Improved in-game console readability
 
 ## Credits
 
