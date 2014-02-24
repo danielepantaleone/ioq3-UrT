@@ -544,7 +544,7 @@ void Con_DrawNotify (void) {
 /////////////////////////////////////////////////////////////////////
 void Con_DrawSolidConsole(float frac) {
     
-    int             i, x, y;
+    int             i, x, y, j;
     int             rows;
     short           *text;
     int             row;
@@ -572,32 +572,52 @@ void Con_DrawSolidConsole(float frac) {
     if (y < con.yadjust) {
         y = con.yadjust;
     } else {
-        SCR_DrawPic(0, 0, SCREEN_WIDTH, y, cls.consoleShader);
+        // dark grey
+        color[0] = 0.04f;
+        color[1] = 0.04f;
+        color[2] = 0.04f;
+        color[3] = 1.00f;
+        SCR_FillRect(0, 0, SCREEN_WIDTH, y, color);
     }
+    
+    // orange
+    color[0] = 1.00f;
+    color[1] = 0.40f;
+    color[2] = 0.00f;
+    color[3] = 1.00f;
+    
+    // draw the left/right console border
+    if (cl_keepvidaspect->integer) {
+        SCR_FillRect(0, 0, 1, y, color);
+        SCR_FillRect(SCREEN_WIDTH - 1, 0, 1, y, color); 
+    }
+    
+    // draw the bottom console border
+    SCR_FillRect(0, y, SCREEN_WIDTH, 1, color);
 
-    color[0] = 1;
-    color[1] = 0;
-    color[2] = 0;
-    color[3] = 1;
-    SCR_FillRect(0, y, SCREEN_WIDTH, 2, color);
-
+    // grey
+    color[0] = 0.34f;
+    color[1] = 0.34f;
+    color[2] = 0.34f;
+    color[3] = 1.00f;
+    
     // draw the version number
-    re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
-
+    re.SetColor(color);
+    j = cl_keepvidaspect->integer ? 6 : 3;
     i = strlen(SVN_VERSION);
     for (x = 0; x < i; x++) {
         float y;
         y = lines-(SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2);
         if (y >= con.yadjust) {
-            SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (i - x) * SMALLCHAR_WIDTH, y , SVN_VERSION[x]);
+            SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (i - x) * SMALLCHAR_WIDTH - j, y , SVN_VERSION[x]);
         }
-     }
+    }
 
     // draw the text
     con.vislines = lines;
-    rows = (lines-SMALLCHAR_WIDTH)/SMALLCHAR_WIDTH;        // rows of text to draw
+    rows = (lines - SMALLCHAR_WIDTH) / SMALLCHAR_WIDTH;        // rows of text to draw
 
-    y = lines - (SMALLCHAR_HEIGHT*3);
+    y = lines - (SMALLCHAR_HEIGHT * 3);
 
     // draw from the bottom up
     if (con.display != con.current) {
@@ -638,17 +658,17 @@ void Con_DrawSolidConsole(float frac) {
                 continue;
             }
 
-            if (((text[x]>>8)&7) != currentColor) {
+            if (((text[x] >> 8) & 7) != currentColor) {
                 currentColor = (text[x] >> 8) % 10;
                 re.SetColor(g_color_table[currentColor]);
             }
             
-            SCR_DrawSmallChar(con.xadjust + (x+1)*SMALLCHAR_WIDTH, y, text[x] & 0xff);
+            SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, text[x] & 0xff);
         }
     }
 
     // draw the input prompt, user text, and cursor if desired
-    Con_DrawInput ();
+    Con_DrawInput();
     re.SetColor(NULL);
 }
 
@@ -682,7 +702,7 @@ void Con_DrawConsole(void) {
 // Name        : Con_RunConsole
 // Description : Scroll it up or down
 /////////////////////////////////////////////////////////////////////
-void Con_RunConsole (void) {
+void Con_RunConsole(void) {
     
     // decide on the destination height of the console
     if (cls.keyCatchers & KEYCATCH_CONSOLE) {
