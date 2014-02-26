@@ -582,7 +582,7 @@ void Con_DrawSolidConsole(float frac) {
     
     // orange
     color[0] = 1.00f;
-    color[1] = 0.40f;
+    color[1] = 0.00f;
     color[2] = 0.00f;
     color[3] = 1.00f;
     
@@ -623,7 +623,7 @@ void Con_DrawSolidConsole(float frac) {
     if (con.display != con.current) {
         // draw asterisks to show the buffer is backscrolled
         color[0] = 1.00f;
-        color[1] = 0.40f;
+        color[1] = 0.00f;
         color[2] = 0.00f;
         color[3] = 1.00f;
         re.SetColor(color);
