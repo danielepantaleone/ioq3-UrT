@@ -24,15 +24,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
-qboolean    scr_initialized;        // ready to draw
+qboolean  scr_initialized;        // ready to draw
 
-cvar_t        *cl_timegraph;
-cvar_t        *cl_debuggraph;
-cvar_t        *cl_graphheight;
-cvar_t        *cl_graphscale;
-cvar_t        *cl_graphshift;
-cvar_t        *cl_drawclock;
-cvar_t        *cl_keepvidaspect;
+cvar_t    *cl_timegraph;
+cvar_t    *cl_debuggraph;
+cvar_t    *cl_graphheight;
+cvar_t    *cl_graphscale;
+cvar_t    *cl_graphshift;
+cvar_t    *cl_drawclock;
+cvar_t    *cl_keepvidaspect;
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawNamedPic
@@ -132,17 +132,15 @@ static void SCR_DrawChar(int x, int y, float size, int ch) {
     ah = size;
     SCR_AdjustFrom640(&ax, &ay, &aw, &ah);
 
-    row = ch>>4;
-    col = ch&15;
+    row = ch >> 4;
+    col = ch & 15;
 
-    frow = row*0.0625;
-    fcol = col*0.0625;
+    frow = row * 0.0625;
+    fcol = col * 0.0625;
     size = 0.0625;
 
-    re.DrawStretchPic(ax, ay, aw, ah,
-                       fcol, frow, 
-                       fcol + size, frow + size, 
-                       cls.charSetShader);
+    re.DrawStretchPic(ax, ay, aw, ah, fcol, frow, 
+                      fcol + size, frow + size, cls.charSetShader);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -197,7 +195,7 @@ void SCR_DrawStringExt(int x, int y, float size, const char *string, float *setC
             s += 2;
             continue;
         }
-        SCR_DrawChar(xx+2, y+2, size, *s);
+        SCR_DrawChar(xx + 1, y + 1, size, *s);
         xx += size;
         s++;
     }
@@ -278,6 +276,7 @@ void SCR_DrawSmallStringExt(int x, int y, const char *string, float *setColor, q
 // Description : Skips color escape codes
 /////////////////////////////////////////////////////////////////////
 static int SCR_Strlen(const char *str) {
+    
     const char *s = str;
     int count = 0;
 
@@ -297,11 +296,23 @@ static int SCR_Strlen(const char *str) {
 // Name        : SCR_GetBigStringWidth
 // Description : Skips color escape codes
 /////////////////////////////////////////////////////////////////////
-int SCR_GetBigStringWidth(const char *str) {
-    return SCR_Strlen(str) * 16;
+int SCR_GetSmallStringWidth(const char *str) {
+    return SCR_Strlen(str) * SMALLCHAR_WIDTH;
 }
 
-//===============================================================================
+/////////////////////////////////////////////////////////////////////
+// Name        : SCR_GetBigStringWidth
+// Description : Skips color escape codes
+/////////////////////////////////////////////////////////////////////
+int SCR_GetBigStringWidth(const char *str) {
+    return SCR_Strlen(str) * BIGCHAR_WIDTH;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                          //
+//  CUSTOM DRAWING                                                                                          //
+//                                                                                                          //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawDemoRecording
@@ -309,8 +320,8 @@ int SCR_GetBigStringWidth(const char *str) {
 /////////////////////////////////////////////////////////////////////
 void SCR_DrawDemoRecording(void) {
     
-    char   string[1024];
-    int    pos;
+    int  pos;
+    char string[1024];
 
     if (!clc.demorecording) {
         return;
@@ -321,8 +332,13 @@ void SCR_DrawDemoRecording(void) {
     }
 
     pos = FS_FTell(clc.demofile);
-    sprintf(string, "^7[^1RECORDING^7] %s [^3%iKB^7]", clc.demoName, pos / 1024);
-    SCR_DrawStringExt(320 - strlen(string) * 4, 1, 7, string, g_color_table[7], qtrue);
+    Com_sprintf(string, sizeof(string), "%s[%sRECORDING%s][%s%iKB%s]", S_COLOR_WHITE, 
+                (int)(cls.realtime >> 10) & 1 ? S_COLOR_RED : S_COLOR_WHITE, S_COLOR_WHITE, 
+                S_COLOR_YELLOW, pos / 1024, S_COLOR_WHITE);
+    
+    // draw the demo notification on screen
+    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 2, SMALLCHAR_WIDTH, 
+                      string, g_color_table[7], qfalse);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -331,13 +347,14 @@ void SCR_DrawDemoRecording(void) {
 /////////////////////////////////////////////////////////////////////
 void SCR_DrawClock(void) {
     
-    qtime_t myTime;
+    qtime_t now;
     char    string[16];
     
     if (Cvar_VariableValue ("cl_drawclock")) {
-        Com_RealTime(&myTime);
-        Com_sprintf(string, sizeof (string), "%02i:%02i:%02i", myTime.tm_hour, myTime.tm_min, myTime.tm_sec);
-        SCR_DrawStringExt(320 - strlen(string) * 4, 11, 8, string, g_color_table[7], qtrue);
+        Com_RealTime(&now);
+        Com_sprintf(string, sizeof(string), "%02i:%02i:%02i", now.tm_hour, now.tm_min, now.tm_sec);
+        SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 12, SMALLCHAR_WIDTH, 
+                          string, g_color_table[7], qtrue);
     }
     
 }
@@ -355,7 +372,6 @@ typedef struct {
 
 static int          current;
 static graphsamp_t  values[1024];
-
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DebugGraph
@@ -386,13 +402,13 @@ void SCR_DrawDebugGraph(void) {
     re.SetColor(NULL);
 
     for (a=0 ; a<w ; a++) {
-        i = (current-1-a+1024) & 1023;
+        i = (current - 1 - a + 1024) & 1023;
         v = values[i].value;
         color = values[i].color;
         v = v * cl_graphscale->integer + cl_graphshift->integer;
         
         if (v < 0) {
-            v += cl_graphheight->integer * (1+(int)(-v / cl_graphheight->integer));
+            v += cl_graphheight->integer * (1 + (int)(-v / cl_graphheight->integer));
         }
         
         h = (int)v % cl_graphheight->integer;
