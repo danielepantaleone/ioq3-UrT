@@ -339,11 +339,6 @@ void CL_Record_f(void) {
     const char        *serverinfo;
 #endif
 
-    if (Cmd_Argc() > 2) {
-        Com_Printf("Usage: record <demoname>\n");
-        return;
-    }
-    
     // if already recording
     if (clc.demorecording) {
         if (!clc.spDemoRecording) {
@@ -364,19 +359,9 @@ void CL_Record_f(void) {
         Com_Printf("%s[%sWARNING%s] You should set 'g_synchronousClients 1' for smoother demo recording\n", 
                     S_COLOR_WHITE, S_COLOR_YELLOW, S_COLOR_WHITE);
     }
-
-    if (Cmd_Argc() == 2) {
-        // use the given text string as demo filename
-        Q_strncpyz(demoname, Cmd_Argv(1), sizeof(demoname));
-        #ifdef USE_DEMO_FORMAT_42
-        Com_sprintf(filename, sizeof(filename), "demos/%s.urtdemo", demoname);
-        #else
-        Com_sprintf(filename, sizeof(filename), "demos/%s.dm_%d", demoname, PROTOCOL_VERSION);
-        #endif
-    } else {
-        // generate default demo file name
-        CL_DemoFilename(demoname, filename);
-    }
+    
+    // generate default demo file name
+    CL_DemoFilename(demoname, filename);
 
     // open the demo file
     Com_Printf("[INFO] Started recording %s%s%s...\n", S_COLOR_YELLOW, demoname, S_COLOR_WHITE);
