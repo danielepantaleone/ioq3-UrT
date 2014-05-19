@@ -887,7 +887,7 @@ static void SV_ForceCvar_f(void) {
 
     if (Cmd_Argc() != 4 || strlen(Cmd_Argv(2)) == 0) {
         Com_Printf("Usage: forcecvar <client> <cvar> <value>\n"
-                   "       forcecvar allbots <cvar> <value> = force for all the bots"
+                   "       forcecvar allbots <cvar> <value> = force for all the bots\n"
                    "       forcecvar all <cvar> <value> = force for everyone\n");
         return;
     }
