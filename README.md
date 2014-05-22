@@ -16,13 +16,14 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 
 ### Windows (cross-compile)
 
-* install **mingw32** libraries on your linux box
+* install `mingw32` libraries on your linux box
 * change to the directory containing this readme
 * run `cross-make-mingw.sh`
 
 ### Mac OS
 
-*I still have to find a 'human comprehensible way' to compile this engine under OSX Mavericks: for older versions of OSX, please refer to the original repository README*
+*I still have to find a 'human comprehensible way' to compile this engine under OSX Mavericks: for older 
+versions of OSX, please refer to the original repository README*
 
 ## Changelog
 
@@ -32,7 +33,7 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * added engine-side logging capability: writes in the same log file as the game module
 * added engine-side position save/load: fixed permanent position save/load not working in game module
 * added flood protect fix patch: allow 2 reliable client commands every 1.5 seconds
-* added RCON `teleport` command: teleport a specific client to another one or to the given world coordinates
+* added RCON `teleport` command: teleport a specific client to another one or to the given coordinates
 * added RCON `position` command: retrieve client world coordinates
 * unlocked `sv_fps` cvar from game module constraint
 * extended callvote spam protection: `sv_failedvotetime` defines the amount of secs between callvotes
