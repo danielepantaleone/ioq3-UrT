@@ -2132,7 +2132,7 @@ qboolean CL_CheckPaused(void) {
 void CL_CheckUserinfo(void) {
     
     // don't add reliable commands when not yet connected
-    if (cls.state < CA_CHALLENGING) {
+    if (cls.state < CA_CONNECTED) {
         return;
     }
     
