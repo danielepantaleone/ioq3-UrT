@@ -1,4 +1,4 @@
-ioquake3 engine for Urban Terror 4.x
+ioquake3 engine for urban terror 4.x
 ====================================
 
 ## Description
@@ -9,25 +9,25 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 
 ## How to compile
 
-### Linux
+### *Linux*
 
 * change to the directory containing this readme
 * run `make`
 
-### Windows (cross-compile)
+### *Windows (cross-compile)*
 
 * install `mingw32` libraries on your linux box
 * change to the directory containing this readme
 * run `cross-make-mingw.sh`
 
-### Mac OS
+### *Mac OS*
 
 *I still have to find a 'human comprehensible way' to compile this engine under OSX Mavericks: for older 
 versions of OSX, please refer to the original repository README*
 
 ## Changelog
 
-### Server
+### *Server*
 
 * fixed map searching algorithm: no more unpredictability
 * added engine-side logging capability: writes in the same log file as the game module
@@ -50,20 +50,22 @@ versions of OSX, please refer to the original repository README*
 * added `sv_ghostradius` cvar: specify the radius of the ghosting bounding box
 * allow client position load while being in a jump run (will reset running timer if it was running)
 
-### Client
+### *Client*
 
 * fixed clipboard data paste crashing the client engine on unix systems
 * added `cl_keepvidaspect` cvar: keeps the aspect ratio of cinematics when using non 4:3 video modes
 * correctly draw new game module color codes in console
 * improved in-game console readability
+* fixed linux SDL gamma bug using XF86 (by [clearskies](https://github.com/clearskies))
 
 ## Credits
 
-Although most of the code was written by me and / or revised by me, some ideas have been taken from other 
-versions of ioquake3: because of that I would like to give the necessary credits to the people from which 
+Even though most of the code has been written by me and / or revised by me, some ideas have been taken from 
+other versions of ioquake3: because of that I would like to give the necessary credits to the people from which 
 I took ideas from:
 
-* Rambetter (https://github.com/Rambetter)
-* mickael9 (https://bitbucket.org/mickael9)
+* [Rambetter](https://github.com/Rambetter)
+* [mickael9](https://bitbucket.org/mickael9)
+* [clearskies](https://github.com/clearskies)
 
 For the original README please check: https://github.com/Barbatos/ioq3-for-UrbanTerror-4
