@@ -27,8 +27,8 @@ cvar_t *cl_cURLLib;
 #if USE_CURL_DLOPEN
 
 #if USE_SDL_VIDEO
-#include "SDL.h"
-#include "SDL_loadso.h"
+#include "../SDL12/include/SDL.h"
+#include "../SDL12/include/SDL_loadso.h"
 #define OBJTYPE void *
 #define OBJLOAD(x) SDL_LoadObject(x)
 #define SYMLOAD(x,y) SDL_LoadFunction(x,y)

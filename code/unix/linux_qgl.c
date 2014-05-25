@@ -46,8 +46,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#include <GL/glx.h> // bk010216 - FIXME: all of the above redundant? renderer/qgl.h
 
 #if defined(USE_SDL_VIDEO)
-#include "SDL.h"
-#include "SDL_loadso.h"
+#include "../SDL12/include/SDL.h"
+#include "../SDL12/include/SDL_loadso.h"
 #else
 #include <dlfcn.h>
 #endif

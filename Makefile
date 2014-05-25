@@ -304,7 +304,7 @@ ifeq ($(PLATFORM),linux)
   ifeq ($(ARCH),i386)
     # linux32 make ...
     BASE_CFLAGS += -m32
-    LDFLAGS+=-m32
+    LDFLAGS += -m32
   endif
 
 else # ifeq Linux

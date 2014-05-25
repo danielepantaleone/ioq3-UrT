@@ -47,8 +47,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #if USE_SDL_VIDEO
-#include "SDL.h"
-#include "SDL_loadso.h"
+#include "../SDL12/include/SDL.h"
+#include "../SDL12/include/SDL_loadso.h"
 #else
 #include <dlfcn.h>
 #endif

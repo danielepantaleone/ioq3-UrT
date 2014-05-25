@@ -58,18 +58,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
 */
 
-#include "SDL.h"
+#include "../SDL12/include/SDL.h"
 
 #ifdef SMP
-#include "SDL_thread.h"
+#include "../SDL12/include/SDL_thread.h"
 #endif
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #if USE_SDL_VIDEO
-#include "SDL.h"
-#include "SDL_loadso.h"
+#include "../SDL12/include/SDL.h"
+#include "../SDL12/include/SDL_loadso.h"
 #else
 #include <dlfcn.h>
 #endif
@@ -99,12 +99,13 @@ typedef void *QGLContext;
 #ifdef USE_ALTGAMMA
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86vmode.h>
+
 static XF86VidModeGamma origGamma;
 static Display *disp;
 static int scrNum;
 #endif
 #endif
-     
+
 static QGLContext opengl_context;
 
 //#define KBD_DBG
@@ -577,22 +578,23 @@ void IN_DeactivateMouse( void )
 */
 void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
-    #ifndef MACOS_X
-    #ifdef USE_ALTGAMMA
-    float g = Cvar_Get("r_gamma", "1.0", 0)->value;
-    XF86VidModeGamma gamma;
+  #ifndef MACOS_X
+  #ifdef USE_ALTGAMMA
+  float g = Cvar_Get("r_gamma", "1.0", 0)->value;
+  XF86VidModeGamma gamma;
 
-    gamma.red = g;
-    gamma.green = g;
-    gamma.blue = g;
-    
-    XF86VidModeSetGamma(disp, scrNum, &gamma);
-    XF86VidModeGetGamma(disp, scrNum, &gamma);
-    Com_Printf("XF86VidModeSetGamma: %.3f, %.3f, %.3f.\n", gamma.red, gamma.green, gamma.blue);
-    return;
-    #endif
-    #endif
-         
+  gamma.red = g;
+  gamma.green = g;
+  gamma.blue = g;
+
+  XF86VidModeSetGamma(disp, scrNum, &gamma);
+  XF86VidModeGetGamma(disp, scrNum, &gamma);
+  Com_Printf("XF86VidModeSetGamma: %.3f, %.3f, %.3f.\n", gamma.red, gamma.green, gamma.blue);
+  return;
+  #endif
+  #endif
+
+
 	Uint16 table[3][256];
 	int i, j;
     //	float g;
@@ -650,7 +652,7 @@ void GLimp_Shutdown( void )
 {
   IN_Shutdown();
   screen = NULL;
-  
+
   #ifndef MACOS_X
   #ifdef USE_ALTGAMMA
   XF86VidModeSetGamma(disp, scrNum, &origGamma);
@@ -1039,13 +1041,15 @@ static void GLW_InitExtensions( void )
 static void GLW_InitGamma( void )
 {
     glConfig.deviceSupportsGamma = qtrue;
-    
+
     #ifndef MACOS_X
     #ifdef USE_ALTGAMMA
     disp = XOpenDisplay(NULL);
     scrNum = DefaultScreen(disp);
     XF86VidModeGetGamma(disp, scrNum, &origGamma);
     #endif
+    #endif
+
 }
 
 /*
@@ -1916,4 +1920,3 @@ void IN_JoyMove( void )
 #endif  // USE_SDL_VIDEO
 
 // end sdl_glimp.c ...
-
