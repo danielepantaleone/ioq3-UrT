@@ -39,6 +39,7 @@ USE_CURL=1
 USE_CODEC_VORBIS=0
 USE_AUTH=1
 USE_DEMO_FORMAT_42=1
+USE_ALTGAMMA=1
 
 ifeq ($(V),1)
 echo_cmd=@:
@@ -233,7 +234,11 @@ ifeq ($(PLATFORM),linux)
   else
     BASE_CFLAGS += -I/usr/X11R6/include
   endif
-
+	
+	ifeq ($(USE_ALTGAMMA), 1)
+		BASE_CFLAGS += -DUSE_ALTGAMMA=1
+	endif
+	 
   OPTIMIZE = -O3 -ffast-math -funroll-loops -fomit-frame-pointer
 
   ifeq ($(ARCH),x86_64)
@@ -273,6 +278,9 @@ ifeq ($(PLATFORM),linux)
 
   ifeq ($(USE_SDL),1)
     CLIENT_LDFLAGS=$(shell sdl-config --libs)
+		ifeq ($(USE_ALTGAMMA), 1)
+			CLIENT_LDFLAGS += -lX11 -lXxf86vm
+		endif
   else
     CLIENT_LDFLAGS=-L/usr/X11R6/$(LIB) -lX11 -lXext -lXxf86dga -lXxf86vm
   endif
