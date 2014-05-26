@@ -601,7 +601,7 @@ static void SV_Kick_f(void) {
         }
 
         if (cl->netchan.remoteAddress.type == NA_LOOPBACK) {
-            SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host client\n");
+            SV_SendMessageToClient(NULL, "Cannot kick host client");
             return;
         }
 
@@ -665,7 +665,7 @@ static void SV_Teleport_f(void) {
         
         // if in a jumprun
         if (cl2->jumprun) {
-            SV_SendServerCommand(cl1, "print \"%s is currently doing a jump run\n\"", cl2->name);
+            SV_SendMessageToClient(cl1, "%s is currently doing a jump run", cl2->name);
             return;
         }
         
@@ -686,12 +686,11 @@ static void SV_Teleport_f(void) {
     VectorCopy(origin, ps1->origin);
     VectorClear(ps1->velocity);
     
-    // inform client(s) of what just happened
-    SV_SendServerCommand(cl1, "print \"Your have been successfully teleported\n\"");
+    SV_SendMessageToClient(cl1, "You have been successfully teleported");
     
     if (cl2 != NULL) {
         // inform also target client
-        SV_SendServerCommand(cl2, "print \"%s has been teleported to you\n\"", cl1->name);
+        SV_SendMessageToClient(cl2, "%s has been teleported to you", cl1->name);
     }
 
 }
@@ -1429,7 +1428,7 @@ static void SV_StartRecordOne(client_t *client, char *filename) {
     SVD_StartDemoFile(client, path);
 
     if (sv_demonotice->string) {
-        SV_SendServerCommand(client, "print \"%s\"\n", sv_demonotice->string);
+        SV_SendMessageToClient(client, sv_demonotice->string)
     }
 
     Com_Printf("startserverdemo: recording %s to %s\n", client->name, path);
@@ -1688,7 +1687,7 @@ static void SV_Auth_Ban_f(void) {
     }
 
     if (cl->netchan.remoteAddress.type == NA_LOOPBACK) {
-        SV_SendServerCommand(NULL, "print \"%s\"", "Cannot ban host client\n");
+        SV_SendMessageToClient(NULL, "Cannot ban host client");
         return;
     }
 

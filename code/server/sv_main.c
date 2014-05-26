@@ -81,6 +81,24 @@ cvar_t    *sv_autodemo;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
+// Name        : SV_SendMessageToClient
+// Description : Send a server message to a specific client
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+void SV_SendMessageToClient(client_t *cl, const char *fmt, ...) {
+    
+    char    str[MAX_STRING_CHARS];
+    va_list ap;
+    
+    va_start(ap, fmt);
+    vsprintf(str, fmt, ap);
+    va_end(ap);
+    
+    SV_SendServerCommand(cl, "print \"%s\n\"", str);
+}
+
+
+/////////////////////////////////////////////////////////////////////
 // Name        : SV_LogPrintf
 // Description : Print in the log file
 // Author      : Fenix

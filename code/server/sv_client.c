@@ -462,9 +462,7 @@ void SV_DropClient(client_t *drop, const char *reason) {
 
     // kill any download
     SV_CloseDownload(drop);
-
-    // tell everyone why they got dropped
-    SV_SendServerCommand(NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason);
+    SV_SendMessageToClient(NULL, "%s %s%s", drop->name, S_COLOR_WHITE, reason);
 
     if (drop->download)    {
         FS_FCloseFile(drop->download);
@@ -550,8 +548,8 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
     SV_CloseDownload(drop);
 
     // tell everyone why they got dropped
-    if(strlen(reason) > 0) {
-        SV_SendServerCommand(NULL, "print \"%s\n\"", reason);
+    if (strlen(reason) > 0) {
+        SV_SendMessageToClient(NULL, reason);
     }
 
     if (drop->download)    {
@@ -1389,7 +1387,7 @@ void SV_UpdateUserinfo_f(client_t *cl) {
     
     if ((sv_floodProtect->integer) && (cl->state >= CS_ACTIVE) && (svs.time < cl->nextReliableUserTime)) {
         Q_strncpyz(cl->userinfobuffer, Cmd_Argv(1), sizeof(cl->userinfobuffer));
-        SV_SendServerCommand(cl, "print \"^7[^3WARNING^7] Command ^1delayed ^7due to sv_floodprotect!\"");
+        SV_SendMessageToClient(cl, "^7[^3WARNING^7] Command ^1delayed ^7due to sv_floodprotect!");
         return;
     }
     
@@ -1441,25 +1439,25 @@ static void SV_SavePosition_f(client_t *cl) {
     
     // disallow if moving
     if (ps->velocity[0] != 0 || ps->velocity[1] != 0 || ps->velocity[2] != 0) {
-        SV_SendServerCommand(cl, "print \"You can't save your position while moving\n\"");
+        SV_SendMessageToClient(cl, "You can't save your position while moving");
         return;
     }
     
     // disallow if dead
     if (ps->pm_type != PM_NORMAL) {
-        SV_SendServerCommand(cl, "print \"You must be alive and in-game to save your position\n\"");
+        SV_SendMessageToClient(cl, "You must be alive and in-game to save your position");
         return;
     }
     
     // disallow if crouched
     if (ps->pm_flags & PMF_DUCKED) {
-        SV_SendServerCommand(cl, "print \"You cannot save your position while being crouched\n\"");
+        SV_SendMessageToClient(cl, "You cannot save your position while being crouched");
         return;
     }
     
     // disallow if not on a solid ground
     if (ps->groundEntityNum != ENTITYNUM_WORLD) {
-        SV_SendServerCommand(cl, "print \"You must be standing on a solid ground to save your position\n\"");
+        SV_SendMessageToClient(cl, "You must be standing on a solid ground to save your position");
         return;
     }
     
@@ -1468,13 +1466,13 @@ static void SV_SavePosition_f(client_t *cl) {
     VectorCopy(ps->viewangles, cl->savedPositionAngle);
     
     // log command execution
-    SV_LogPrintf("ClientSavePosition: %d - %f - %f - %f\n",
+    SV_LogPrintf("ClientSavePosition: %d - %f - %f - %f\n", 
                                       cid,
                                       cl->savedPosition[0],
                                       cl->savedPosition[1],
                                       cl->savedPosition[2]);
     
-    SV_SendServerCommand(cl, "print \"Your position has been saved\n\"");
+    SV_SendMessageToClient(cl, "Your position has been saved");
     
 }
 
@@ -1519,13 +1517,13 @@ static void SV_LoadPosition_f(client_t *cl) {
     
     // if there is no position saved
     if (!cl->savedPosition[0] || !cl->savedPosition[1] || !cl->savedPosition[2]) {
-        SV_SendServerCommand(cl, "print \"There is no position to load\n\"");
+        SV_SendMessageToClient(cl, "There is no position to load");
         return;
     }
     
     // disallow if dead
     if (ps->pm_type != PM_NORMAL) {
-        SV_SendServerCommand(cl, "print \"You must be alive and in-game to load your position\n\"");
+        SV_SendMessageToClient(cl, "You must be alive and in-game to load your position");
         return;
     }
     
@@ -1566,7 +1564,7 @@ static void SV_LoadPosition_f(client_t *cl) {
                                       cl->savedPosition[1],
                                       cl->savedPosition[2]);
     
-    SV_SendServerCommand(cl, "print \"Your position has been loaded\n\"");
+    SV_SendMessageToClient(cl, "Your position has been loaded");
     
 }
 
@@ -1582,14 +1580,14 @@ static void SV_Tell_f(client_t *cl) {
     client_t *target;
     
     if (Cmd_Argc() < 3) {
-        SV_SendServerCommand(cl, "print \"Usage: tell <client> <text>\n\"");
+        SV_SendMessageToClient(cl, "Usage: tell <client> <text>");
         return;
     }
     
     // get the target client
     target = SV_GetPlayerByParam(Cmd_Argv(1));
     if (!target) {
-        SV_SendServerCommand(cl, "print \"No client found matching %s\n\"", Cmd_Argv(1));
+        SV_SendMessageToClient(cl, "No client found matching %s", Cmd_Argv(1));
         return;
     }
     
@@ -1606,8 +1604,8 @@ static void SV_Tell_f(client_t *cl) {
 }
 
 typedef struct {
-    char    *name;
-    void    (*func)(client_t *cl);
+    char  *name;
+    void  (*func)(client_t *cl);
 } ucmd_t;
 
 static ucmd_t ucmds[] = {
@@ -1764,9 +1762,8 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                                     wtime = (int)ceil(wtime/60);
                                     text = wtime != 1 ? "minutes" : "minute";
                                 }
-                    
-                                SV_SendServerCommand(cl, "print \"You need to wait ^1%d ^7%s before calling "
-                                                         "another vote\n\"", wtime, text);
+                                
+                                SV_SendMessageToClient(cl, "You need to wait ^1%d ^7%s before calling another vote", wtime, text);
                                 return;
                             }
                             
@@ -1819,9 +1816,8 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             }
             
             if (exploitDetected) {
-                Com_Printf("Buffer overflow exploit radio/say, possible attempt from %s\n", 
-                           NET_AdrToString(cl->netchan.remoteAddress));
-                SV_SendServerCommand(cl, "print \"Chat dropped due to message length constraints.\n\"");
+                Com_Printf("Buffer overflow exploit radio/say, possible attempt from %s\n", NET_AdrToString(cl->netchan.remoteAddress));        
+                SV_SendMessageToClient(cl, "Chat dropped due to message length constraints");
                 return;
             }
 
