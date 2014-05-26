@@ -603,8 +603,8 @@ int SV_MakeCompressedPureList() {
         SV_SetConfigstring(MAX_CONFIGSTRINGS-PURE_COMPRESS_NUMCS+csnr, tmp);
     }
      
-    Com_Printf("^7[INFO] Using ^3%d ^7configstrings to store pure filelist: "
-               "encoded using ^3%d ^7characters)\n", csnr + 1, ol + csnr * 1024);
+    Com_Printf("^7Using ^3%d ^7configstrings to store pure filelist: encoded using" 
+               "^3%d ^7characters)\n", csnr + 1, ol + csnr * 1024);
     return 0;
 
 }

@@ -959,9 +959,9 @@ static void SV_Status_f(void) {
         return;
     }
 
-    Com_Printf ("map: %s\n", sv_mapname->string);
-    Com_Printf ("num score ping name            lastmsg address               qport rate\n");
-    Com_Printf ("--- ----- ---- --------------- ------- --------------------- ----- -----\n");
+    Com_Printf("map: %s\n", sv_mapname->string);
+    Com_Printf("num score ping name            lastmsg address               qport rate\n");
+    Com_Printf("--- ----- ---- --------------- ------- --------------------- ----- -----\n");
 
     for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
 
@@ -989,7 +989,7 @@ static void SV_Status_f(void) {
         Com_Printf("^7");
         l = 16 - strlen(cl->name);
         for (j=0 ; j<l ; j++) {
-            Com_Printf (" ");
+            Com_Printf(" ");
         }
 
         Com_Printf("%7i ", svs.time - cl->lastPacketTime);
@@ -1005,7 +1005,7 @@ static void SV_Status_f(void) {
         Com_Printf("\n");
     }
 
-    Com_Printf ("\n");
+    Com_Printf("\n");
 
 }
 
@@ -1123,7 +1123,7 @@ static void SV_DumpUser_f(void) {
     }
 
     if (Cmd_Argc() != 2) {
-        Com_Printf ("Usage: dumpuser <client>\n");
+        Com_Printf("Usage: dumpuser <client>\n");
         return;
     }
 
@@ -1362,34 +1362,32 @@ static void SV_NameServerDemo(char *filename, int length, const client_t *client
         Q_strncpyz(demoName, fn, sizeof(demoName));
 
         #ifdef USE_DEMO_FORMAT_42
-        Q_snprintf(filename, length-1, "%s/%s.urtdemo", sv_demofolder->string, demoName);
+        Q_snprintf(filename, length - 1, "%s/%s.urtdemo", sv_demofolder->string, demoName);
         if (FS_FileExists(filename)) {
-            Q_snprintf(filename, length-1, "%s/%s_%d.urtdemo", sv_demofolder->string, 
-                                                               demoName, 
-                                                               Sys_Milliseconds());
+            Q_snprintf(filename, length - 1, "%s/%s_%d.urtdemo", 
+                       sv_demofolder->string, demoName, Sys_Milliseconds());
         }
         #else
-        Q_snprintf(filename, length-1, "%s/%s.dm_%d", sv_demofolder->string, demoName , PROTOCOL_VERSION);
+        Q_snprintf(filename, length - 1, "%s/%s.dm_%d", sv_demofolder->string, demoName , PROTOCOL_VERSION);
         if (FS_FileExists(filename)) {
-            Q_snprintf(filename, length-1, "%s/%s_%d.dm_%d", sv_demofolder->string, demoName, 
-                                                                                    Sys_Milliseconds() , 
-                                                                                    PROTOCOL_VERSION);
+            Q_snprintf(filename, length - 1, "%s/%s_%d.dm_%d", sv_demofolder->string, 
+                       demoName, Sys_Milliseconds(), PROTOCOL_VERSION);
         }
         #endif
     
     } else {
         
         #ifdef USE_DEMO_FORMAT_42
-        Q_snprintf(filename, length-1, "%s/%.4d-%.2d-%.2d_%.2d-%.2d-%.2d_%s_%d.urtdemo",
-                                       sv_demofolder->string, time.tm_year+1900, time.tm_mon + 1, 
-                                       time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec,
-                                       playername, Sys_Milliseconds()
+        Q_snprintf(filename, length - 1, "%s/%.4d-%.2d-%.2d_%.2d-%.2d-%.2d_%s_%d.urtdemo",
+                                         sv_demofolder->string, time.tm_year+1900, time.tm_mon + 1, 
+                                         time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec,
+                                         playername, Sys_Milliseconds()
         );
         #else
-        Q_snprintf(filename, length-1, "%s/%.4d-%.2d-%.2d_%.2d-%.2d-%.2d_%s_%d.dm_%d",
-                                       sv_demofolder->string, time.tm_year+1900, time.tm_mon + 1, 
-                                       time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec,
-                                       playername, Sys_Milliseconds(), PROTOCOL_VERSION
+        Q_snprintf(filename, length - 1, "%s/%.4d-%.2d-%.2d_%.2d-%.2d-%.2d_%s_%d.dm_%d",
+                                         sv_demofolder->string, time.tm_year+1900, time.tm_mon + 1, 
+                                         time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec,
+                                         playername, Sys_Milliseconds(), PROTOCOL_VERSION
         );
         #endif
                 
@@ -1538,7 +1536,7 @@ static void SV_StartServerDemo_f(void) {
     Com_DPrintf("SV_StartServerDemo_f\n");
 
     if (!com_sv_running->integer) {
-        Com_Printf("startserverdemo: Server not running\n");
+        Com_Printf("startserverdemo: server not running\n");
         return;
     }
 
@@ -1580,7 +1578,7 @@ static void SV_StopServerDemo_f(void) {
     Com_DPrintf("SV_StopServerDemo_f\n");
 
     if (!com_sv_running->integer) {
-        Com_Printf("stopserverdemo: Server not running\n");
+        Com_Printf("stopserverdemo: server not running\n");
         return;
     }
 
@@ -1679,7 +1677,7 @@ static void SV_Auth_Ban_f(void) {
     }
 
     if (Cmd_Argc() < 5) {
-        Com_Printf ("Usage: auth-ban <client> <days> <hours> <mins>\n");
+        Com_Printf("Usage: auth-ban <client> <days> <hours> <mins>\n");
         return;
     }
 
