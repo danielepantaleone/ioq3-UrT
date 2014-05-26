@@ -210,7 +210,7 @@ void CL_StopRecord_f(void) {
     int len;
 
     if (!clc.demorecording) {
-        Com_Printf("[INFO] You are not recording a demo\n");
+        Com_Printf("You are not recording a demo\n");
         return;
     }
 
@@ -222,7 +222,7 @@ void CL_StopRecord_f(void) {
     clc.demofile = 0;
     clc.demorecording = qfalse;
     clc.spDemoRecording = qfalse;
-    Com_Printf("[INFO] Stopped recording %s%s%s\n", S_COLOR_GREEN, clc.demoName, S_COLOR_WHITE);
+    Com_Printf("Stopped recording %s%s%s\n", S_COLOR_GREEN, clc.demoName, S_COLOR_WHITE);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -342,7 +342,7 @@ void CL_Record_f(void) {
     // if already recording
     if (clc.demorecording) {
         if (!clc.spDemoRecording) {
-            Com_Printf("[INFO] Already recording\n");
+            Com_Printf("Already recording\n");
         }
         return;
     }
@@ -364,7 +364,7 @@ void CL_Record_f(void) {
     CL_DemoFilename(demoname, filename);
 
     // open the demo file
-    Com_Printf("[INFO] Started recording %s%s%s...\n", S_COLOR_YELLOW, demoname, S_COLOR_WHITE);
+    Com_Printf("Started recording %s%s%s...\n", S_COLOR_YELLOW, demoname, S_COLOR_WHITE);
     clc.demofile = FS_FOpenFileWrite(filename);
     if (!clc.demofile) {
         Com_Printf("%s[%sERROR%s] Couldn't open %s%s%s\n", S_COLOR_WHITE, S_COLOR_RED, S_COLOR_WHITE, 
@@ -1022,7 +1022,7 @@ void CL_ForwardCommandToServer(const char *string) {
 void CL_ForwardToServer_f(void) {
     
     if (cls.state != CA_ACTIVE || clc.demoplaying) {
-        Com_Printf("[INFO] You are not connected to a server\n");
+        Com_Printf("You are not connected to a server\n");
         return;
     }
     
@@ -1176,7 +1176,7 @@ void CL_Rcon_f(void) {
     netadr_t  to;
 
     if (!rcon_client_password->string) {
-        Com_Printf("[INFO] You must set 'rconpassword' before issuing an rcon command\n");
+        Com_Printf("You must set 'rconpassword' before issuing an rcon command\n");
         return;
     }
 
@@ -1321,14 +1321,14 @@ void CL_Snd_Restart_f(void) {
 // Name : CL_PK3List_f
 /////////////////////////////////////////////////////////////////////
 void CL_OpenedPK3List_f(void) {
-    Com_Printf("[INFO] Opened PK3 names: %s\n", FS_LoadedPakNames());
+    Com_Printf("Opened PK3 names: %s\n", FS_LoadedPakNames());
 }
 
 /////////////////////////////////////////////////////////////////////
 // Name : CL_PureList_f
 /////////////////////////////////////////////////////////////////////
 void CL_ReferencedPK3List_f(void) {
-    Com_Printf("[INFO] Referenced PK3 names: %s\n", FS_ReferencedPakNames());
+    Com_Printf("Referenced PK3 names: %s\n", FS_ReferencedPakNames());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1340,7 +1340,7 @@ void CL_Configstrings_f(void) {
     int ofs;
 
     if (cls.state != CA_ACTIVE) {
-        Com_Printf("[INFO] You are not connected to a server\n");
+        Com_Printf("You are not connected to a server\n");
         return;
     }
 
@@ -1612,7 +1612,7 @@ void CL_InitDownloads(void) {
   
   } else if (FS_ComparePaks(clc.downloadList, sizeof(clc.downloadList) , qtrue)) {
 
-    Com_Printf("[INFO] Need paks: %s\n", clc.downloadList);
+    Com_Printf("Need paks: %s\n", clc.downloadList);
 
         if (*clc.downloadList) {
             // if autodownloading is not enabled on the server
@@ -1741,7 +1741,7 @@ void CL_DisconnectPacket(netadr_t from) {
 
     // drop the connection
     Com_Printf("%s[%sERROR%s] Server disconnected for unknown reason\n", S_COLOR_WHITE, S_COLOR_RED, S_COLOR_WHITE);
-    Cvar_Set("com_errorMessage", va("%s[%sERROR%s]Server disconnected for unknown reason\n", S_COLOR_WHITE, 
+    Cvar_Set("com_errorMessage", va("%s[%sERROR%s] Server disconnected for unknown reason\n", S_COLOR_WHITE, 
                                  S_COLOR_RED, S_COLOR_WHITE));
     CL_Disconnect(qtrue);
 }
@@ -1940,7 +1940,7 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t *msg) {
     // challenge from the server we are connecting to
     if (!Q_stricmp(c, "challengeResponse")) {
         if (cls.state != CA_CONNECTING) {
-            Com_Printf("Unwanted challenge response received.  Ignored.\n");
+            Com_Printf("Unwanted challenge response received: ignored.\n");
         } else {
             // start sending challenge repsonse instead of challenge request packets
             clc.challenge = atoi(Cmd_Argv(1));
@@ -2067,7 +2067,7 @@ void CL_PacketEvent(netadr_t from, msg_t *msg) {
     // packet from server
     //
     if (!NET_CompareAdr(from, clc.netchan.remoteAddress)) {
-        Com_DPrintf("%s:sequenced packet without connection\n", NET_AdrToString(from));
+        Com_DPrintf("%s: sequenced packet without connection\n", NET_AdrToString(from));
         // FIXME: send a client disconnect?
         return;
     }
@@ -2451,7 +2451,7 @@ void CL_Video_f(void) {
   int   i, last;
 
   if (!clc.demoplaying) {
-    Com_Printf("[INFO] The video command can only be used when playing back demos\n");
+    Com_Printf("The video command can only be used when playing back demos\n");
     return;
   }
 
@@ -2516,25 +2516,25 @@ static void CL_GenerateQKey(void) {
     len = FS_SV_FOpenFileRead(QKEY_FILE, &f);
     FS_FCloseFile(f);
     if (len == QKEY_SIZE) {
-        Com_Printf("[INFO] QKEY: found\n");
+        Com_Printf("QKEY: found\n");
         return;
     } else {
         
         if (len > 0) {
-            Com_Printf("[INFO] QKEY: file size != %d, regenerating\n", QKEY_SIZE);
+            Com_Printf("QKEY: file size != %d, regenerating\n", QKEY_SIZE);
         }
 
-        Com_Printf("[INFO] QKEY: building random string\n");
+        Com_Printf("QKEY: building random string\n");
         Com_RandomBytes(buff, sizeof(buff));
 
         f = FS_SV_FOpenFileWrite(QKEY_FILE);
         if (!f) {
-            Com_Printf("[INFO] QKEY: could not open %s for write\n", QKEY_FILE);
+            Com_Printf("QKEY: could not open %s for write\n", QKEY_FILE);
             return;
         }
         FS_Write(buff, sizeof(buff), f);
         FS_FCloseFile(f);
-        Com_Printf("[INFO] QKEY: generated\n");
+        Com_Printf("QKEY: generated\n");
     }
 } 
 
@@ -2607,8 +2607,9 @@ void CL_Init(void) {
     #endif
 
     cl_conXOffset = Cvar_Get("cl_conXOffset", "0", 0);
+    
     #ifdef MACOS_X
-        // In game video is REALLY slow in Mac OS X right now due to driver slowness
+    // In game video is REALLY slow in Mac OS X right now due to driver slowness
     cl_inGameVideo = Cvar_Get("r_inGameVideo", "0", CVAR_ARCHIVE);
     #else
     cl_inGameVideo = Cvar_Get("r_inGameVideo", "1", CVAR_ARCHIVE);
@@ -3508,7 +3509,7 @@ void CL_ServerStatus_f(void) {
 
     if (Cmd_Argc() != 2) {
         if (cls.state != CA_ACTIVE || clc.demoplaying) {
-            Com_Printf("[INFO] You are not connected to a server\n");
+            Com_Printf("You are not connected to a server\n");
             Com_Printf("Usage: serverstatus [<server>]\n");
             return;    
         }
