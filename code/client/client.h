@@ -210,13 +210,15 @@ typedef struct {
 	qboolean	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
 
 	// demo information
-	char		demoName[MAX_QPATH];
-	qboolean	spDemoRecording;
-	qboolean	demorecording;
-	qboolean	demoplaying;
-	qboolean	demowaiting;	// don't record until a non-delta message is received
-	qboolean	firstDemoFrameSkipped;
+	char		    demoName[MAX_QPATH];
+	qboolean	    spDemoRecording;
+    qboolean        demopaused;         // qtrue if the demo is paused, false otherwise
+	qboolean	    demorecording;
+	qboolean    	demoplaying;
+	qboolean	    demowaiting;	    // don't record until a non-delta message is received
+	qboolean	    firstDemoFrameSkipped;
 	fileHandle_t	demofile;
+    msg_t           demosnapshot;       // for demo pause
 
 	int			timeDemoFrames;		// counter of rendered frames
 	int			timeDemoStart;		// cls.realtime before first frame

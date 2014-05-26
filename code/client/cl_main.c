@@ -236,7 +236,7 @@ void CL_DemoFilename(char *dname, char *fname) {
     const char  *gametype;
     char        name[MAX_QPATH];
     int         index = 1;
-    qtime_t        now;
+    qtime_t     now;
     
     // get server information
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
@@ -477,15 +477,13 @@ void CL_Record_f(void) {
 /////////////////////////////////////////////////////////////////////
 void CL_DemoCompleted(void) {
     if (cl_timedemo && cl_timedemo->integer) {
-        int    time;
-        
-        time = Sys_Milliseconds() - clc.timeDemoStart;
-        if (time > 0) {
+        int t;
+        t = Sys_Milliseconds() - clc.timeDemoStart;
+        if (t > 0) {
             Com_Printf ("%i frames, %3.1f seconds: %3.1f fps\n", clc.timeDemoFrames,
-            time/1000.0, clc.timeDemoFrames*1000.0 / time);
+            t / 1000.0, clc.timeDemoFrames * 1000.0 / t);
         }
     }
-
     CL_Disconnect(qtrue);
     CL_NextDemo();
 }
@@ -499,7 +497,7 @@ void CL_ReadDemoMessage(void) {
     int   r;
     int   s;
     msg_t buf;
-    byte  bufData[ MAX_MSGLEN ];
+    byte  bufData[MAX_MSGLEN];
 
     #ifdef USE_DEMO_FORMAT_42
     // skip the end length (read it a second time) ... Is usefull only in backward read /* holblin */
@@ -510,7 +508,13 @@ void CL_ReadDemoMessage(void) {
         CL_DemoCompleted();
         return;
     }
-
+    
+    // if we are paused play the last snapshot
+    if (clc.demopaused) {
+    	CL_ParseServerMessage(&clc.demosnapshot);
+        return;
+    }
+    
     // get the sequence number
     r = FS_Read(&s, 4, clc.demofile);
     if (r != 4) {
@@ -524,7 +528,7 @@ void CL_ReadDemoMessage(void) {
     MSG_Init(&buf, bufData, sizeof(bufData));
 
     // get the length
-    r = FS_Read (&buf.cursize, 4, clc.demofile);
+    r = FS_Read(&buf.cursize, 4, clc.demofile);
     if (r != 4) {
         CL_DemoCompleted();
         return;
@@ -556,7 +560,7 @@ void CL_ReadDemoMessage(void) {
     
     #ifdef USE_DEMO_FORMAT_42
     // skip the end length (read it a second time) ... Is usefull only in backward read /* holblin */
-    r = FS_Read (&length_backward, 4, clc.demofile);
+    r = FS_Read(&length_backward, 4, clc.demofile);
     if (r != 4) {
         CL_DemoCompleted();
         return;
@@ -573,6 +577,9 @@ void CL_ReadDemoMessage(void) {
     clc.lastPacketTime = cls.realtime;
     buf.readcount = 0;
     CL_ParseServerMessage(&buf);
+    
+    // save for future use
+    clc.demosnapshot = msg;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -607,6 +614,23 @@ static void CL_WalkDemoExt(char *arg, char *name, int *demofile) {
             i++;
         }
     #endif
+}
+
+/////////////////////////////////////////////////////////////////////
+// Name        : CL_DemoPause_f
+// Description : Pause/Unpause a demo playback
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+void CL_DemoPause_f(void) { 
+    
+    // if not playing a demo
+    if (!clc.demoplaying) {
+        return;
+    }
+    
+    // switch the flag
+    clc.demopaused = !clc.demopaused;
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -704,9 +728,9 @@ void CL_PlayDemo_f(void) {
     
     s2[len] = '\0';    
     v1 = LittleLong(DEMO_VERSION);
-    r = FS_Read (&v2, 4 , clc.demofile);
+    r = FS_Read(&v2, 4 , clc.demofile);
     if (r != 4) {
-        CL_DemoCompleted ();
+        CL_DemoCompleted();
         free(s2);
         return;
     }
@@ -715,21 +739,21 @@ void CL_PlayDemo_f(void) {
         
     if (v1 != v2){
         Com_Printf("Protocol %d not supported for demos\n", v2);
-        CL_DemoCompleted ();
+        CL_DemoCompleted();
         return;
     }
 
     r = FS_Read(&len, 4, clc.demofile);
     len = LittleLong(len);
     if (r != 4 || len != 0) {
-        CL_DemoCompleted ();
+        CL_DemoCompleted();
         return;
     }
         
     r = FS_Read(&len, 4, clc.demofile);
     len = LittleLong(len);
     if (r != 4 || len != 0) {
-        CL_DemoCompleted ();
+        CL_DemoCompleted();
         return;
     }
     #endif
@@ -2671,6 +2695,7 @@ void CL_Init(void) {
     Cmd_AddCommand("record", CL_Record_f);
     Cmd_AddCommand("recorddemo", CL_Record_f);
     Cmd_AddCommand("demo", CL_PlayDemo_f);
+    Cmd_AddCommand("demopause" CL_DemoPause_f);
     Cmd_AddCommand("cinematic", CL_PlayCinematic_f);
     Cmd_AddCommand("stoprecord", CL_StopRecord_f);
     Cmd_AddCommand("connect", CL_Connect_f);
