@@ -129,7 +129,7 @@ static LONG WINAPI ConWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     case WM_CTLCOLORSTATIC:
         if ((HWND) lParam == s_wcd.hwndBuffer)
         {
-            SetBkColor((HDC) wParam, RGB(0x00, 0x00, 0xB0));
+            SetBkColor((HDC) wParam, RGB(0x00, 0x00, 0x00));
             SetTextColor((HDC) wParam, RGB(0xff, 0xff, 0xff));
 
 #if 0    // this draws a background in the edit box, but there are issues with this
@@ -190,7 +190,7 @@ static LONG WINAPI ConWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     case WM_CREATE:
 //        s_wcd.hbmLogo = LoadBitmap(g_wv.hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
 //        s_wcd.hbmClearBitmap = LoadBitmap(g_wv.hInstance, MAKEINTRESOURCE(IDB_BITMAP2));
-        s_wcd.hbrEditBackground = CreateSolidBrush(RGB(0x00, 0x00, 0xB0));
+        s_wcd.hbrEditBackground = CreateSolidBrush(RGB(0x00, 0x00, 0x00));
         s_wcd.hbrErrorBackground = CreateSolidBrush(RGB(0x80, 0x80, 0x80));
         SetTimer(hWnd, 1, 1000, NULL);
         break;
@@ -292,8 +292,8 @@ LONG WINAPI InputLineWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 /*
 ** Sys_CreateConsole
 */
-void Sys_CreateConsole(void)
-{
+void Sys_CreateConsole(void) {
+    
     HDC hDC;
     WNDCLASS wc;
     RECT rect;
@@ -319,9 +319,9 @@ void Sys_CreateConsole(void)
         return;
 
     rect.left = 0;
-    rect.right = 540;
+    rect.right = 800;
     rect.top = 0;
-    rect.bottom = 450;
+    rect.bottom = 600;
     AdjustWindowRect(&rect, DEDSTYLE, FALSE);
 
     hDC = GetDC(GetDesktopWindow());
@@ -333,14 +333,14 @@ void Sys_CreateConsole(void)
     s_wcd.windowHeight = rect.bottom - rect.top + 1;
 
     s_wcd.hWnd = CreateWindowEx(0,
-                               DEDCLASS,
-                               CONSOLE_WINDOW_TITLE,
-                               DEDSTYLE,
-                               (swidth - 600) / 2, (sheight - 450) / 2 , rect.right - rect.left + 1, rect.bottom - rect.top + 1,
-                               NULL,
-                               NULL,
-                               g_wv.hInstance,
-                               NULL);
+                                DEDCLASS,
+                                CONSOLE_WINDOW_TITLE,
+                                DEDSTYLE,
+                                (swidth - 860) / 2, (sheight - 600) / 2 , rect.right - rect.left + 1, rect.bottom - rect.top + 1,
+                                NULL,
+                                NULL,
+                                g_wv.hInstance,
+                                NULL);
 
     if (s_wcd.hWnd == NULL) {
         return;
@@ -374,7 +374,7 @@ void Sys_CreateConsole(void)
     //
     s_wcd.hwndInputLine = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | 
                                         ES_LEFT | ES_AUTOHSCROLL,
-                                        6, 400, 528, 20,
+                                        6, 545, 788, 20,
                                         s_wcd.hWnd, 
                                         (HMENU) INPUT_ID,    // child window ID
                                         g_wv.hInstance, NULL);
@@ -383,14 +383,15 @@ void Sys_CreateConsole(void)
     // create the buttons
     //
     s_wcd.hwndButtonCopy = CreateWindow("button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                                        5, 425, 72, 24,
+                                        6, 571, 72, 24,
                                         s_wcd.hWnd, 
                                         (HMENU) COPY_ID,    // child window ID
                                         g_wv.hInstance, NULL);
+    
     SendMessage(s_wcd.hwndButtonCopy, WM_SETTEXT, 0, (LPARAM) "copy");
 
     s_wcd.hwndButtonClear = CreateWindow("button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                                        82, 425, 72, 24,
+                                        84, 571, 72, 24,
                                         s_wcd.hWnd, 
                                         (HMENU) CLEAR_ID,    // child window ID
                                         g_wv.hInstance, NULL);
@@ -398,20 +399,19 @@ void Sys_CreateConsole(void)
     SendMessage(s_wcd.hwndButtonClear, WM_SETTEXT, 0, (LPARAM) "clear");
 
     s_wcd.hwndButtonQuit = CreateWindow("button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                                        462, 425, 72, 24,
+                                        722, 571, 72, 24,
                                         s_wcd.hWnd, 
                                         (HMENU) QUIT_ID,    // child window ID
                                         g_wv.hInstance, NULL);
     
     SendMessage(s_wcd.hwndButtonQuit, WM_SETTEXT, 0, (LPARAM) "quit");
 
-
     //
     // create the scrollbuffer
     //
-    s_wcd.hwndBuffer = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_BORDER | 
+    s_wcd.hwndBuffer = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | 
                                     ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
-                                    6, 40, 526, 354,
+                                    6, 6, 788, 532,
                                     s_wcd.hWnd, 
                                     (HMENU) EDIT_ID,    // child window ID
                                     g_wv.hInstance, NULL);
@@ -496,7 +496,7 @@ char *Sys_ConsoleInput(void)
 */
 void Conbuf_AppendText(const char *pMsg)
 {
-#define CONSOLE_BUFFER_SIZE        16384
+#define CONSOLE_BUFFER_SIZE 65436
 
     char buffer[CONSOLE_BUFFER_SIZE*2];
     char *b = buffer;
@@ -508,45 +508,32 @@ void Conbuf_AppendText(const char *pMsg)
     //
     // if the message is REALLY long, use just the last portion of it
     //
-    if (strlen(pMsg) > CONSOLE_BUFFER_SIZE - 1)
-    {
+    if (strlen(pMsg) > CONSOLE_BUFFER_SIZE - 1) {
         msg = pMsg + strlen(pMsg) - CONSOLE_BUFFER_SIZE + 1;
-    }
-    else
-    {
+    } else {
         msg = pMsg;
     }
 
     //
     // copy into an intermediate buffer
     //
-    while (msg[i] && ((b - buffer) < sizeof(buffer) - 1))
-    {
-        if (msg[i] == '\n' && msg[i+1] == '\r')
-        {
+    while (msg[i] && ((b - buffer) < sizeof(buffer) - 1)) {
+        if (msg[i] == '\n' && msg[i+1] == '\r') {
             b[0] = '\r';
             b[1] = '\n';
             b += 2;
             i++;
-        }
-        else if (msg[i] == '\r')
-        {
+        } else if (msg[i] == '\r') {
             b[0] = '\r';
             b[1] = '\n';
             b += 2;
-        }
-        else if (msg[i] == '\n')
-        {
+        } else if (msg[i] == '\n') {
             b[0] = '\r';
             b[1] = '\n';
             b += 2;
-        }
-        else if (Q_IsColorString(&msg[i]))
-        {
+        } else if (Q_IsColorString(&msg[i])) {
             i++;
-        }
-        else
-        {
+        } else {
             *b= msg[i];
             b++;
         }
@@ -560,8 +547,7 @@ void Conbuf_AppendText(const char *pMsg)
     //
     // replace selection instead of appending if we're overflowing
     //
-    if (s_totalChars > 0x7fff)
-    {
+    if (s_totalChars > 0xFF9B) {
         SendMessage(s_wcd.hwndBuffer, EM_SETSEL, 0, -1);
         s_totalChars = bufLen;
     }

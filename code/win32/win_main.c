@@ -1402,14 +1402,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 	// get the initial time base
 	Sys_Milliseconds();
-#if 0
-	// if we find the CD, add a +set cddir xxx command line
-	Sys_ScanForCD();
-#endif
-
+        
 	Sys_InitStreamThread();
 
 	Com_Init( sys_cmdline );
+        
 	NET_Init();
 
 	_getcwd (cwd, sizeof(cwd));
@@ -1421,18 +1418,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		Sys_ShowConsole( 0, qfalse );
 	}
 
-    // main game loop
+        // main game loop
 	while( 1 ) {
 		// if not running as a game client, sleep a bit
 		if ( g_wv.isMinimized || ( com_dedicated && com_dedicated->integer ) ) {
 			Sleep( 5 );
 		}
-
-		// set low precision every frame, because some system calls
-		// reset it arbitrarily
-//		_controlfp( _PC_24, _MCW_PC );
-//    _controlfp( -1, _MCW_EM  ); // no exceptions, even if some crappy
-                                // syscall turns them back on!
 
 		startTime = Sys_Milliseconds();
 

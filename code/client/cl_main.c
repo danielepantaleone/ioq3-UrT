@@ -512,7 +512,6 @@ void CL_ReadDemoMessage(void) {
     
     // get the sequence number
     r = FS_Read(&s, 4, clc.demofile);
-    clc.demolastreadlength = r;
     if (r != 4) {
         CL_DemoCompleted();
         return;
