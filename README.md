@@ -57,6 +57,8 @@ versions of OSX, please refer to the original repository README*
 * correctly draw new game module color codes in console
 * improved in-game console readability
 * fixed linux SDL gamma bug using XF86 (by [clearskies](https://github.com/clearskies))
+* keep the dedicated console open when the UI subsystem start (windows only)
+* improved windows dedicated console readability
 
 ## Credits
 
