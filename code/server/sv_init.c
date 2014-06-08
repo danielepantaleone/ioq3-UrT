@@ -699,17 +699,14 @@ static void SV_DoMapcycleRoutine(void) {
     while (token[0]) {
 
         if (next) {
-            
             if (!SV_MapExists(token)) {
                 Com_DPrintf("SV_DoMapcycleRoutine: skipping map %s: map is not available\n", token);
                 token = COM_Parse(&buffer);
                 continue;
             }
-            
             // set the nextmap
             SV_MapcycleSetNextmap(token);
             return;
-            
         }
         
         // if we found the current map, set the next flag to
@@ -1023,8 +1020,8 @@ void SV_SpawnServer(char *server, qboolean killBots) {
          
          if (abs(l - l2) > 1) {
              // seems pakNames may have one extra item without checksum at the end
-             Com_Printf("^7[^3WARNING^7] Pure PAK file list inconsistency: ^3%d ^7checksums, "
-                        "^3%d ^7file names: players may not be able to connect to server.\n", l, l2);
+             Com_Printf("WARNING: pure PAK file list inconsistency: %d checksums, "
+                        "%d file names: players may not be able to connect to server.\n", l, l2);
          }
     }
 

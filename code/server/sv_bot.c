@@ -470,7 +470,7 @@ int SV_BotLibSetup(void) {
     }
 
     if (!botlib_export) {
-        Com_Printf("^7[^1ERROR^7] SV_BotLibSetup without SV_BotInitBotLib\n");
+        Com_Printf("ERROR: SV_BotLibSetup without SV_BotInitBotLib\n");
         return -1;
     }
 
