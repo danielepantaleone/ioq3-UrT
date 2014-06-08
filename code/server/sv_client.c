@@ -462,7 +462,7 @@ void SV_DropClient(client_t *drop, const char *reason) {
 
     // kill any download
     SV_CloseDownload(drop);
-    SV_SendMessageToClient(NULL, "%s %s%s", drop->name, S_COLOR_WHITE, reason);
+    SV_BroadcastMessageToClient(NULL, "%s %s%s", drop->name, S_COLOR_WHITE, reason);
 
     if (drop->download)    {
         FS_FCloseFile(drop->download);
@@ -549,7 +549,7 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
 
     // tell everyone why they got dropped
     if (strlen(reason) > 0) {
-        SV_SendMessageToClient(NULL, reason);
+        SV_BroadcastMessageToClient(NULL, reason);
     }
 
     if (drop->download)    {
@@ -1387,7 +1387,7 @@ void SV_UpdateUserinfo_f(client_t *cl) {
     
     if ((sv_floodProtect->integer) && (cl->state >= CS_ACTIVE) && (svs.time < cl->nextReliableUserTime)) {
         Q_strncpyz(cl->userinfobuffer, Cmd_Argv(1), sizeof(cl->userinfobuffer));
-        SV_SendMessageToClient(cl, "^7[^3WARNING^7] Command ^1delayed ^7due to sv_floodprotect!");
+        SV_BroadcastMessageToClient(cl, "^7[^3WARNING^7] Command ^1delayed ^7due to sv_floodprotect!");
         return;
     }
     
@@ -1439,25 +1439,25 @@ static void SV_SavePosition_f(client_t *cl) {
     
     // disallow if moving
     if (ps->velocity[0] != 0 || ps->velocity[1] != 0 || ps->velocity[2] != 0) {
-        SV_SendMessageToClient(cl, "You can't save your position while moving");
+        SV_BroadcastMessageToClient(cl, "You can't save your position while moving");
         return;
     }
     
     // disallow if dead
     if (ps->pm_type != PM_NORMAL) {
-        SV_SendMessageToClient(cl, "You must be alive and in-game to save your position");
+        SV_BroadcastMessageToClient(cl, "You must be alive and in-game to save your position");
         return;
     }
     
     // disallow if crouched
     if (ps->pm_flags & PMF_DUCKED) {
-        SV_SendMessageToClient(cl, "You cannot save your position while being crouched");
+        SV_BroadcastMessageToClient(cl, "You cannot save your position while being crouched");
         return;
     }
     
     // disallow if not on a solid ground
     if (ps->groundEntityNum != ENTITYNUM_WORLD) {
-        SV_SendMessageToClient(cl, "You must be standing on a solid ground to save your position");
+        SV_BroadcastMessageToClient(cl, "You must be standing on a solid ground to save your position");
         return;
     }
     
@@ -1472,7 +1472,7 @@ static void SV_SavePosition_f(client_t *cl) {
                                       cl->savedPosition[1],
                                       cl->savedPosition[2]);
     
-    SV_SendMessageToClient(cl, "Your position has been saved");
+    SV_BroadcastMessageToClient(cl, "Your position has been saved");
     
 }
 
@@ -1517,13 +1517,13 @@ static void SV_LoadPosition_f(client_t *cl) {
     
     // if there is no position saved
     if (!cl->savedPosition[0] || !cl->savedPosition[1] || !cl->savedPosition[2]) {
-        SV_SendMessageToClient(cl, "There is no position to load");
+        SV_BroadcastMessageToClient(cl, "There is no position to load");
         return;
     }
     
     // disallow if dead
     if (ps->pm_type != PM_NORMAL) {
-        SV_SendMessageToClient(cl, "You must be alive and in-game to load your position");
+        SV_BroadcastMessageToClient(cl, "You must be alive and in-game to load your position");
         return;
     }
     
@@ -1564,7 +1564,7 @@ static void SV_LoadPosition_f(client_t *cl) {
                                       cl->savedPosition[1],
                                       cl->savedPosition[2]);
     
-    SV_SendMessageToClient(cl, "Your position has been loaded");
+    SV_BroadcastMessageToClient(cl, "Your position has been loaded");
     
 }
 
@@ -1580,14 +1580,14 @@ static void SV_Tell_f(client_t *cl) {
     client_t *target;
     
     if (Cmd_Argc() < 3) {
-        SV_SendMessageToClient(cl, "Usage: tell <client> <text>");
+        SV_BroadcastMessageToClient(cl, "Usage: tell <client> <text>");
         return;
     }
     
     // get the target client
     target = SV_GetPlayerByParam(Cmd_Argv(1));
     if (!target) {
-        SV_SendMessageToClient(cl, "No client found matching %s", Cmd_Argv(1));
+        SV_BroadcastMessageToClient(cl, "No client found matching %s", Cmd_Argv(1));
         return;
     }
     
@@ -1763,7 +1763,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                                     text = wtime != 1 ? "minutes" : "minute";
                                 }
                                 
-                                SV_SendMessageToClient(cl, "You need to wait ^1%d ^7%s before calling another vote", wtime, text);
+                                SV_BroadcastMessageToClient(cl, "You need to wait ^1%d ^7%s before calling another vote", wtime, text);
                                 return;
                             }
                             
@@ -1817,7 +1817,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             
             if (exploitDetected) {
                 Com_Printf("Buffer overflow exploit radio/say, possible attempt from %s\n", NET_AdrToString(cl->netchan.remoteAddress));        
-                SV_SendMessageToClient(cl, "Chat dropped due to message length constraints");
+                SV_BroadcastMessageToClient(cl, "Chat dropped due to message length constraints");
                 return;
             }
 

@@ -81,11 +81,11 @@ cvar_t    *sv_autodemo;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
-// Name        : SV_SendMessageToClient
+// Name        : SV_BroadcastMessageToClient
 // Description : Send a server message to a specific client
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
-void SV_SendMessageToClient(client_t *cl, const char *fmt, ...) {
+void SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...) {
     
     char    str[MAX_STRING_CHARS];
     va_list ap;

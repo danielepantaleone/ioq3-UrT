@@ -315,7 +315,7 @@ extern    cvar_t    *sv_autodemo;
 // sv_main.c
 //
 void        SV_FinalMessage (char *message);
-void        SV_SendMessageToClient(client_t *cl, const char *fmt, ...);
+void        SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...);
 void QDECL  SV_LogPrintf(const char *fmt, ...);
 void        SV_LoadPositionFromFile(client_t *cl, char *mapname);
 void        SV_SavePositionToFile(client_t *cl, char *mapname);

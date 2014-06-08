@@ -1164,7 +1164,7 @@ void SV_FinalMessage(char *message) {
                 
                 // don't send a disconnect to a local client
                 if (cl->netchan.remoteAddress.type != NA_LOOPBACK) {
-                    SV_SendMessageToClient(cl, message);
+                    SV_BroadcastMessageToClient(cl, message);
                     SV_SendServerCommand(cl, "disconnect");
                 }
                 
