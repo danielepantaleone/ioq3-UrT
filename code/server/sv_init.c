@@ -433,13 +433,13 @@ int TextEncode6Bit(const char *nam, unsigned char *buf, int blen) {
         }
         
         if (x == -1) {
-            Com_Printf("^7[^3WARNING^7] Invalid character in pk3 file name: '%c'\n", ch);
+            Com_Printf("WARNING: invalid character in pk3 file name: '%c'\n", ch);
             x = char2val['~']; // replace with ~ character to not break everythign else
         }
         
         buf[ol++] = x;
         if (ol == blen) {
-            Com_Printf("^7[^1ERROR^7] TextEncode6Bit: target buffer overflow!\n");
+            Com_Printf("ERROR: TextEncode6Bit: target buffer overflow!\n");
             buf[ol - 1] = 0;
             return -1;
         }
@@ -465,7 +465,7 @@ int SV_MakeCompressedPureList() {
     int i, l, bl, sh, shl, ol, csnr;
     msg_t msg = {0};
     const char *nam;
-    const char *err_chunk = "^7[^1ERROR^7] Too many pk3 files: "
+    const char *err_chunk = "ERROR: Too many pk3 files: "
                             "compressed data doesn't fit into available space\n";
 
     // Get raw checksums
@@ -603,8 +603,7 @@ int SV_MakeCompressedPureList() {
         SV_SetConfigstring(MAX_CONFIGSTRINGS-PURE_COMPRESS_NUMCS+csnr, tmp);
     }
      
-    Com_Printf("^7Using ^3%d ^7configstrings to store pure filelist: encoded using" 
-               "^3%d ^7characters)\n", csnr + 1, ol + csnr * 1024);
+    Com_Printf("Using %d CS to store pure filelist: encoded using %d chars)\n", csnr + 1, ol + csnr * 1024);
     return 0;
 
 }
@@ -971,7 +970,7 @@ void SV_SpawnServer(char *server, qboolean killBots) {
             p = FS_LoadedPakChecksums();
             Cvar_Set("sv_paks", p);
             if (!p[0]) {
-                Com_Printf("^7[^3WARNING^7] CVAR sv_pure set but no pk3 files loaded!\n");
+                Com_Printf("WARNING: CVAR sv_pure set but no pk3 files loaded!\n");
             }
             p = FS_LoadedPakNames();
             Cvar_Set("sv_pakNames", p);

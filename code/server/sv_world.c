@@ -189,7 +189,7 @@ void SV_UnlinkEntity(sharedEntity_t *gEnt) {
         }
     }
 
-    Com_Printf("^7[^3WARNING^7] SV_UnlinkEntity: not found in world sector\n");
+    Com_Printf("WARNING: SV_UnlinkEntity: not found in world sector\n");
     
 }
 

@@ -1382,12 +1382,12 @@ int Info_SetValueForKey(char *s, const char *key, const char *value) {
     char        newi[MAX_INFO_STRING];
     
     if (strlen(s) >= MAX_INFO_STRING) {
-        Com_Error(ERR_DROP, "^7[^1ERROR^7] Info_SetValueForKey: oversize infostring");
+        Com_Error(ERR_DROP, "ERROR: Info_SetValueForKey: oversize infostring");
     }
 
     for (; *blacklist; ++blacklist) {
         if (strchr (key, *blacklist) || strchr (value, *blacklist)) {
-            Com_Printf("^7[^3WARNING^7] Can't use keys or values with a '%c': %s = %s\n", 
+            Com_Printf("WARNING: Can't use keys or values with a '%c': %s = %s\n", 
                         *blacklist, key, value);
             return -1;
         }
@@ -1403,7 +1403,7 @@ int Info_SetValueForKey(char *s, const char *key, const char *value) {
     
     length = strlen(newi) + strlen(s);
     if (length >= MAX_INFO_STRING) {
-        Com_Printf("^7[^3WARNING^7] Info string length exceeded\n");
+        Com_Printf("WARNING: Info string length exceeded\n");
         return length;
     }
 

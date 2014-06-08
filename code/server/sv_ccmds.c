@@ -273,7 +273,7 @@ void SV_GetMapSoundingLike(char *dest, const char *s, int size) {
     // we didn't found an exact name match. Keep iterating
     // through all the available maps matching partial substrings
     if (!(mapcount = FS_GetFileList("maps", ".bsp", maplist, sizeof(maplist)))) {
-        Com_Printf("^7[^1ERROR^7] Could not retrieve maplist!\n");
+        Com_Printf("ERROR: Could not retrieve maplist!\n");
         *dest = 0;
         return;
     }

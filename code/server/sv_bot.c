@@ -163,22 +163,22 @@ void QDECL BotImport_Print(int type, char *fmt, ...) {
         }
         
         case PRT_WARNING: {
-            Com_Printf("^7[^3WARNING^7] %s", str);
+            Com_Printf("WARNING: %s", str);
             break;
         }
         
         case PRT_ERROR: {
-            Com_Printf("^7[^1ERROR^7] %s", str);
+            Com_Printf("ERROR: %s", str);
             break;
         }
         
         case PRT_FATAL: {
-            Com_Printf("^7[^1FATAL^7] %s", str);
+            Com_Printf("FATAL: %s", str);
             break;
         }
         
         case PRT_EXIT: {
-            Com_Error(ERR_DROP, "^7[^1EXIT^7] %s", str);
+            Com_Error(ERR_DROP, "EXIT: %s", str);
             break;
         }
         
