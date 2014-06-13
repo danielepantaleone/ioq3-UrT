@@ -367,13 +367,20 @@ void SCR_DrawClock(void) {
     qtime_t now;
     char    string[16];
     
-    if (Cvar_VariableValue ("cl_drawclock")) {
-        Com_RealTime(&now);
-        Com_sprintf(string, sizeof(string), "%02i:%02i:%02i", now.tm_hour, now.tm_min, now.tm_sec);
-        SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 12, SMALLCHAR_WIDTH, 
-                          string, g_color_table[7], qtrue);
+    
+    // if we are paused
+    if (!Cvar_VariableValue("cl_drawclock")) {
+        return;
     }
     
+    // if we are paused
+    if (Cvar_VariableValue("cl_paused")) {
+        return;
+    }
+    
+    Com_RealTime(&now);
+    Com_sprintf(string, sizeof(string), "%02i:%02i:%02i", now.tm_hour, now.tm_min, now.tm_sec);
+    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 12, SMALLCHAR_WIDTH, string, g_color_table[7], qtrue);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -391,6 +398,11 @@ void SCR_DrawHealth( void ) {
     
     // if we are not supposed to draw
     if (!Cvar_VariableValue("cl_drawHealth")) {
+        return;
+    }
+    
+    // if we are paused
+    if (Cvar_VariableValue("cl_paused")) {
         return;
     }
     
