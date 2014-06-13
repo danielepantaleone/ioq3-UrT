@@ -53,12 +53,12 @@ versions of OSX, please refer to the original repository README*
 ### *Client*
 
 * fixed clipboard data paste crashing the client engine on unix systems
-* added `cl_keepvidaspect` cvar: keeps the aspect ratio of cinematics when using non 4:3 video modes
 * correctly draw new game module color codes in console
 * improved in-game console readability
 * fixed linux SDL gamma bug using XF86 (by [clearskies](https://github.com/clearskies))
 * keep the dedicated console open when the UI subsystem start (windows only)
 * improved windows dedicated console readability
+* added `cl_drawHealth` cvar: draw player health percentace in the HUD
 
 ## Credits
 
