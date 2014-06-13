@@ -419,9 +419,9 @@ void SCR_DrawHealth( void ) {
     box_col[3] = 0.85f;
     SCR_FillRect(6, 380, 44.0f, 16.0f, box_col);
     
-    if (health >= 50) {
+    if (health >= 66) {
         health_col = 2; // green
-    } else if (health < 50 && health >= 25) {
+    } else if (health < 66 && health >= 33) {
         health_col = 3; // yellow
     } else {
         health_col = 1; // red
