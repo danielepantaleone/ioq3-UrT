@@ -541,7 +541,7 @@ void Con_DrawNotify (void) {
 /////////////////////////////////////////////////////////////////////
 void Con_DrawSolidConsole(float frac) {
     
-    int             i, x, y, j;
+    int             i, x, y;
     int             rows;
     short           *text;
     int             row;
@@ -582,12 +582,6 @@ void Con_DrawSolidConsole(float frac) {
     color[2] = 0.00f;
     color[3] = 1.00f;
     
-    // draw the left/right console border
-    if (cl_keepvidaspect->integer) {
-        SCR_FillRect(0, 0, 1, y, color);
-        SCR_FillRect(SCREEN_WIDTH - 1, 0, 1, y, color); 
-    }
-    
     // draw the bottom console border
     SCR_FillRect(0, y, SCREEN_WIDTH, 1, color);
 
@@ -599,7 +593,6 @@ void Con_DrawSolidConsole(float frac) {
     
     // draw the version number
     re.SetColor(color);
-    j = cl_keepvidaspect->integer ? 6 : 3;
     i = strlen(SVN_VERSION);
     for (x = 0 ; x < i ; x++) {
         SCR_DrawSmallChar(cls.glconfig.vidWidth - (i - x) * SMALLCHAR_WIDTH, 
