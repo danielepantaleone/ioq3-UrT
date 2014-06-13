@@ -375,7 +375,7 @@ extern    cvar_t    *cl_aviMotionJpeg;
 extern    cvar_t    *cl_activeAction;
 
 extern    cvar_t    *cl_autoDownload;
-extern  cvar_t  *cl_downloadMethod;
+extern    cvar_t    *cl_downloadMethod;
 extern    cvar_t    *cl_conXOffset;
 extern    cvar_t    *cl_inGameVideo;
 

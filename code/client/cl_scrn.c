@@ -490,6 +490,7 @@ void SCR_Init(void) {
     cl_graphscale = Cvar_Get("graphscale", "1", CVAR_CHEAT);
     cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
     cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
+    cl_drawHealth = Cvar_Get("cl_drawHealth", "1", CVAR_ARCHIVE);
     scr_initialized = qtrue;
 }
 
