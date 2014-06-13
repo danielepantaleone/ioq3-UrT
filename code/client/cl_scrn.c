@@ -33,6 +33,7 @@ cvar_t    *cl_graphscale;
 cvar_t    *cl_graphshift;
 cvar_t    *cl_drawclock;
 cvar_t    *cl_keepvidaspect;
+cvar_t    *cl_drawHealth;
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawNamedPic
@@ -222,6 +223,38 @@ void SCR_DrawStringExt(int x, int y, float size, const char *string, float *setC
 }
 
 /////////////////////////////////////////////////////////////////////
+// Name        : SCR_DrawStringExtNoShadow
+// Description : Coordinates are at 640 by 480 virtual resolution: will
+//               not draw the text shadow.
+/////////////////////////////////////////////////////////////////////
+void SCR_DrawStringExtNoShadow(int x, int y, float size, const char *string, float *setColor, qboolean forceColor) {
+    
+    int           xx;
+    vec4_t        color;
+    const char    *s;
+
+    // draw the colored text
+    xx = x;
+    s = string;
+    re.SetColor(setColor);
+    while (*s) {
+        if (Q_IsColorString(s)) {
+            if (!forceColor) {
+                Com_Memcpy(color, g_color_table[ColorIndex(*(s + 1))], sizeof(color));
+                color[3] = setColor[3];
+                re.SetColor(color);
+            }
+            s += 2;
+            continue;
+        }
+        SCR_DrawChar(xx, y, size, *s);
+        xx += size;
+        s++;
+    }
+    re.SetColor(NULL);
+}
+
+/////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawBigString
 // Description : Coordinates are at 640 by 480 virtual resolution
 /////////////////////////////////////////////////////////////////////
@@ -359,11 +392,57 @@ void SCR_DrawClock(void) {
     
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                          //
-//  DEBUG GRAPH                                                                                             //
-//                                                                                                          //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+// Name        : SCR_DrawHealth
+// Author      : Clearskies (revised by Fenix)
+// Description : Draw the player health in the hud
+/////////////////////////////////////////////////////////////////////
+void SCR_DrawHealth( void ) {
+    
+    int xx;
+    int health;
+    int health_col;
+    vec4_t box_col;
+    char health_str[32];
+    
+    // if we are not supposed to draw
+    if (!Cvar_VariableValue("cl_drawHealth")) {
+        return;
+    }
+    
+    // if we are dead or we are in spectators team
+    health = cl.snap.ps.stats[0];
+    if (!health || cl.snap.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cl.snap.ps.pm_type > 4) {
+        return;
+    }
+    
+    // draw the box container
+    box_col[0] = 0.0f;
+    box_col[1] = 0.0f;
+    box_col[2] = 0.0f;
+    box_col[3] = 0.85f;
+    SCR_FillRect(6, 380, 44.0f, 16.0f, box_col);
+    
+    if (health >= 50) {
+        health_col = 2; // green
+    } else if (health < 50 && health >= 25) {
+        health_col = 3; // yellow
+    } else {
+        health_col = 1; // red
+    }
+    
+    // draw the health
+    Com_sprintf(health_str, sizeof(health_str), "%d%%", health);
+    xx = 28 - (SCR_GetSmallStringWidth(health_str) / 2);
+    SCR_DrawStringExtNoShadow(xx, 384, SMALLCHAR_WIDTH, health_str, g_color_table[health_col], qtrue);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//  DEBUG GRAPH                                                               //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
     float    value;
@@ -492,6 +571,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame) {
             CL_CGameRendering(stereoFrame);
             SCR_DrawDemoRecording();
             SCR_DrawClock();
+            SCR_DrawHealth();
             break;
         }
     }
