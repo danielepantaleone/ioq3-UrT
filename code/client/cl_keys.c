@@ -312,77 +312,81 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor ) {
+void Field_VariableSizeDraw(field_t *edit, int x, int y, int width, int size, qboolean showCursor) {
     
-    int		len;
-    int		drawLen;
-    int		prestep;
-    int		cursorChar;
-    char	str[MAX_STRING_CHARS];
-    int		i;
+    int     len;
+    int     drawLen;
+    int     prestep;
+    int     cursorChar;
+    char    str[MAX_STRING_CHARS];
+    int     i;
 
-    drawLen = edit->widthInChars - 1; // - 1 so there is always a space for the cursor
-    len = strlen(edit->buffer);
+    drawLen = edit->widthInChars;
+    len = strlen(edit->buffer) + 1;
+    
+    // draw only inside given width
+    if (drawLen * SMALLCHAR_WIDTH > width) {
+        drawLen = width / SMALLCHAR_WIDTH;
+    }
 
     // guarantee that cursor will be visible
-    if ( len <= drawLen ) {
+    if (len <= drawLen) {
         prestep = 0;
     } else {
-        if ( edit->scroll + drawLen > len ) {
+        if (edit->scroll + drawLen > len) {
             edit->scroll = len - drawLen;
-            if ( edit->scroll < 0 ) {
-                    edit->scroll = 0;
+            if (edit->scroll < 0) {
+                edit->scroll = 0;
             }
         }
         prestep = edit->scroll;
     }
 
-    if ( prestep + drawLen > len ) {
+    if (prestep + drawLen > len) {
         drawLen = len - prestep;
     }
-
+ 
     // extract <drawLen> characters from the field at <prestep>
-    if ( drawLen >= MAX_STRING_CHARS ) {
-        Com_Error( ERR_DROP, "drawLen >= MAX_STRING_CHARS" );
+    if (drawLen >= MAX_STRING_CHARS) {
+        Com_Error(ERR_DROP, "drawLen >= MAX_STRING_CHARS");
     }
 
-    Com_Memcpy( str, edit->buffer + prestep, drawLen );
+    Com_Memcpy(str, edit->buffer + prestep, drawLen);
     str[ drawLen ] = 0;
 
     // draw it
-    if ( size == SMALLCHAR_WIDTH ) {
+    if (size == SMALLCHAR_WIDTH) {
         float	color[4];
         color[0] = color[1] = color[2] = color[3] = 1.0;
-        SCR_DrawSmallStringExt( x, y, str, color, qfalse );
+        SCR_DrawSmallStringExt(x, y, str, color, qfalse);
     } else {
         // draw big string with drop shadow
-        SCR_DrawBigString( x, y, str, 1.0 );
+        SCR_DrawBigString(x, y, str, 1.0);
     }
 
     // draw the cursor
-    if ( !showCursor ) {
+    if (!showCursor) {
         return;
     }
 
-    if ( (int)( cls.realtime >> 8 ) & 1 ) {
-        return;		// off blink
+    if ((int)(cls.realtime >> 8) & 1) {
+        return;        // off blink
     }
 
-    if ( key_overstrikeMode ) {
+    if (key_overstrikeMode) {
         cursorChar = 11;
     } else {
         cursorChar = 10;
     }
 
-    i = drawLen - Q_PrintStrlen( str ) - 1;
+    i = drawLen - Q_PrintStrlen(str) - 1;
 
-    if ( size == SMALLCHAR_WIDTH ) {
-        SCR_DrawSmallChar( x + ( edit->cursor - prestep - i ) * size, y, cursorChar );
+    if (size == SMALLCHAR_WIDTH) {
+        SCR_DrawSmallChar(x + (edit->cursor - prestep - i) * size, y, cursorChar);
     } else {
         str[0] = cursorChar;
         str[1] = 0;
-        SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0 );
-
+        SCR_DrawBigString(x + (edit->cursor - prestep - i) * size, y, str, 1.0);
     }
 }
 
