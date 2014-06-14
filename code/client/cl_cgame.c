@@ -719,9 +719,11 @@ Should only be called by CL_StartHunkUsers
 ====================
 */
 void CL_InitCGame( void ) {
-	const char			*info;
-	const char			*mapname;
-	int					t1, t2;
+    
+	const char              *info;
+	const char              *mapname;
+        cvar_t                  *cvar;
+	int                     t1, t2;
 	vmInterpret_t		interpret;
 
 	t1 = Sys_Milliseconds();
@@ -773,6 +775,11 @@ void CL_InitCGame( void ) {
 	if (!Sys_LowPhysicalMemory()) {
 		Com_TouchMemory();
 	}
+        
+        if ((cvar = Cvar_FindVar("snaps"))) {
+            Com_Printf("CL_InitCGame: removing CVAR_CHEAT flag from '%s' cvar\n", cvar->name);
+            cvar->flags &= ~CVAR_CHEAT;
+        }
 
 	// clear anything that got printed
 	Con_ClearNotify ();
