@@ -722,17 +722,17 @@ void SV_SendClientMessages(void) {
         }
         
         if (*c->downloadName) {
-			continue; // client is downloading: don't send snapshots
+            continue; // client is downloading: don't send snapshots
         }
         
         if (svs.time < c->nextSnapshotTime) {
             continue; // not time yet
         }
         
-        if (c->netchan.unsentFragments || c->netchan_start_queue) {
-    	    c->rateDelayed = qtrue;
-		    continue; // drop this snapshot if the packet queue is still full or delta compression will break
-        }
+        //if (c->netchan.unsentFragments || c->netchan_start_queue) {
+        //    c->rateDelayed = qtrue;
+        //    continue; // drop this snapshot if the packet queue is still full or delta compression will break
+        //}
 
         // send additional message fragments if the last message
         // was too large to send at once
