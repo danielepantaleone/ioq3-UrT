@@ -1001,13 +1001,13 @@ void SV_SpawnServer(char *server, qboolean killBots) {
          int len1 = 0;
          int len2 = 0;
          
-         if (t = Info_ValueForKey(systemInfo, "sv_paks")) {
+         if ((t = Info_ValueForKey(systemInfo, "sv_paks"))) {
              while (*t) {
                  if (*t == ' ') { ++len1; }
                  ++t;
              }
          }
-         if (t = Info_ValueForKey(systemInfo, "sv_pakNames")) {
+         if ((t = Info_ValueForKey(systemInfo, "sv_pakNames"))) {
              while (*t) {
                  if (*t == ' ') { ++len2; }
                  ++t;
