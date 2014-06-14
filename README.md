@@ -59,6 +59,7 @@ versions of OSX, please refer to the original repository README*
 * keep the dedicated console open when the UI subsystem start (windows only)
 * improved windows dedicated console readability
 * added `cl_drawHealth` cvar: draw player health percentace in the HUD
+* unlock `snaps` cvar from game module constraint
 
 ## Credits
 
