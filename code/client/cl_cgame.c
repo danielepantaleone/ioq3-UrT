@@ -429,6 +429,10 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		Cvar_Update( VMA(1) );
 		return 0;
 	case CG_CVAR_SET:
+                // exclude some game module cvars
+                if (!Q_stricmp((char *)VMA(1), "snaps")) {
+                    return 0;
+                }
 		Cvar_Set( VMA(1), VMA(2) );
 		return 0;
 	case CG_CVAR_VARIABLESTRINGBUFFER:
