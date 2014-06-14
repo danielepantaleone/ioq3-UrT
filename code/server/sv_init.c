@@ -997,31 +997,26 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     Q_strncpyz(systemInfo, Cvar_InfoString_Big(CVAR_SYSTEMINFO), sizeof(systemInfo));
 
     {
-         const char *t,*tt;
-         int l,l2;
-
-         t = Info_ValueForKey(systemInfo, "sv_paks");
-         l = 0;
-         if (t) {
-             tt = t;
-             while(*tt) { if (*tt==' ') l++; tt++; }
-         }
-
-         t = Info_ValueForKey(systemInfo, "sv_pakNames");
-         l2 = 0;
-         if (t) {
-             tt = t;
-             while(*tt) { 
-                 if (*tt == ' ') { 
-                     l2++; tt++; 
-                 } 
+         const char *t;
+         int len1 = 0;
+         int len2 = 0;
+         
+         if (t = Info_ValueForKey(systemInfo, "sv_paks")) {
+             while (*t) {
+                 if (*t == ' ') { ++len1; }
+                 ++t;
              }
          }
-         
-         if (abs(l - l2) > 1) {
+         if (t = Info_ValueForKey(systemInfo, "sv_pakNames")) {
+             while (*t) {
+                 if (*t == ' ') { ++len2; }
+                 ++t;
+             }
+         }
+         if (abs(len1 - len2) > 1) {
              // seems pakNames may have one extra item without checksum at the end
              Com_Printf("WARNING: pure PAK file list inconsistency: %d checksums, "
-                        "%d file names: players may not be able to connect to server.\n", l, l2);
+                        "%d file names: players may not be able to connect to server.\n", len1, len2);
          }
     }
 
