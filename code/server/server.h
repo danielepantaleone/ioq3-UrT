@@ -315,6 +315,7 @@ extern    cvar_t    *sv_auth_engine;
 extern    cvar_t    *sv_disableradio;
 extern    cvar_t    *sv_failedvotetime;
 extern    cvar_t    *sv_ghostradius;
+extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_rconusers;
 extern    cvar_t    *sv_rconusersfile;

@@ -72,6 +72,7 @@ cvar_t    *sv_auth_engine;
 cvar_t    *sv_disableradio;
 cvar_t    *sv_failedvotetime;
 cvar_t    *sv_ghostradius;
+cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
 cvar_t    *sv_rconusers;
 cvar_t    *sv_rconusersfile;

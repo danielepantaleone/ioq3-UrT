@@ -1682,21 +1682,23 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             argsFromOneMaxlen = -1;
             if (Q_stricmp("say", Cmd_Argv(0)) == 0 || Q_stricmp("say_team", Cmd_Argv(0)) == 0) {
                 
-                // check for a BOT (b3 or w/e) command to be issued
-                // if a match is found the text string is hidden to
-                // everyone but the client who issued it
-                p = Cmd_Argv(1);
-                while (*p == ' ') {
-                    p++;
-                }
-                
-                // matching BOT prefixes (most common ones)
-                if ((*p == '!') || (*p == '@') || (*p == '&') || (*p == '/')) { 
-                    Q_strncpyz(name, cl->name, sizeof(name));
-                    Q_CleanStr(name);
-                    SV_LogPrintf("say: %d %s: %s\n", cl - svs.clients, name, Cmd_Args());
-                    SV_SendServerCommand(cl, "chat \"^7%s: ^8%s\n\"", name, Cmd_Args());
-                    return;
+                if (sv_hidechatcmds->integer > 0) {
+                    // check for a BOT (b3 or w/e) command to be issued
+                    // if a match is found the text string is hidden to
+                    // everyone but the client who issued it
+                    p = Cmd_Argv(1);
+                    while (*p == ' ') {
+                        p++;
+                    }
+
+                    // matching BOT prefixes (most common ones)
+                    if ((*p == '!') || (*p == '@') || (*p == '&') || (*p == '/')) { 
+                        Q_strncpyz(name, cl->name, sizeof(name));
+                        Q_CleanStr(name);
+                        SV_LogPrintf("say: %d %s: %s\n", cl - svs.clients, name, Cmd_Args());
+                        SV_SendServerCommand(cl, "chat \"^7%s: ^8%s\n\"", name, Cmd_Args());
+                        return;
+                    }
                 }
                 
                 argsFromOneMaxlen = MAX_SAY_STRLEN;
