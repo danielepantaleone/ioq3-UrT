@@ -777,14 +777,23 @@ void SV_ReadRconUserList(void) {
         return;
     }
     
+    // if somehow not all bytes were read
+    if (len != size) {
+        Com_Printf("WARNING: %s file not all bytes were read!\n", sv_rconusersfile->string);
+        return;
+    }
+    
     // free previously allocated memory
     if (svs.rconuserlist != NULL) {
+        i = 0;
+        while ((i < MAX_RCON_USERS) && (svs.rconuserlist[i]))
+            Z_Free(svs.rconuserlist[i++]);
         Z_Free(svs.rconuserlist);
     }
     
     i = 0;
-    svs.rconuserlist = Z_Malloc(MAX_RCON_USERS * MAX_NAME_LENGTH);
-    while ((token = COM_Parse(&buffer)) && (token[0]) && (i < MAX_RCON_USERS)) {
+    svs.rconuserlist = Z_Malloc(MAX_RCON_USERS * sizeof(char *));
+    while ((i < MAX_RCON_USERS) && (token = COM_Parse(&buffer)) && (token[0])) {
         // skip minimum auth length
         if (strlen(token) < 3) {
             continue;
