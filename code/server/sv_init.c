@@ -785,15 +785,14 @@ void SV_ReadRconUserList(void) {
     
     // free previously allocated memory
     if (svs.rconuserlist != NULL) {
-        i = 0;
-        while ((i < MAX_RCON_USERS) && (svs.rconuserlist[i]))
+        for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
             Z_Free(svs.rconuserlist[i++]);
+        }
         Z_Free(svs.rconuserlist);
     }
     
-    i = 0;
     svs.rconuserlist = Z_Malloc(MAX_RCON_USERS * sizeof(char *));
-    while ((i < MAX_RCON_USERS) && (token = COM_Parse(&buffer)) && (token[0])) {
+    for (i = 0; (i < MAX_RCON_USERS) && (token = COM_Parse(&buffer)) && (token[0]); i++) {
         // skip minimum auth length
         if (strlen(token) < 3) {
             continue;
@@ -801,7 +800,6 @@ void SV_ReadRconUserList(void) {
         // allocate space and save the auth login
         svs.rconuserlist[i] = Z_Malloc(MAX_NAME_LENGTH);
         Q_strncpyz(svs.rconuserlist[i], token, MAX_NAME_LENGTH);
-        i++;
     }
     
 }
