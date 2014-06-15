@@ -185,6 +185,8 @@ typedef struct client_s {
     int                 jumprun;                // tells whether the client is in a jump run
     
     qboolean            ghost;                  // whether this client has ghosting enabled client side
+    qboolean            rconuser;               // whether this client is an RCON user or not
+    char                auth[MAX_NAME_LENGTH];  // the client auth login
     
 } client_t;
 
@@ -233,6 +235,7 @@ typedef struct {
     netadr_t        authorizeAddress;                   // for rcon return messages
     
     char            lastCycleMap[128];       // last mapcycle computed map
+    char            **rconuserlist;          // list of rcon users who do not have to type the rcon password
 } serverStatic_t;
 
 // The value below is how many extra characters we reserve for every instance of '$' in a
@@ -260,6 +263,9 @@ typedef struct {
 // value out of my ass because I don't really know exactly when problems start to happen.
 // This value takes into account increments due to the presence of '$'.
 #define MAX_SAY_STRLEN 256
+
+// Maximum amount of RCON users that can be listed in the RCON users 
+#define MAX_RCON_USERS 32
 
 extern    serverStatic_t    svs;                // persistant server info across maps
 extern    server_t          sv;                 // cleared each map
@@ -310,7 +316,8 @@ extern    cvar_t    *sv_disableradio;
 extern    cvar_t    *sv_failedvotetime;
 extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_autodemo;
-
+extern    cvar_t    *sv_rconusers;
+extern    cvar_t    *sv_rconusersfile;
 //
 // sv_main.c
 //

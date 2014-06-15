@@ -734,6 +734,69 @@ static void SV_DoMapcycleRoutine(void) {
     
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Name        : SV_ReadRconUserList
+// Description : Read the rcon.cfg file from q3ut4 parsing the auth
+//               of clients who will be allowed to use Rcon commands
+//               without having to insert the rcon password.
+// Author      : Fenix
+////////////////////////////////////////////////////////////////////////////////
+void SV_ReadRconUserList(void) {
+    
+    int            i, size, len;
+    char           *buffer;
+    char           *token;
+    fileHandle_t   file;
+    
+    // if the feature is disabled
+    if (!(sv_rconusers->integer > 0)) {
+        return;
+    }
+    
+    // if the cvar is empty
+    if (!sv_rconusersfile->string) {
+        Com_Printf("WARNING: sv_rconusers is enabled but sv_rconusersfile is empty\n");
+        return;
+    }
+    
+    // open the rcon user file
+    size = FS_FOpenFileByMode(sv_rconusersfile->string, &file, FS_READ);
+    if (!file) {
+        Com_Printf("WARNING: could not open file '%s'\n", sv_rconusersfile->string);
+        return;
+    }
+    
+    // read the whole file
+    buffer = Z_Malloc(size);
+    len = FS_Read(buffer, size , file);
+    FS_FCloseFile(file);
+    
+    // if empty
+    if (!len) {
+        Com_Printf("WARNING: %s file is empty!\n", sv_rconusersfile->string);
+        return;
+    }
+    
+    // free previously allocated memory
+    if (svs.rconuserlist != NULL) {
+        Z_Free(svs.rconuserlist);
+    }
+    
+    i = 0;
+    svs.rconuserlist = Z_Malloc(MAX_RCON_USERS * MAX_NAME_LENGTH);
+    while ((token = COM_Parse(&buffer)) && (token[0]) && (i < MAX_RCON_USERS)) {
+        // skip minimum auth length
+        if (strlen(token) < 3) {
+            continue;
+        }
+        // allocate space and save the auth login
+        svs.rconuserlist[i] = Z_Malloc(MAX_NAME_LENGTH);
+        Q_strncpyz(svs.rconuserlist[i], token, MAX_NAME_LENGTH);
+        i++;
+    }
+    
+}
+
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_SpawnServer
 // Description : Change the server to a new map, taking all connected
@@ -1033,6 +1096,9 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // compute the nextmap
     SV_DoMapcycleRoutine();
     
+    // reload the list of rcon users
+    SV_ReadRconUserList();
+    
     // mark last vote time
     sv.lastVoteTime = svs.time;
 
@@ -1120,6 +1186,8 @@ void SV_Init(void) {
     sv_failedvotetime = Cvar_Get("sv_failedvotetime", "300", CVAR_ARCHIVE);
     sv_ghostradius = Cvar_Get("sv_ghostradius", "10.0", CVAR_ARCHIVE);
     sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
+    sv_rconusers = Cvar_Get("sv_rconusers", "1", CVAR_ARCHIVE);
+    sv_rconusersfile = Cvar_Get("sv_rconusersfile", "rcon.cfg", CVAR_ARCHIVE);
     
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();

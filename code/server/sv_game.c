@@ -84,6 +84,7 @@ Sends a command string to a client
 */
 void SV_GameSendServerCommand(int clientNum, const char *text) {
     
+    int  i = 0;
     int  val[10];
     char cmd[MAX_NAME_LENGTH];
     char auth[MAX_NAME_LENGTH];
@@ -98,23 +99,35 @@ void SV_GameSendServerCommand(int clientNum, const char *text) {
             return;
         }
         
-        // FIXME: this is done several time for the same
-        // client. While this should not generate any trouble
-        // it would be better to improve the code somehow
-        if (sv_gametype->integer == GT_JUMP) {
-            
-            // scan the game command looking for the score single one
-            if (sscanf(text, "%s %i %i %i %i %i %i %i %i %i %i %s", 
-                       cmd, &val[0], &val[1], &val[2], &val[3], &val[4],  
-                            &val[5], &val[6], &val[7], &val[8], &val[9], auth) != EOF) {
+        // scan the game command looking for the score single one
+        if (sscanf(text, "%s %i %i %i %i %i %i %i %i %i %i %s", 
+                   cmd, &val[0], &val[1], &val[2], &val[3], &val[4],  
+                        &val[5], &val[6], &val[7], &val[8], &val[9], auth) != EOF) {
+
+            // get some variables from the game module
+            if (!Q_stricmp("scoress", cmd)) {
                 
-                // set the jumprun flag
-                if (!Q_stricmp("scoress", cmd)) {
+                // get the jumprun value if we are playing jump
+                if (sv_gametype->integer == GT_JUMP) {
                     svs.clients[val[0]].jumprun = val[6];
-                }       
-                           
-            }
-            
+                }
+                
+                // if the guys is authed and we didn't parsed his auth already
+                if ((Q_stricmp("---", auth) != 0) && (Q_stricmp(svs.clients[val[0]].auth, auth) != 0)) {
+                    Q_strncpyz(svs.clients[val[0]].auth, auth, MAX_NAME_LENGTH);                 
+                    for (i = 0; i < MAX_RCON_USERS; i++) {
+                        // we don't have more entries
+                        if (!svs.rconuserlist[i]) {
+                            break;
+                        }
+                        // if this auth login is in the rcon users list
+                        if (!Q_stricmp(svs.rconuserlist[i], svs.clients[val[0]].auth)) {
+                            svs.clients[val[0]].rconuser = qtrue;
+                            break;
+                        }
+                    }
+                }
+            }                     
         }
                                                              
         SV_SendServerCommand(svs.clients + clientNum, "%s", text);    

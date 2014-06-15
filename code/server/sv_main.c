@@ -73,6 +73,8 @@ cvar_t    *sv_disableradio;
 cvar_t    *sv_failedvotetime;
 cvar_t    *sv_ghostradius;
 cvar_t    *sv_autodemo;
+cvar_t    *sv_rconusers;
+cvar_t    *sv_rconusersfile;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -929,7 +931,9 @@ void SVC_RconRecoveryRemoteCommand(netadr_t from, msg_t *msg) {
 /////////////////////////////////////////////////////////////////////
 void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     
+    int          i;
     qboolean     valid;
+    qboolean     rconuser = qfalse;
     char         remaining[1024];
     netadr_t     allowedSpamIPAdress;
     unsigned int time;
@@ -944,19 +948,35 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     // TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=534
     time = Com_Milliseconds();
     
+    // check whether this command has been sent by a rcon user
+    for (i = 0 ; i < sv_maxclients->integer; i++) {
+        // if not ingame
+        if (svs.clients[i].state != CS_ACTIVE) {
+            continue;
+        }
+        // if we got an ip:port match
+        if (NET_CompareAdr(from, svs.clients[i].netchan.remoteAddress)) {
+            rconuser = svs.clients[i].rconuser;
+            break;
+        }
+    }
+    
     NET_StringToAdr(sv_rconAllowedSpamIP->string , &allowedSpamIPAdress);
     
-    if (!strlen(sv_rconPassword->string) || strcmp (Cmd_Argv(1), sv_rconPassword->string)) {
+    // if there is no rconpassword set or the rconpassword given
+    // is not valid and the guy sending the command is not a RCON user
+    if ((!strlen(sv_rconPassword->string) || 
+         strcmp (Cmd_Argv(1), sv_rconPassword->string)) && (!rconuser)) {
         
         // let's the sv_rconAllowedSpamIP do spam rcon
-        if ((!strlen(sv_rconAllowedSpamIP->string) || !NET_CompareBaseAdr(from , allowedSpamIPAdress)) && 
-            !NET_IsLocalAddress(from)){
+        if ((!strlen(sv_rconAllowedSpamIP->string) || 
+             !NET_CompareBaseAdr(from , allowedSpamIPAdress)) && 
+             !NET_IsLocalAddress(from)){
             // MaJ - If the rconpassword is bad and one just happened recently, 
             // don't spam the log file, just die.
             if ((unsigned)(time - lasttime) < 600u) {
                 return;
-            }
-            
+            }   
         }
         
         valid = qfalse;
@@ -965,8 +985,9 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     } else {
     
         // let's the sv_rconAllowedSpamIP do spam rcon
-        if ((!strlen(sv_rconAllowedSpamIP->string) || !NET_CompareBaseAdr(from , allowedSpamIPAdress)) && 
-            !NET_IsLocalAddress(from)){
+        if ((!strlen(sv_rconAllowedSpamIP->string) || 
+             !NET_CompareBaseAdr(from , allowedSpamIPAdress)) && 
+             !NET_IsLocalAddress(from)){
             // MaJ - If the rconpassword is good, 
             // allow it much sooner than a bad one.
             if ((unsigned)(time - lasttime) < 180u) {
@@ -991,23 +1012,25 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     } else {
         
         remaining[0] = 0;
-        
         // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
         // get the command directly, "rcon <pass> <command>" to avoid quoting issues
-        // extract the command by walking
-        // since the cmd formatting can fuckup (amount of spaces), using a dumb step by step parsing
+        // extract the command by walking since the cmd formatting can fuckup (amount of spaces), 
+        // using a dumb step by step parsing
         cmd_aux = Cmd_Cmd();
-        cmd_aux += 4;                           // rcon
-        while(cmd_aux[0]==' ') {                // spaces
-            cmd_aux++;
-        }
-        while(cmd_aux[0] && cmd_aux[0]!=' ') {  // password
-            cmd_aux++;
-        }
-        while(cmd_aux[0]==' ') {                // spaces
+        cmd_aux += 4;                                 // rcon
+        while(cmd_aux[0] == ' ') {                    // spaces
             cmd_aux++;
         }
         
+        if (!rconuser) {
+            while(cmd_aux[0] && cmd_aux[0] != ' ') {  // password
+                cmd_aux++;
+            }
+            while(cmd_aux[0] == ' ') {                // spaces
+                cmd_aux++;
+            }
+        }
+  
         Q_strcat(remaining, sizeof(remaining), cmd_aux);
         
         // additional parse for game module commands
