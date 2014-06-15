@@ -49,6 +49,8 @@ versions of OSX, please refer to the original repository README*
 * added `sv_disableradio` cvar: totally disable radio calls in Jump Mode
 * added `sv_ghostradius` cvar: specify the radius of the ghosting bounding box
 * allow client position load while being in a jump run (will reset running timer if it was running)
+* added `sv_rconusers` cvar: allow clients to use rcon commands without having to type the password
+* added `sv_rconuserfile` cvar: specifies the name of the file from which to read auth logins
 
 ### *Client*
 
