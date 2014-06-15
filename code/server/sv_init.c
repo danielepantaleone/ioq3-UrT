@@ -1277,6 +1277,14 @@ void SV_Shutdown(char *finalmsg) {
         Z_Free(svs.clients);
     }
     
+    // clear rcon list
+    if (svs.rconuserlist != NULL) {
+        for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
+            Z_Free(svs.rconuserlist[i++]);
+        }
+        Z_Free(svs.rconuserlist);
+    }
+    
     Com_Memset(&svs, 0, sizeof(svs));
 
     Cvar_Set("sv_running", "0");
