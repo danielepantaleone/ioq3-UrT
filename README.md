@@ -38,7 +38,6 @@ versions of OSX, please refer to the original repository README*
 * unlocked `sv_fps` cvar from game module constraint
 * extended callvote spam protection: `sv_failedvotetime` defines the amount of secs between callvotes
 * added `tell` command: send a private message to a specific client (works with partial client name)
-* hidden big brother bot (or similar) commands: they are visible just to the client who issued them
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
 * added RCON `spoof` command: send a game client command as a specific client
 * fixed `stopserverdemo` command being executed on non-dedicated servers
@@ -51,6 +50,7 @@ versions of OSX, please refer to the original repository README*
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * added `sv_rconusers` cvar: allow clients to use rcon commands without having to type the password
 * added `sv_rconuserfile` cvar: specifies the name of the file from which to read auth logins
+* added `sv_hidechatcmds` cvar: hide big brother bot commands to everyone but the who issued them
 
 ### *Client*
 
