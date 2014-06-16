@@ -786,7 +786,7 @@ void SV_ReadRconUserList(void) {
     // free previously allocated memory
     if (svs.rconuserlist != NULL) {
         for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
-            Z_Free(svs.rconuserlist[i++]);
+            Z_Free(svs.rconuserlist[i]);
         }
         Z_Free(svs.rconuserlist);
     }
@@ -1281,7 +1281,7 @@ void SV_Shutdown(char *finalmsg) {
     // clear rcon list
     if (svs.rconuserlist != NULL) {
         for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
-            Z_Free(svs.rconuserlist[i++]);
+            Z_Free(svs.rconuserlist[i]);
         }
         Z_Free(svs.rconuserlist);
     }
