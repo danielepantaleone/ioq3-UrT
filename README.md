@@ -25,43 +25,51 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 *I still have to find a 'human comprehensible way' to compile this engine under OSX Mavericks: for older 
 versions of OSX, please refer to the original repository README*
 
-## Changelog
+## Addons & Improvements
 
 ### *Server*
-
+    
 * fixed map searching algorithm: no more unpredictability
-* added engine-side logging capability: writes in the same log file as the game module
-* added engine-side position save/load: fixed permanent position save/load not working in game module
+* fixed `stopserverdemo` command being executed on non-dedicated servers
+* added logging capability: writes in the same log file as the game module
+* added position save/load: fixed permanent position save/load not working in game module
+* added server-side ghosting feature: fix partial entity collision in jump mode
+* added custom mapcycle parsing utility
+* added `tell` command: send a private message to a specific client (works with partial client name)
 * added flood protect fix patch: allow 2 reliable client commands every 1.5 seconds
 * added RCON `teleport` command: teleport a specific client to another one or to the given coordinates
 * added RCON `position` command: retrieve client world coordinates
-* unlocked `sv_fps` cvar from game module constraint
-* extended callvote spam protection: `sv_failedvotetime` defines the amount of secs between callvotes
-* added `tell` command: send a private message to a specific client (works with partial client name)
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
 * added RCON `spoof` command: send a game client command as a specific client
-* fixed `stopserverdemo` command being executed on non-dedicated servers
-* added custom mapcycle parsing utility
-* added `sv_autodemo` cvar: auto record serverside demos of everyone when in matchmode
-* added server-side ghosting feature: fix partial entity collision in jump mode
 * added RCON `forcecvar` command: force a client USERINFO cvar to a specific value
-* added `sv_disableradio` cvar: totally disable radio calls in Jump Mode
-* added `sv_ghostradius` cvar: specify the radius of the ghosting bounding box
 * allow client position load while being in a jump run (will reset running timer if it was running)
-* added `sv_rconusers` cvar: allow clients to use rcon commands without having to type the password
-* added `sv_rconuserfile` cvar: specifies the name of the file from which to read auth logins
-* added `sv_hidechatcmds` cvar: hide big brother bot commands to everyone but the who issued them
+* unlocked `sv_fps` cvar from game module constraint
 
 ### *Client*
 
 * fixed clipboard data paste crashing the client engine on unix systems
-* correctly draw new game module color codes in console
-* improved in-game console readability
 * fixed linux SDL gamma bug using XF86 (by [clearskies](https://github.com/clearskies))
 * keep the dedicated console open when the UI subsystem start (windows only)
+* correctly draw new game module color codes in console
+* improved in-game console readability
 * improved windows dedicated console readability
-* added `cl_drawHealth` cvar: draw player health percentace in the HUD
 * unlock `snaps` cvar from game module constraint
+
+## New CVARs
+
+### *Server*
+
+* `sv_failedvotetime` - defines the amount of secs between callvotes
+* `sv_autodemo` - auto record serverside demos of everyone when in matchmode
+* `sv_disableradio` - totally disable radio calls in jump mode
+* `sv_ghostradius` - specify the radius of the ghosting bounding box
+* `sv_rconusers` - allow clients to use rcon commands without having to type the password
+* `sv_rconuserfile` - specifies the name of the file from which to read auth logins
+* `sv_hidechatcmds` - hide big brother bot commands to everyone but the who issued them
+
+### *Client*
+
+* `cl_drawHealth` - draw player health percentace in the HUD
 
 ## Credits
 
@@ -70,7 +78,7 @@ other versions of ioquake3: because of that I would like to give the necessary c
 I took ideas from:
 
 * [Rambetter](https://github.com/Rambetter)
-* [mickael9](https://bitbucket.org/mickael9)
 * [clearskies](https://github.com/clearskies)
+* [mickael9](https://bitbucket.org/mickael9)
 
 For the original README please check: https://github.com/Barbatos/ioq3-for-UrbanTerror-4
