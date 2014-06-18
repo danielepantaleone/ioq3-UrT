@@ -261,6 +261,46 @@ void SV_SavePositionToFile(client_t *cl, char *mapname) {
     
 }
 
+typedef struct {
+    char    *name;
+    int     flags;
+} callvote_t;
+
+callvote_t callvotes[] = { 
+    { "reload", 1 << 0 },
+    { "restart", 1 << 1 },
+    { "map", 1 << 2 },
+    { "nextmap", 1 << 3 },
+    { "kick", 1 << 4 },
+    { "clientkick", 1 << 4 },
+    { "swapteams", 1 << 5 },
+    { "shuffleteams", 1 << 6 },
+    { "g_friendlyfire", 1 << 7 },
+    { "g_followstrict", 1 << 8 },
+    { "g_gametype", 1 << 9 },
+    { "g_waverespawns", 1 << 10 },
+    { "timelimit", 1 << 11},
+    { "fraglimit", 1 << 12},
+    { "capturelimit", 1 << 13},
+    { "g_respawndelay", 1 << 14 },
+    { "g_redwave", 1 << 15 },
+    { "g_bluewave", 1 << 16 },
+    { "g_bombexplodetime", 1 << 17 },
+    { "g_bombdefusetime", 1 << 18 },
+    { "g_roundtime", 1 << 19 },
+    { "g_cahtime",  1 << 20 },
+    { "g_warmup", 1 << 21 },
+    { "g_matchmode", 1 << 22 },
+    { "g_timeouts", 1 << 23 },
+    { "g_timeoutlength", 1<< 24 },
+    { "exec", 1 << 25 },
+    { "g_swaproles", 1 << 26 },
+    { "g_maxrounds", 1 << 27 },
+    { "g_gear", 1 << 28 },
+    { "cyclemap", 1 << 29 },
+    { NULL }
+};
+
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_CallvoteEnabled
 // Description : Tells whether a certain type of callvote is
@@ -270,105 +310,15 @@ void SV_SavePositionToFile(client_t *cl, char *mapname) {
 qboolean SV_CallvoteEnabled(char *text) {
     
     int val;
+    callvote_t *p;
     
     val = Cvar_VariableIntegerValue("g_allowvote");
-    
-    if (!Q_stricmp(text, "reload") && (val & (1 << 0))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "restart") && (val & (1 << 1))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "map") && (val & (1 << 2))) {
-        return qtrue;
-    } else 
-    if (!Q_stricmp(text, "nextmap") && (val & (1 << 3))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "kick") && (val & (1 << 4))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "clientkick") && (val & (1 << 4))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "swapteams") && (val & (1 << 5))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "shuffleteams") && (val & (1 << 6))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_friendlyfire") && (val & (1 << 7))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_followstrict") && (val & (1 << 8))) {
-        return qtrue;
-    } else    
-    if (!Q_stricmp(text, "g_gametype") && (val & (1 << 9))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_waverespawns") && (val & (1 << 10))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "timelimit") && (val & (1 << 11))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "fraglimit") && (val & (1 << 12))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "capturelimit") && (val & (1 << 13))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_respawndelay") && (val & (1 << 14))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_redwave") && (val & (1 << 15))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_bluewave") && (val & (1 << 16))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_bombexplodetime") && (val & (1 << 17))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_bombdefusetime") && (val & (1 << 18))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_roundtime") && (val & (1 << 19))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_cahtime") && (val & (1 << 20))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_warmup") && (val & (1 << 21))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_matchmode") && (val & (1 << 22))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_timeouts") && (val & (1 << 23))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_timeoutlength") && (val & (1 << 24))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "exec") && (val & (1 << 25))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_swaproles") && (val & (1 << 26))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_maxrounds") && (val & (1 << 27))) {
-        return qtrue;
-    } else
-    if (!Q_stricmp(text, "g_gear") && (val & (1 << 28))) {
-        return qtrue;
-    } else           
-    if (!Q_stricmp(text, "cyclemap") && (val & (1 << 29))) {
-        return qtrue;
-    } 
-    
+    for (p = callvotes; p != NULL; p++) {
+        if (!Q_stricmp(text, p->name)) {
+            return val & p->flags ? qtrue : qfalse;
+        }
+    }
     return qfalse;
-    
 }
 
 /////////////////////////////////////////////////////////////////////
