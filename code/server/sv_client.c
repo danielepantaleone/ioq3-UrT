@@ -1937,7 +1937,7 @@ void SV_GhostThink(client_t *cl) {
     
     // get the correspondent entity
     ent = SV_GentityNum((int)(cl - svs.clients));
-    rad = Com_Clamp(4.0, 100.0, sv_ghostradius->value);
+    rad = Com_Clamp(4.0, 1000.0, sv_ghostradius->value);
     
     // calculate the box
     for (i = 0; i < 3; i++) {
