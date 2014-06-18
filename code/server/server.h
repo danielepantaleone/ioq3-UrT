@@ -319,6 +319,7 @@ extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_rconusers;
 extern    cvar_t    *sv_rconusersfile;
+
 //
 // sv_main.c
 //

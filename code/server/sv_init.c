@@ -735,13 +735,31 @@ static void SV_DoMapcycleRoutine(void) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Name        : SV_ClearRconUserList
+// Description : Clear the RCON user list.
+// Author      : Fenix
+////////////////////////////////////////////////////////////////////////////////
+static void SV_ClearRconUserList(void) {
+    
+    int i;
+    
+    if (svs.rconuserlist != NULL) {
+        for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
+            Z_Free(svs.rconuserlist[i++]);
+        }
+        Z_Free(svs.rconuserlist);
+    }
+    
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Name        : SV_ReadRconUserList
 // Description : Read the rcon.cfg file from q3ut4 parsing the auth
-//               of clients who will be allowed to use Rcon commands
+//               of clients who will be allowed to use RCON commands
 //               without having to insert the rcon password.
 // Author      : Fenix
 ////////////////////////////////////////////////////////////////////////////////
-void SV_ReadRconUserList(void) {
+static void SV_ReadRconUserList(void) {
     
     int            i, size, len;
     char           *buffer;
@@ -783,13 +801,8 @@ void SV_ReadRconUserList(void) {
         return;
     }
     
-    // free previously allocated memory
-    if (svs.rconuserlist != NULL) {
-        for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
-            Z_Free(svs.rconuserlist[i++]);
-        }
-        Z_Free(svs.rconuserlist);
-    }
+    // clear previous list
+    SV_ClearRconUserList();
     
     svs.rconuserlist = Z_Malloc(MAX_RCON_USERS * sizeof(char *));
     for (i = 0; (i < MAX_RCON_USERS) && (token = COM_Parse(&buffer)) && (token[0]); i++) {
@@ -1100,11 +1113,11 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // to all clients
     sv.state = SS_GAME;
     
-    // compute the nextmap
-    SV_DoMapcycleRoutine();
-    
     // reload the list of rcon users
     SV_ReadRconUserList();
+    
+    // compute the nextmap
+    SV_DoMapcycleRoutine();
     
     // mark last vote time
     sv.lastVoteTime = svs.time;
@@ -1279,12 +1292,7 @@ void SV_Shutdown(char *finalmsg) {
     }
     
     // clear rcon list
-    if (svs.rconuserlist != NULL) {
-        for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
-            Z_Free(svs.rconuserlist[i++]);
-        }
-        Z_Free(svs.rconuserlist);
-    }
+    SV_ClearRconUserList();
     
     Com_Memset(&svs, 0, sizeof(svs));
 

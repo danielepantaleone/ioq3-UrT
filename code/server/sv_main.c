@@ -797,8 +797,7 @@ void SVC_Info(netadr_t from) {
     Info_SetValueForKey(infostring, "hostname", sv_hostname->string);
     Info_SetValueForKey(infostring, "mapname", sv_mapname->string);
     Info_SetValueForKey(infostring, "clients", va("%i", count));
-    Info_SetValueForKey(infostring, "sv_maxclients", 
-                                     va("%i", sv_maxclients->integer - sv_privateClients->integer));
+    Info_SetValueForKey(infostring, "sv_maxclients", va("%i", sv_maxclients->integer - sv_privateClients->integer));
     Info_SetValueForKey(infostring, "gametype", va("%i", sv_gametype->integer));
     Info_SetValueForKey(infostring, "pure", va("%i", sv_pure->integer));
     
@@ -846,12 +845,12 @@ void SV_ParseGameRemoteCommand(char *text) {
     
     int val;
     
-	Cmd_TokenizeString(text);	
+    Cmd_TokenizeString(text);	
     
     // if we got no tokens	
-	if (!Cmd_Argc()) {
-		return;
-	}
+    if (!Cmd_Argc()) {
+        return;
+    }
     
     // if it's a rcon veto command
     if (!Q_stricmp(Cmd_Argv(0), "veto")) {
@@ -934,7 +933,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     
     int          i;
     qboolean     valid;
-    qboolean     rconuser = qfalse;
+    qboolean     allowed = qfalse;
     char         remaining[1024];
     netadr_t     allowedSpamIPAdress;
     unsigned int time;
@@ -957,7 +956,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         }
         // if we got an ip:port match
         if (NET_CompareAdr(from, svs.clients[i].netchan.remoteAddress)) {
-            rconuser = svs.clients[i].rconuser;
+            allowed = svs.clients[i].rconuser;
             break;
         }
     }
@@ -967,7 +966,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     // if there is no rconpassword set or the rconpassword given
     // is not valid and the guy sending the command is not a RCON user
     if ((!strlen(sv_rconPassword->string) || 
-         strcmp (Cmd_Argv(1), sv_rconPassword->string)) && (!rconuser)) {
+         strcmp(Cmd_Argv(1), sv_rconPassword->string)) && (!allowed)) {
         
         // let's the sv_rconAllowedSpamIP do spam rcon
         if ((!strlen(sv_rconAllowedSpamIP->string) || 
@@ -1004,7 +1003,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
 
     // start redirecting all print outputs to the packet
     svs.redirectAddress = from;
-    Com_BeginRedirect (sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
+    Com_BeginRedirect(sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
 
     if (!strlen(sv_rconPassword->string)) {
         Com_Printf("No rconpassword set on the server.\n");
@@ -1023,12 +1022,16 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
             cmd_aux++;
         }
         
-        if (!rconuser) {
-            while(cmd_aux[0] && cmd_aux[0] != ' ') {  // password
-                cmd_aux++;
+        // the rcon password at this point is not a must anymore
+        // since the new rcon user code allow clients to issue
+        // rcon commands without specifying it, thus we need to remove
+        // it only if it can be seen in the command string.
+        if (!Q_stricmp(Cmd_Argv(1), sv_rconPassword->string)) {
+            while(cmd_aux[0] && cmd_aux[0] != ' ') {  
+                cmd_aux++;  // password
             }
-            while(cmd_aux[0] == ' ') {                // spaces
-                cmd_aux++;
+            while(cmd_aux[0] == ' ') {                
+                cmd_aux++;  // spaces
             }
         }
   
