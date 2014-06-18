@@ -140,7 +140,6 @@ void SV_SetConfigstring (int index, const char *val) {
                 (client->gentity->r.svFlags & SVF_NOSERVERINFO)) {
                 continue;
             }
-        
 
             SV_SendConfigstring(client, index);
             
@@ -193,18 +192,14 @@ void SV_SetUserinfo(int index, const char *val) {
 // Name        : SV_GetUserinfo
 // Description : Get the client userinfo
 /////////////////////////////////////////////////////////////////////
-void SV_GetUserinfo(int index, char *buffer, int bufferSize) {
-    
+void SV_GetUserinfo(int index, char *buffer, int bufferSize) { 
     if (bufferSize < 1) {
         Com_Error(ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize);
     }
-    
     if (index < 0 || index >= sv_maxclients->integer) {
         Com_Error(ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
     }
-    
     Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
-
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -237,7 +232,6 @@ void SV_CreateBaseline(void) {
 // Description : Set the amount of clients allowed to connect
 /////////////////////////////////////////////////////////////////////
 void SV_BoundMaxClients(int minimum) {
-    
     // get the current maxclients value
     Cvar_Get("sv_maxclients", "8", 0);
     sv_maxclients->modified = qfalse;
@@ -246,7 +240,6 @@ void SV_BoundMaxClients(int minimum) {
     } else if (sv_maxclients->integer > MAX_CLIENTS) {
         Cvar_Set("sv_maxclients", va("%i", MAX_CLIENTS));
     }
-    
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -373,14 +366,12 @@ void SV_ClearServer(void) {
 // Description : Touch the cgame.vm so that a pure client can load 
 //               it if it's in a seperate pk3
 /////////////////////////////////////////////////////////////////////
-void SV_TouchCGame(void) {
-    
+void SV_TouchCGame(void) { 
     fileHandle_t  fh;
     FS_FOpenFileRead("vm/cgame.qvm", &fh, qfalse);
     if (fh) {
         FS_FCloseFile(fh);
     }
-    
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -398,7 +389,7 @@ int TextEncode6Bit(const char *nam, unsigned char *buf, int blen) {
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
  
     int ol;
     static char tmp[BIG_INFO_STRING*4];
@@ -614,14 +605,11 @@ int SV_MakeCompressedPureList() {
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
 static qboolean SV_MapExists(char *mapname) {
-    
     char expanded[MAX_QPATH];
-    
     Com_sprintf(expanded, sizeof(expanded), "maps/%s.bsp", mapname);
     if (FS_ReadFile(expanded, NULL) > 0) {
         return qtrue;
     }
-    
     return qfalse;     
 }
 
@@ -658,7 +646,6 @@ static void SV_DoMapcycleRoutine(void) {
     // if we computed already the map to be played from the mapcycle file and we are not currently 
     // playing such map (happen after a callvote or manual nextmap/map change), reuse it.
     if ((svs.lastCycleMap[0] != '\0') && (Q_stricmp(svs.lastCycleMap, sv_mapname->string) != 0)) {
-        Com_DPrintf("SV_DoMapcycleRoutine: reusing last computed mapcycle map: %s\n", svs.lastCycleMap);
         SV_MapcycleSetNextmap(svs.lastCycleMap);
         return;
     }
@@ -666,7 +653,6 @@ static void SV_DoMapcycleRoutine(void) {
     // get the mapcycle cvar value
     mapcycle = Cvar_VariableString("g_mapcycle");
     if (!mapcycle) {
-        Com_DPrintf("SV_DoMapcycleRoutine: could not retrieve g_mapcycle cvar value\n");
         SV_MapcycleSetNextmap(sv_mapname->string);
         return;
     }    
@@ -674,7 +660,6 @@ static void SV_DoMapcycleRoutine(void) {
     // open the mapcycle file
     size = FS_FOpenFileByMode(mapcycle, &file, FS_READ);
     if (!file) {
-        Com_DPrintf("SV_DoMapcycleRoutine: could not open mapcycle file '%s'\n", mapcycle);
         SV_MapcycleSetNextmap(sv_mapname->string);
         return;
     }
@@ -686,7 +671,6 @@ static void SV_DoMapcycleRoutine(void) {
     
     // if empty
     if (!len) {
-        Com_DPrintf("SV_DoMapcycleRoutine: mapcycle file is empty\n");
         SV_MapcycleSetNextmap(sv_mapname->string);
         return;
     }
@@ -700,7 +684,6 @@ static void SV_DoMapcycleRoutine(void) {
 
         if (next) {
             if (!SV_MapExists(token)) {
-                Com_DPrintf("SV_DoMapcycleRoutine: skipping map %s: map is not available\n", token);
                 token = COM_Parse(&buffer);
                 continue;
             }
@@ -712,7 +695,6 @@ static void SV_DoMapcycleRoutine(void) {
         // if we found the current map, set the next flag to
         // qtrue in order to set g_nextmap on the next iteration
         if (!Q_stricmp(token, sv_mapname->string)) {
-            Com_DPrintf("SV_DoMapcycleRoutine: found current map (%s) in mapcycle file\n", sv_mapname->string);
             next = qtrue;
         }
         
@@ -725,10 +707,8 @@ static void SV_DoMapcycleRoutine(void) {
     // the end of the file without being able to
     // select a proper map for next cycle: use the 1st one
     if (!SV_MapExists(beginning)) { 
-        Com_DPrintf("SV_DoMapcycleRoutine: first mapcycle map is not valid: reusing current one\n");
         SV_MapcycleSetNextmap(sv_mapname->string);
     } else {
-        Com_DPrintf("SV_DoMapcycleRoutine: using first mapcycle map as nextmap\n");
         SV_MapcycleSetNextmap(beginning);
     }
     
