@@ -720,16 +720,13 @@ static void SV_DoMapcycleRoutine(void) {
 // Author      : Fenix
 ////////////////////////////////////////////////////////////////////////////////
 static void SV_ClearRconUserList(void) {
-    
     int i;
-    
     if (svs.rconuserlist != NULL) {
         for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
-            Z_Free(svs.rconuserlist[i++]);
+            Z_Free(svs.rconuserlist[i]);
         }
         Z_Free(svs.rconuserlist);
     }
-    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
