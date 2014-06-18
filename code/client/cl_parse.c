@@ -612,21 +612,13 @@ void CL_SystemInfoChanged(void) {
 CL_ParseServerInfo
 ==================
 */
-static void CL_ParseServerInfo(void)
-{
-	const char *serverInfo;
-
-	serverInfo = cl.gameState.stringData
-		+ cl.gameState.stringOffsets[ CS_SERVERINFO ];
-
-	clc.sv_allowDownload = atoi(Info_ValueForKey(serverInfo,
-		"sv_allowDownload"));
-	Q_strncpyz(clc.sv_dlURL,
-		Info_ValueForKey(serverInfo, "sv_dlURL"),
-		sizeof(clc.sv_dlURL));
-	Q_strncpyz(clc.mapname,
-    Info_ValueForKey(serverInfo, "mapname"),
-		sizeof(clc.mapname));
+static void CL_ParseServerInfo(void) {
+    const char *info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
+    clc.g_gametype = atoi(Info_ValueForKey(info, "g_gametype"));
+    clc.g_walljumps = atoi(Info_ValueForKey(info, "g_walljumps"));
+    clc.sv_allowDownload = atoi(Info_ValueForKey(info, "sv_allowDownload"));
+    Q_strncpyz(clc.sv_dlURL, Info_ValueForKey(info, "sv_dlURL"), sizeof(clc.sv_dlURL));
+    Q_strncpyz(clc.mapname, Info_ValueForKey(info, "mapname"), sizeof(clc.mapname));
 }
 
 /*

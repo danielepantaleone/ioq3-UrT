@@ -156,21 +156,21 @@ demo through a file.
 
 typedef struct {
 
-    int            clientNum;
-    int            lastPacketSentTime;            // for retransmits during connection
-    int            lastPacketTime;                // for timeouts
+    int         clientNum;
+    int         lastPacketSentTime;             // for retransmits during connection
+    int         lastPacketTime;                 // for timeouts
 
     netadr_t    serverAddress;
-    int            connectTime;                // for connection retransmits
-    int            connectPacketCount;            // for display on connection dialog
-    char        serverMessage[MAX_STRING_TOKENS];    // for display on connection dialog
+    int         connectTime;                        // for connection retransmits
+    int         connectPacketCount;                 // for display on connection dialog
+    char        serverMessage[MAX_STRING_TOKENS];   // for display on connection dialog
 
-    int            challenge;                    // from the server to use for connecting
-    int            checksumFeed;                // from the server for checksum calculations
+    int         challenge;                          // from the server to use for connecting
+    int         checksumFeed;                       // from the server for checksum calculations
 
     // these are our reliable messages that go to the server
-    int            reliableSequence;
-    int            reliableAcknowledge;        // the last one the server has executed
+    int         reliableSequence;
+    int         reliableAcknowledge;                // the last one the server has executed
     char        reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 
     // server message (unreliable) and command (reliable) sequence
@@ -179,11 +179,11 @@ typedef struct {
 
     // message sequence is used by both the network layer and the
     // delta compression layer
-    int            serverMessageSequence;
+    int         serverMessageSequence;
 
     // reliable messages received from server
-    int            serverCommandSequence;
-    int            lastExecutedServerCommand;        // last server command grabbed or executed with CL_GetServerCommand
+    int         serverCommandSequence;
+    int         lastExecutedServerCommand;        // last server command grabbed or executed with CL_GetServerCommand
     char        serverCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 
     // file transfer from server
@@ -199,13 +199,13 @@ typedef struct {
     CURL        *downloadCURL;
     CURLM        *downloadCURLM;
 #endif /* USE_CURL */
-    int        sv_allowDownload;
-  char    mapname[MAX_QPATH];
+    int         sv_allowDownload;
+    char        mapname[MAX_QPATH];
     char        sv_dlURL[MAX_CVAR_VALUE_STRING];
-    int            downloadNumber;
-    int            downloadBlock;    // block we are waiting for
-    int            downloadCount;    // how many bytes we got
-    int            downloadSize;    // how many bytes we got
+    int         downloadNumber;
+    int         downloadBlock;    // block we are waiting for
+    int         downloadCount;    // how many bytes we got
+    int         downloadSize;    // how many bytes we got
     char        downloadList[MAX_INFO_STRING]; // list of paks we need to download
     qboolean    downloadRestart;    // if true, we need to do another FS_Restart because we downloaded a pak
 
@@ -224,6 +224,9 @@ typedef struct {
     
     float        aviVideoFrameRemainder;
     float        aviSoundFrameRemainder;
+    
+    int         g_gametype;
+    int         g_walljumps;
     
     // big stuff at end of structure so most offsets are 15 bits or less
     netchan_t    netchan;
