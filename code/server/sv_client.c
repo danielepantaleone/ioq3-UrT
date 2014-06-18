@@ -1870,20 +1870,20 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
     if (!com_cl_running->integer && cl->state >= CS_ACTIVE && sv_floodProtect->integer) {
         
         if ((unsigned) (svs.time - cl->lastReliableTime) < 1500u) {
-    			
+                
             // allow two client commands every 1.5 seconds or so.
-			if ((cl->lastReliableTime & 1u) == 0u) {
-				cl->lastReliableTime |= 1u;
-			} else {
-				// This is now at least our second client command in a period of 1.5 seconds: ignore it.
-				// TTimo - moved the ignored verbose to the actual processing in
-				// SV_ExecuteClientCommand, only printing if the core doesn't intercept
-				clientOk = qfalse;
-			}
-		}
-		else {
-		    cl->lastReliableTime = (svs.time & (~1)); // Lowest bit 0
-	    }
+            if ((cl->lastReliableTime & 1u) == 0u) {
+                cl->lastReliableTime |= 1u;
+            } else {
+                // This is now at least our second client command in a period of 1.5 seconds: ignore it.
+                // TTimo - moved the ignored verbose to the actual processing in
+                // SV_ExecuteClientCommand, only printing if the core doesn't intercept
+                clientOk = qfalse;
+            }
+        }
+        else {
+            cl->lastReliableTime = (svs.time & (~1)); // Lowest bit 0
+        }
         
     } 
     
@@ -1897,11 +1897,11 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
     
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                          //
-//  UTILITIES                                                                                               //
-//                                                                                                          //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//  UTILITIES                                                                 //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_GhostThink
@@ -2107,11 +2107,11 @@ static void SV_UserMove(client_t *cl, msg_t *msg, qboolean delta) {
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                          //
-//  USER COMMAND EXECUTION                                                                                  //
-//                                                                                                          //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//  USER COMMAND EXECUTION                                                    //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_ExecuteClientMessage
