@@ -94,20 +94,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 typedef enum {
-	GT_FFA,				// free for all
-	GT_LMS,		        // last man standing
-	GT_SINGLE_PLAYER,	// quake 3 single player
+    GT_FFA,                // free for all
+    GT_LMS,                // last man standing
+    GT_SINGLE_PLAYER,    // quake 3 single player
 
-	//-- team games go after this --
+    //-- team games go after this --
 
-	GT_TEAM,			// team deathmatch
-	GT_SURVIVOR,		// team survivor
-	GT_FTL,             // follow the leader
-	GT_CAH,             // capture and hold
-	GT_CTF,             // capture the flag
+    GT_TEAM,            // team deathmatch
+    GT_SURVIVOR,        // team survivor
+    GT_FTL,             // follow the leader
+    GT_CAH,             // capture and hold
+    GT_CTF,             // capture the flag
     GT_BOMB,            // bomb mode
     GT_JUMP,            // jump mode
-	GT_MAX_GAME_TYPE        
+    GT_MAX_GAME_TYPE        
 } gametype_t;
 
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;

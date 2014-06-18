@@ -33,6 +33,7 @@ cvar_t    *cl_graphscale;
 cvar_t    *cl_graphshift;
 cvar_t    *cl_drawclock;
 cvar_t    *cl_drawHealth;
+cvar_t    *cl_drawWalljump;
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawNamedPic
@@ -388,7 +389,7 @@ void SCR_DrawClock(void) {
 // Author      : Clearskies (revised by Fenix)
 // Description : Draw the player health in the hud
 /////////////////////////////////////////////////////////////////////
-void SCR_DrawHealth( void ) {
+void SCR_DrawHealth(void) {
     
     int xx;
     int health;
@@ -434,6 +435,69 @@ void SCR_DrawHealth( void ) {
 
 }
 
+/////////////////////////////////////////////////////////////////////
+// Name        : SCR_DrawWallJump
+// Author      : Fenix
+// Description : Draw an icon which tell the player if he is
+//               able to walljump or not
+/////////////////////////////////////////////////////////////////////
+#if 0
+void SCR_DrawWallJump(void) {
+    
+    int xx, wall;
+    char *col;
+    char str[32];
+    vec4_t box_col;
+    
+    // if we are not playing jump mode
+    if (clc.g_gametype != GT_JUMP) {
+        return;
+    }
+    
+    // if we are not supposed to draw
+    if (!Cvar_VariableValue("cl_drawWalljump")) {
+        return;
+    }
+    
+    // if we are paused
+    if (Cvar_VariableValue("cl_paused")) {
+        return;
+    }
+    
+    // init default
+    col = S_COLOR_RED;
+    
+    // if he is near something walljumpable
+    if (cl.snap.ps.pm_flags & (1 << 11)) {
+        // conditions for walljumps: they guy must not 
+        // have exausted the number of walljumps configured 
+        // on the server and he doesn't have to fall too fast.
+        if ((cl.snap.ps.generic1 < clc.g_walljumps) && 
+            (cl.snap.ps.velocity[2] > -450)) {
+            col = S_COLOR_GREEN;
+        } 
+    }
+    
+    // compute the walljumps left
+    // do not remove the clamp because sometime generic1 
+    // assume weird values (like 1000 or 2000 xD)
+    wall = clc.g_walljumps - cl.snap.ps.generic1;
+    wall = Com_Clamp(0, clc.g_walljumps, wall);
+    
+    // draw the box container
+    box_col[0] = 0.0f;
+    box_col[1] = 0.0f;
+    box_col[2] = 0.0f;
+    box_col[3] = 0.85f;
+    SCR_FillRect(466, 432, 70.0f, 16.0f, box_col);
+    
+    // draw the text
+    Com_sprintf(str, sizeof(str), "%sWALL^7[%s%d^7]", col, col, wall);
+    xx = 502 - (SCR_GetSmallStringWidth(str) / 2);
+    SCR_DrawStringExtNoShadow(xx, 436, SMALLCHAR_WIDTH, str, g_color_table[7], qfalse);
+    
+}
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //  DEBUG GRAPH                                                               //
@@ -503,6 +567,7 @@ void SCR_Init(void) {
     cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
     cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
     cl_drawHealth = Cvar_Get("cl_drawHealth", "1", CVAR_ARCHIVE);
+    cl_drawWalljump = Cvar_Get("cl_drawWalljump", "1", CVAR_ARCHIVE);
     scr_initialized = qtrue;
 }
 
@@ -568,6 +633,9 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame) {
             SCR_DrawDemoRecording();
             SCR_DrawClock();
             SCR_DrawHealth();
+            #if 0
+            SCR_DrawWallJump();
+            #endif
             break;
         }
     }
