@@ -59,7 +59,7 @@ versions of OSX, please refer to the original repository README*
 
 ### *Server*
 
-* `sv_failedvotetime` - defines the amount of secs between callvotes
+* `sv_failedvotetime` - defines the amount of seconds between callvotes
 * `sv_autodemo` - auto record serverside demos of everyone when in matchmode
 * `sv_disableradio` - totally disable radio calls in jump mode
 * `sv_ghostradius` - specify the radius of the ghosting bounding box
