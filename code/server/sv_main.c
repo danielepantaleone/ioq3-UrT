@@ -313,7 +313,7 @@ qboolean SV_CallvoteEnabled(char *text) {
     callvote_t *p;
     
     val = Cvar_VariableIntegerValue("g_allowvote");
-    for (p = callvotes; p != NULL; p++) {
+    for (p = callvotes; p->name; p++) {
         if (!Q_stricmp(text, p->name)) {
             return val & p->flags ? qtrue : qfalse;
         }
