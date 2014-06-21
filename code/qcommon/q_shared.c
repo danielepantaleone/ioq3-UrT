@@ -1124,64 +1124,66 @@ void Com_TruncateLongString( char *buffer, const char *s )
 =====================================================================
 */
 
+static void Info_SkipToken(const char **s) {
+    const char *t = *s;
+    
+    while (*t && *t != '\\')
+        ++t;
+    
+    if (*t) ++t;
+    
+    *s = t;
+}
+
 /*
 ===============
 Info_ValueForKey
 
 Searches the string for the given
 key and returns the associated value, or an empty string.
-FIXME: overflow check?
 ===============
 */
-char *Info_ValueForKey( const char *s, const char *key ) {
-	char	pkey[BIG_INFO_KEY];
-	static	char value[2][BIG_INFO_VALUE];	// use two buffers so compares
-											// work without stomping on each other
-	static	int	valueindex = 0;
-	char	*o;
-	
-	if ( !s || !key ) {
-		return "";
-	}
+char *Info_ValueForKey(const char *infostr, const char *key) {
+    static char valuebuf[2][BIG_INFO_VALUE];
+    static unsigned char valueindex = 0;
+    const char *k;
+    const char *p;
+    char *o;
+    
+    if (!infostr || !key) {
+        return "";
+    }
 
-	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
-	}
+    if (strlen(infostr) >= BIG_INFO_STRING) {
+        Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
+    }
+    
+    k = infostr;
+    while (*k) {
+        // match the key against the sequence starting at k
+        for (p = key; *p && *k == *p; ++k, ++p)
+            ;
+        // if matching key (partial matches NOT allowed)
+        if (!*p && *k == '\\') {
+            ++k;
+            break;
+        }
+        // key didn't match, skip the non-matching key and its value
+        Info_SkipToken(&k);
+        Info_SkipToken(&k);
+    }
+    
+    // alternate between value buffers to guarantee that a returned
+    // value is retained for a period of two Info_ValueForKey calls
+    valueindex ^= 1;
 
-	valueindex ^= 1;
-	if (*s == '\\')
-		s++;
-	while (1)
-	{
-		o = pkey;
-		while (*s != '\\')
-		{
-			if (!*s)
-				return "";
-			*o++ = *s++;
-		}
-		*o = 0;
-		s++;
+    // copy value to output buffer
+    for (o = valuebuf[valueindex]; *k && *k != '\\';)
+        *o++ = *k++;
+    *o = 0;
 
-		o = value[valueindex];
-
-		while (*s != '\\' && *s)
-		{
-			*o++ = *s++;
-		}
-		*o = 0;
-
-		if (!Q_stricmp (key, pkey) )
-			return value[valueindex];
-
-		if (!*s)
-			break;
-		s++;
-	}
-
-	return "";
+    return valuebuf[valueindex];
 }
-
 
 /*
 ===================
