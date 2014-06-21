@@ -59,14 +59,16 @@ COM_GetExtension
 ============
 */
 const char *COM_GetExtension(const char *name) {
-	if (!name || !*name)
-		return "";
-	else {
-		size_t i = strlen(name) - 1;
-		while (i > 0 && name[i] != '.' && name[i] != '/')
-			--i;
-		return (name[i] == '.' ? &name[i + 1] : "");
-	}
+    size_t i;
+    
+    if (!name || !*name)
+        return "";
+    
+    i = strlen(name) - 1;
+    while (i > 0 && name[i] != '.' && name[i] != '/')
+        --i;
+    
+    return (name[i] == '.' ? &name[i + 1] : "");
 }
 
 
