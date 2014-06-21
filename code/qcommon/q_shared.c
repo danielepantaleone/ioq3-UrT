@@ -860,10 +860,14 @@ int Q_strncmp (const char *s1, const char *s2, int n) {
 	return 0;		// strings are equal
 }
 
-int Q_stricmp (const char *s1, const char *s2) {
-	return (s1 && s2) ? Q_stricmpn (s1, s2, 99999) : -1;
+int Q_stricmp(const char *s1, const char *s2) {
+    int c1, c2;
+    do {
+        c1 = tolower(*s1++);
+        c2 = tolower(*s2++);
+    } while (c1 && (c1 == c2));
+    return ((c1 == c2) ? 0 : ((c1 < c2) ? -1 : 1));
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 // Name         : Q_strsub
