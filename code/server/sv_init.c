@@ -714,11 +714,13 @@ static void SV_DoMapcycleRoutine(void) {
     
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Name        : SV_ClearRconUserList
-// Description : Clear the RCON user list.
-// Author      : Fenix
-////////////////////////////////////////////////////////////////////////////////
+#ifdef USE_AUTH
+/**
+ * SV_ClearRconUserList
+ * 
+ * @author Fenix
+ * @description Clear the RCON user list
+ */
 static void SV_ClearRconUserList(void) {
     int i;
     if (svs.rconuserlist != NULL) {
@@ -729,13 +731,14 @@ static void SV_ClearRconUserList(void) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Name        : SV_ReadRconUserList
-// Description : Read the rcon.cfg file from q3ut4 parsing the auth
-//               of clients who will be allowed to use RCON commands
-//               without having to insert the rcon password.
-// Author      : Fenix
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * SV_ReadRconUserList
+ * 
+ * @author Fenix
+ * @description Read the rcon.cfg file from q3ut4 parsing the auth
+ *              of clients who will be allowed to use RCON commands
+ *              without having to insert the rcon password
+ */
 static void SV_ReadRconUserList(void) {
     
     int            i, size, len;
@@ -793,6 +796,7 @@ static void SV_ReadRconUserList(void) {
     }
     
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_SpawnServer
@@ -1091,8 +1095,10 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // to all clients
     sv.state = SS_GAME;
     
+    #ifdef USE_AUTH
     // reload the list of rcon users
     SV_ReadRconUserList();
+    #endif
     
     // compute the nextmap
     SV_DoMapcycleRoutine();
@@ -1178,6 +1184,8 @@ void SV_Init(void) {
     #ifdef USE_AUTH
     sv_authServerIP = Cvar_Get("sv_authServerIP", "", CVAR_TEMP | CVAR_ROM);
     sv_auth_engine = Cvar_Get("sv_auth_engine", "1", CVAR_ROM);
+    sv_rconusers = Cvar_Get("sv_rconusers", "1", CVAR_ARCHIVE);
+    sv_rconusersfile = Cvar_Get("sv_rconusersfile", "rcon.cfg", CVAR_ARCHIVE);
     #endif
     
     sv_disableradio = Cvar_Get("sv_disableradio", "0", CVAR_ARCHIVE);
@@ -1185,8 +1193,6 @@ void SV_Init(void) {
     sv_ghostradius = Cvar_Get("sv_ghostradius", "10.0", CVAR_ARCHIVE);
     sv_hidechatcmds = Cvar_Get("sv_hidechatcmds", "1", CVAR_ARCHIVE);
     sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
-    sv_rconusers = Cvar_Get("sv_rconusers", "1", CVAR_ARCHIVE);
-    sv_rconusersfile = Cvar_Get("sv_rconusersfile", "rcon.cfg", CVAR_ARCHIVE);
     
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();

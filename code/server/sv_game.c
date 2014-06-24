@@ -150,21 +150,19 @@ void SV_GameSendServerCommand(int clientNum, const char *text) {
                     svs.clients[val[0]].jumprun = val[6];
                 }
                 
+                #ifdef USE_AUTH
                 // if the guys is authed and we didn't parsed his auth already
                 if ((Q_stricmp("---", auth) != 0) && (Q_stricmp(svs.clients[val[0]].auth, auth) != 0)) {
                     Q_strncpyz(svs.clients[val[0]].auth, auth, MAX_NAME_LENGTH);                 
                     for (i = 0; i < MAX_RCON_USERS; i++) {
-                        // we don't have more entries
-                        if (!svs.rconuserlist[i]) {
-                            break;
-                        }
-                        // if this auth login is in the rcon users list
-                        if (!Q_stricmp(svs.rconuserlist[i], svs.clients[val[0]].auth)) {
+                        // if we got an entry in rconuserlist and this auth login matched the current entry
+                        if (svs.rconuserlist[i] && !Q_stricmp(svs.rconuserlist[i], svs.clients[val[0]].auth)) {
                             svs.clients[val[0]].rconuser = qtrue;
                             break;
                         }
                     }
                 }
+                #endif
             }    
         }
                                                              

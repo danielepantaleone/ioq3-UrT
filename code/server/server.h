@@ -186,9 +186,11 @@ typedef struct client_s {
     
     qboolean            captain;                // whether this client is the captain of his team
     qboolean            ghost;                  // whether this client has ghosting enabled client side
+    
+    #ifdef USE_AUTH
     qboolean            rconuser;               // whether this client is an RCON user or not
     char                auth[MAX_NAME_LENGTH];  // the client auth login
-    
+    #endif
 } client_t;
 
 // MAX_CHALLENGES is made large to prevent a denial
@@ -320,6 +322,8 @@ extern    cvar_t    *sv_demofolder;
 #ifdef USE_AUTH
 extern    cvar_t    *sv_authServerIP;
 extern    cvar_t    *sv_auth_engine;
+extern    cvar_t    *sv_rconusers;
+extern    cvar_t    *sv_rconusersfile;
 #endif
 
 extern    cvar_t    *sv_disableradio;
@@ -327,8 +331,6 @@ extern    cvar_t    *sv_failedvotetime;
 extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
-extern    cvar_t    *sv_rconusers;
-extern    cvar_t    *sv_rconusersfile;
 
 //
 // sv_main.c

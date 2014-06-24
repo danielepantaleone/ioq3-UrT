@@ -67,6 +67,8 @@ cvar_t    *sv_demofolder;
 #ifdef USE_AUTH
 cvar_t    *sv_authServerIP;
 cvar_t    *sv_auth_engine;
+cvar_t    *sv_rconusers;
+cvar_t    *sv_rconusersfile;
 #endif
 
 cvar_t    *sv_disableradio;
@@ -74,8 +76,6 @@ cvar_t    *sv_failedvotetime;
 cvar_t    *sv_ghostradius;
 cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
-cvar_t    *sv_rconusers;
-cvar_t    *sv_rconusersfile;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -899,6 +899,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     // TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=534
     time = Com_Milliseconds();
     
+    #ifdef USE_AUTH
     // check whether this command has been sent by a rcon user
     for (i = 0 ; i < sv_maxclients->integer; i++) {
         // if not ingame
@@ -911,6 +912,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
             break;
         }
     }
+    #endif
     
     NET_StringToAdr(sv_rconAllowedSpamIP->string , &allowedSpamIPAdress);
     
@@ -973,18 +975,22 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
             cmd_aux++;
         }
         
+        #ifdef USE_AUTH
         // the rcon password at this point is not a must anymore
         // since the new rcon user code allow clients to issue
         // rcon commands without specifying it, thus we need to remove
         // it only if it can be seen in the command string.
         if (!Q_stricmp(Cmd_Argv(1), sv_rconPassword->string)) {
+        #endif
             while(cmd_aux[0] && cmd_aux[0] != ' ') {  
                 cmd_aux++;  // password
             }
             while(cmd_aux[0] == ' ') {                
                 cmd_aux++;  // spaces
             }
+        #ifdef USE_AUTH
         }
+        #endif
   
         Q_strcat(remaining, sizeof(remaining), cmd_aux);
         
