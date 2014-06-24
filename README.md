@@ -44,6 +44,8 @@ versions of OSX, please refer to the original repository README*
 * added RCON `forcecvar` command: force a client USERINFO cvar to a specific value
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * unlocked `sv_fps` cvar from game module constraint
+* added RCON `forcecaptain` command: force a client to be the captain of his team
+* added RCON `forcesub` command: force a client to be substitute for his team
 
 ### *Client*
 
