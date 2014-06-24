@@ -1412,7 +1412,7 @@ void SV_CheckDemoRecording(void) {
     state = SV_GetMatchState();
     
     // if we are not in match state
-    if (!(state & 0x01) || !(state & 0x02) || !(state & 0x04)) {
+    if (!(state & MATCH_ON) || !(state & MATCH_RR) || !(state & MATCH_BR)) {
         return;
     }
     

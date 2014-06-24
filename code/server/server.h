@@ -184,6 +184,7 @@ typedef struct client_s {
     vec3_t              savedPositionAngle;     // saved client position angle
     int                 jumprun;                // tells whether the client is in a jump run
     
+    qboolean            captain;                // whether this client is the captain of his team
     qboolean            ghost;                  // whether this client has ghosting enabled client side
     qboolean            rconuser;               // whether this client is an RCON user or not
     char                auth[MAX_NAME_LENGTH];  // the client auth login
@@ -266,6 +267,15 @@ typedef struct {
 
 // Maximum amount of RCON users that can be listed in the RCON users 
 #define MAX_RCON_USERS 32
+
+// For ccprint parsing
+#define MATCH_UNCAP 9
+#define MATCH_CAP   10
+
+// For match mode state
+#define MATCH_ON 0x01
+#define MATCH_RR 0x02
+#define MATCH_BR 0x04
 
 extern    serverStatic_t    svs;                // persistant server info across maps
 extern    server_t          sv;                 // cleared each map

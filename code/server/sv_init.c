@@ -970,8 +970,8 @@ void SV_SpawnServer(char *server, qboolean killBots) {
                 
                 } else {
                     
-                    client_t          *client;
-                    sharedEntity_t    *ent;
+                    client_t        *client;
+                    sharedEntity_t  *ent;
 
                     client = &svs.clients[i];
                     client->state = CS_ACTIVE;
@@ -980,6 +980,7 @@ void SV_SpawnServer(char *server, qboolean killBots) {
                     client->gentity = ent;
                     client->deltaMessage = -1;
                     client->nextSnapshotTime = svs.time;    // generate a snapshot immediately
+                    client->captain = qfalse;               // clear captain flag
 
                     VM_Call(gvm, GAME_CLIENT_BEGIN, i);
                     

@@ -75,21 +75,60 @@ sharedEntity_t *SV_GEntityForSvEntity(svEntity_t *svEnt) {
     return SV_GentityNum(num);
 }
 
-/*
-===============
-SV_GameSendServerCommand
-
-Sends a command string to a client
-===============
-*/
+/**
+ * SV_GameSendServerCommand
+ * 
+ * @description Sends a command string to a client
+ * @param clientNum The number of the client to send the command
+ * @param text The command string to be sent
+ */
 void SV_GameSendServerCommand(int clientNum, const char *text) {
     
     int  i = 0;
-    int  val[10];
+    int  val[32];
     char cmd[MAX_NAME_LENGTH];
+    char name[MAX_NAME_LENGTH];
     char auth[MAX_NAME_LENGTH];
+    client_t *cl1, *cl2;
     
     if (clientNum == -1) {
+                
+        // scan the command looking for the ccprint one
+        if(sscanf(text, "%s %i %s %i", cmd, &val[0], name, &val[1]) != EOF) {
+            
+            // captain status being set/unset
+            if (!Q_stricmp("ccprint", cmd) && ((val[0] == MATCH_CAP) || (val[0] == MATCH_UNCAP))) {
+                
+                // search the player by his name
+                cl1 = SV_GetPlayerByParam(name);
+                if (cl1 != NULL) {
+                    
+                    // if someone just becausme the captain or left the captain spot, reset the flags 
+                    // for everyone in his team including him: if the guy because the captain then set
+                    // again the captain flag to qtrue just for him: keep consistency with qvm module
+                    for (i = 0, cl2 = svs.clients; i < sv_maxclients->integer; i++, cl2++) {
+
+                        // if the client is not active
+                        if (cl2->state != CS_ACTIVE) {
+                            continue;
+                        }
+                        
+                        // if they are on different teams
+                        if (SV_GetClientTeam(cl1 - svs.clients) != SV_GetClientTeam(cl2 - svs.clients)) {
+                            continue;
+                        }
+
+                        // set captain false
+                        cl2->captain = qfalse;
+                    }
+                    
+                    // if the guy became the captain
+                    if (val[0] == MATCH_CAP) {
+                        cl1->captain = qtrue;
+                    }
+                }                
+            }
+        }
         
         SV_SendServerCommand(NULL, "%s", text);
     
@@ -104,7 +143,6 @@ void SV_GameSendServerCommand(int clientNum, const char *text) {
                    cmd, &val[0], &val[1], &val[2], &val[3], &val[4],  
                         &val[5], &val[6], &val[7], &val[8], &val[9], auth) != EOF) {
 
-            // get some variables from the game module
             if (!Q_stricmp("scoress", cmd)) {
                 
                 // get the jumprun value if we are playing jump
@@ -127,7 +165,7 @@ void SV_GameSendServerCommand(int clientNum, const char *text) {
                         }
                     }
                 }
-            }                     
+            }    
         }
                                                              
         SV_SendServerCommand(svs.clients + clientNum, "%s", text);    
