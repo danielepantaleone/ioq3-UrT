@@ -359,16 +359,17 @@ qboolean SV_CheckCallvoteArgs() {
 
 }
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_GetClientTeam
-// Description : Retrieve the given client team
-// Author      : Fenix
-/////////////////////////////////////////////////////////////////////
-int SV_GetClientTeam(int cid) {
-    char *key, *val;
-    key = sv.configstrings[544 + cid];
-    val = Info_ValueForKey(key, "t");
-    return atoi(val);
+/**
+ * SV_GetClientTeam
+ * 
+ * @description Retrieve the given client team
+ * @param slot The client slot number
+ * @return The team the given client belongs to
+ */
+int SV_GetClientTeam(int slot) {
+    playerState_t *ps;
+    ps = SV_GameClientNum(slot);
+    return ps->persistant[PERS_TEAM];
 }
 
 /////////////////////////////////////////////////////////////////////
