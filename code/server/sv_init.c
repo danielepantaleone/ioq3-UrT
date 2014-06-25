@@ -1275,8 +1275,10 @@ void SV_Shutdown(char *finalmsg) {
         Z_Free(svs.clients);
     }
     
+    #ifdef USE_AUTH
     // clear rcon list
     SV_ClearRconUserList();
+    #endif
     
     Com_Memset(&svs, 0, sizeof(svs));
 
