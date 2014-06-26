@@ -29,8 +29,6 @@ versions of OSX, please refer to the original repository README*
 
 ### *Server*
     
-* fixed map searching algorithm: no more unpredictability
-* fixed `stopserverdemo` command being executed on non-dedicated servers
 * added logging capability: writes in the same log file as the game module
 * added position save/load: fixed permanent position save/load not working in game module
 * added server-side ghosting feature: fix partial entity collision in jump mode
@@ -42,17 +40,19 @@ versions of OSX, please refer to the original repository README*
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
 * added RCON `spoof` command: send a game client command as a specific client
 * added RCON `forcecvar` command: force a client USERINFO cvar to a specific value
-* allow client position load while being in a jump run (will reset running timer if it was running)
-* unlocked `sv_fps` cvar from game module constraint
 * added RCON `forcecaptain` command: force a client to be the captain of his team
 * added RCON `forcesub` command: force a client to be substitute for his team
+* allow client position load while being in a jump run (will reset running timer if it was running)
+* fixed map searching algorithm: no more unpredictability
+* fixed `stopserverdemo` command being executed on non-dedicated servers
+* replace **Ban Kick** message being displayed upon client auth ban with something understandable
+* unlocked `sv_fps` cvar from game module constraint
 
 ### *Client*
 
+* correctly draw new game module color codes in console
 * fixed clipboard data paste crashing the client engine on unix systems
 * fixed linux SDL gamma bug using XF86 (by [clearskies](https://github.com/clearskies))
-* keep the dedicated console open when the UI subsystem start (windows only)
-* correctly draw new game module color codes in console
 * improved in-game console readability
 * improved windows dedicated console readability
 * unlock `snaps` cvar from game module constraint
@@ -72,6 +72,7 @@ versions of OSX, please refer to the original repository README*
 ### *Client*
 
 * `cl_drawHealth` - draw player health percentace in the HUD
+* `cl_demoblink` - make the demo recording string flashing when recording a demo
 
 ## Credits
 
