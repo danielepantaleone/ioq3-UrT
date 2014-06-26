@@ -193,12 +193,20 @@ void SV_SetUserinfo(int index, const char *val) {
 // Description : Get the client userinfo
 /////////////////////////////////////////////////////////////////////
 void SV_GetUserinfo(int index, char *buffer, int bufferSize) { 
+    
     if (bufferSize < 1) {
         Com_Error(ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize);
     }
     if (index < 0 || index >= sv_maxclients->integer) {
         Com_Error(ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
     }
+    
+    if (sv_gametype->integer == GT_JUMP) {
+        // update the ghost flag is we are playing jump mode: the qvm calls
+        // this whenever it checks for ghosting so we need to track it here
+        svs.clients[index].ghost = SV_IsClientGhost(&svs.clients[index]);
+    }
+    
     Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
 }
 
