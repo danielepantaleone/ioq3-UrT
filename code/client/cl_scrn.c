@@ -33,6 +33,7 @@ cvar_t    *cl_graphscale;
 cvar_t    *cl_graphshift;
 cvar_t    *cl_drawclock;
 cvar_t    *cl_drawHealth;
+cvar_t    *cl_demoblink;
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawNamedPic
@@ -350,8 +351,8 @@ void SCR_DrawDemoRecording(void) {
 
     pos = FS_FTell(clc.demofile);
     Com_sprintf(string, sizeof(string), "%s[%sRECORDING%s][%s%iKB%s]", S_COLOR_WHITE, 
-                (int)(cls.realtime >> 10) & 1 ? S_COLOR_RED : S_COLOR_WHITE, S_COLOR_WHITE, 
-                S_COLOR_YELLOW, pos / 1024, S_COLOR_WHITE);
+                (((int)(cls.realtime >> 10) & 1) || (!cl_demoblink->integer)) ? S_COLOR_RED : S_COLOR_WHITE, 
+                S_COLOR_WHITE, S_COLOR_YELLOW, pos / 1024, S_COLOR_WHITE);
     
     // draw the demo notification on screen
     SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 2, SMALLCHAR_WIDTH, 
@@ -503,7 +504,7 @@ void SCR_Init(void) {
     cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
     cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
     cl_drawHealth = Cvar_Get("cl_drawHealth", "1", CVAR_ARCHIVE);
-    cl_drawWalljump = Cvar_Get("cl_drawWalljump", "1", CVAR_ARCHIVE);
+    cl_demoblink = Cvar_Get("cl_demoblink", "1", CVAR_ARCHIVE);
     scr_initialized = qtrue;
 }
 
