@@ -228,7 +228,7 @@ void CL_StopRecord_f(void) {
     clc.demofile = 0;
     clc.demorecording = qfalse;
     clc.spDemoRecording = qfalse;
-    Com_Printf("Stopped recording %s\n", clc.demoName);
+    Com_Printf("Stopped recording: %s\n", clc.demoName);
 }
 
 /**
@@ -303,8 +303,6 @@ void CL_DemoFilename(char *dname, char *fname) {
     #else
     Com_sprintf(fname, MAX_OSPATH, "demos/%s.dm_%d", dname, PROTOCOL_VERSION);
     #endif
-    
-    Q_CleanDemoStr(fname);
     
     // if the demo already exists, generate another name for the
     // demo file by appending a numeric value to the demo name
