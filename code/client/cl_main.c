@@ -289,6 +289,7 @@ void CL_DemoFilename(char *dname, char *fname) {
     // get the client name and escape invalid chars
     Cvar_VariableStringBuffer("name", name, sizeof(name));
     Q_CleanStr(name);
+    Q_CleanDemoStr(dname);
     
     // get the current time
     Com_RealTime(&now);
@@ -302,6 +303,8 @@ void CL_DemoFilename(char *dname, char *fname) {
     #else
     Com_sprintf(fname, MAX_OSPATH, "demos/%s.dm_%d", dname, PROTOCOL_VERSION);
     #endif
+    
+    Q_CleanDemoStr(fname);
     
     // if the demo already exists, generate another name for the
     // demo file by appending a numeric value to the demo name
@@ -366,7 +369,7 @@ void CL_Record_f(void) {
     CL_DemoFilename(demoname, filename);
 
     // open the demo file
-    Com_Printf("Started recording %s...\n", demoname);
+    Com_Printf("Started recording: %s...\n", demoname);
     clc.demofile = FS_FOpenFileWrite(filename);
     if (!clc.demofile) {
         Com_Printf("%sERROR%s: couldn't open %s\n", S_COLOR_RED, S_COLOR_WHITE, filename);

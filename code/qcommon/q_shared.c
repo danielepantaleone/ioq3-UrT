@@ -1027,6 +1027,24 @@ int Q_PrintStrlen( const char *string ) {
 	return len;
 }
 
+char *Q_CleanDemoStr(char *string) {
+    
+    int c;
+    char *s;
+    
+    s = string;
+    while ((c = *s) != 0) {
+        if (!((c >= 48) && (c <= 57)) &&
+            !((c >= 65) && (c <= 90)) &&
+            !((c >= 97) && (c <= 122))) {
+            *s = '_';
+        }
+        s++;
+    }
+
+    return string;
+}
+
 char *Q_CleanStr(char *string) {
     
     char  *d;
