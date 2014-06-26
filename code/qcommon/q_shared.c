@@ -1027,26 +1027,31 @@ int Q_PrintStrlen( const char *string ) {
 	return len;
 }
 
+char *Q_CleanStr(char *string) {
+    
+    char  *d;
+    char  *s;
+    int   c;
 
-char *Q_CleanStr( char *string ) {
-	char*	d;
-	char*	s;
-	int		c;
+    s = string;
+    d = string;
 
-	s = string;
-	d = string;
-	while ((c = *s) != 0 ) {
-		if ( Q_IsColorString( s ) ) {
-			s++;
-		}		
-		else if ( c >= 0x20 && c <= 0x7E ) {
-			*d++ = c;
-		}
-		s++;
-	}
-	*d = '\0';
+    while ((c = *s) != 0) {
+        if ((*s == '^') && (*(s + 1) == '^')) {
+            s++;
+        } else if (Q_IsColorString( s )) {
+            s++;
+            s++;
+        } else if (c >= 0x20 && c <= 0x7E) {
+            *d++ = c;
+            s++;
+        } else {
+            s++;
+        }
+    }
+    *d = '\0';
 
-	return string;
+    return string;
 }
 
 
