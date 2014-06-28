@@ -42,7 +42,7 @@ These commands can only be entered from stdin or by a remote operator datagram
 /////////////////////////////////////////////////////////////////////
 client_t *SV_GetPlayerByParam(const char *s) {
 
-    char        name[64];
+    char        name[MAX_NAME_LENGTH];
     int         count = 0;
     int         i, idnum;
     client_t    *cl;
@@ -95,17 +95,32 @@ client_t *SV_GetPlayerByParam(const char *s) {
             Q_CleanStr(name);
 
             // check for exact match
-            if (!Q_stricmp(name,s)) {
+            if (!Q_stricmp(name, s)) {
+                matches[0] = &svs.clients[i];
+                count = 1;
+                break;
+            }  
+            #ifdef USE_AUTH
+            // check exact match on auth name
+            else if (!Q_stricmp(cl->auth, s)) {
                 matches[0] = &svs.clients[i];
                 count = 1;
                 break;
             }
+            #endif
 
             // check for substring match
             if (Q_strisub(name, s)) {
                 matches[count] = &svs.clients[i];
                 count++;
             }
+            #ifdef USE_AUTH
+            // check substring match match on auth name
+            else if (!Q_stricmp(cl->auth, s)) {
+                matches[count] = &svs.clients[i];
+                count++;
+            }
+            #endif
 
         }
 
@@ -143,7 +158,7 @@ client_t *SV_GetPlayerByParam(const char *s) {
 static client_t *SV_GetPlayerByHandle(void) {
 
     char        *s;
-    char        name[64];
+    char        name[MAX_NAME_LENGTH];
     int         count = 0;
     int         i, idnum;
     client_t    *cl;
@@ -198,18 +213,32 @@ static client_t *SV_GetPlayerByHandle(void) {
             Q_CleanStr(name);
 
             // check for exact match
-            if (!Q_stricmp(name,s)) {
+            if (!Q_stricmp(name, s)) {
+                matches[0] = &svs.clients[i];
+                count = 1;
+                break;
+            }  
+            #ifdef USE_AUTH
+            // check exact match on auth name
+            else if (!Q_stricmp(cl->auth, s)) {
                 matches[0] = &svs.clients[i];
                 count = 1;
                 break;
             }
+            #endif
 
             // check for substring match
             if (Q_strisub(name, s)) {
                 matches[count] = &svs.clients[i];
                 count++;
             }
-
+            #ifdef USE_AUTH
+            // check substring match match on auth name
+            else if (!Q_stricmp(cl->auth, s)) {
+                matches[count] = &svs.clients[i];
+                count++;
+            }
+            #endif
         }
 
         if (count == 0) {
