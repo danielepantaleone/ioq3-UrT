@@ -648,7 +648,7 @@ static void SV_Teleport_f(void) {
     }
     
     // if in a jumprun
-    if (cl1->jumprun) {
+    if (cl1->ready) {
         return;
     }
     
@@ -664,7 +664,7 @@ static void SV_Teleport_f(void) {
         }
         
         // if in a jumprun
-        if (cl2->jumprun) {
+        if (cl2->ready) {
             SV_BroadcastMessageToClient(cl1, "%s is currently doing a jump run", cl2->name);
             return;
         }
