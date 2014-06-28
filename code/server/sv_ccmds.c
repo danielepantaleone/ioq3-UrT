@@ -1044,10 +1044,11 @@ static void SV_ForceCvar_f(void) {
     
 }
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_Status_f
-// Description : Print server status informations
-/////////////////////////////////////////////////////////////////////
+/**
+ * SV_Status_f
+ * 
+ * @description Print server status informations
+ */
 static void SV_Status_f(void) {
 
     int            i, j, l;
@@ -1055,7 +1056,8 @@ static void SV_Status_f(void) {
     playerState_t  *ps;
     const char     *s;
     int            ping;
-
+    char           name[MAX_NAME_LENGTH];
+    
     // make sure server is running
     if (!com_sv_running->integer) {
         Com_Printf("Server is not running\n");
@@ -1084,13 +1086,16 @@ static void SV_Status_f(void) {
             ping = cl->ping < 9999 ? cl->ping : 9999;
             Com_Printf("%4i ", ping);
         }
-
-        Com_Printf("%s", cl->name);
         
-        // TTimo adding a ^7 to reset the color
-        // NOTE: colored names in status breaks the padding (WONTFIX)
+        // copy the name locally and remove color codes
+        // otherwise they will break the padding 
+        Q_strncpyz(name, cl->name, sizeof(name));
+        Q_CleanStr(name);
+        
+        Com_Printf("%s", name);
+        
         Com_Printf("^7");
-        l = 16 - strlen(cl->name);
+        l = 16 - strlen(name);
         for (j=0 ; j<l ; j++) {
             Com_Printf(" ");
         }
