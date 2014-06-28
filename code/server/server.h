@@ -184,10 +184,13 @@ typedef struct client_s {
     vec3_t              savedPositionAngle;     // saved client position angle
     int                 jumprun;                // tells whether the client is in a jump run
     
+    qboolean            captain;                // whether this client is the captain of his team
     qboolean            ghost;                  // whether this client has ghosting enabled client side
+    
+    #ifdef USE_AUTH
     qboolean            rconuser;               // whether this client is an RCON user or not
     char                auth[MAX_NAME_LENGTH];  // the client auth login
-    
+    #endif
 } client_t;
 
 // MAX_CHALLENGES is made large to prevent a denial
@@ -267,6 +270,15 @@ typedef struct {
 // Maximum amount of RCON users that can be listed in the RCON users 
 #define MAX_RCON_USERS 32
 
+// For ccprint parsing
+#define MATCH_UNCAP 9
+#define MATCH_CAP   10
+
+// For match mode state
+#define MATCH_ON 0x01
+#define MATCH_RR 0x02
+#define MATCH_BR 0x04
+
 extern    serverStatic_t    svs;                // persistant server info across maps
 extern    server_t          sv;                 // cleared each map
 extern    vm_t              *gvm;               // game virtual machine
@@ -310,6 +322,8 @@ extern    cvar_t    *sv_demofolder;
 #ifdef USE_AUTH
 extern    cvar_t    *sv_authServerIP;
 extern    cvar_t    *sv_auth_engine;
+extern    cvar_t    *sv_rconusers;
+extern    cvar_t    *sv_rconusersfile;
 #endif
 
 extern    cvar_t    *sv_disableradio;
@@ -317,8 +331,6 @@ extern    cvar_t    *sv_failedvotetime;
 extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
-extern    cvar_t    *sv_rconusers;
-extern    cvar_t    *sv_rconusersfile;
 
 //
 // sv_main.c

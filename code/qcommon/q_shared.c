@@ -1033,26 +1033,49 @@ int Q_PrintStrlen( const char *string ) {
 	return len;
 }
 
+char *Q_CleanDemoStr(char *string) {
+    
+    int c;
+    char *s;
+    
+    s = string;
+    while ((c = *s) != 0) {
+        if (!((c >= 48) && (c <= 57)) &&
+            !((c >= 65) && (c <= 90)) &&
+            !((c >= 97) && (c <= 122))) {
+            *s = '_';
+        }
+        s++;
+    }
 
-char *Q_CleanStr( char *string ) {
-	char*	d;
-	char*	s;
-	int		c;
+    return string;
+}
 
-	s = string;
-	d = string;
-	while ((c = *s) != 0 ) {
-		if ( Q_IsColorString( s ) ) {
-			s++;
-		}		
-		else if ( c >= 0x20 && c <= 0x7E ) {
-			*d++ = c;
-		}
-		s++;
-	}
-	*d = '\0';
+char *Q_CleanStr(char *string) {
+    
+    char  *d;
+    char  *s;
+    int   c;
 
-	return string;
+    s = string;
+    d = string;
+
+    while ((c = *s) != 0) {
+        if ((*s == '^') && (*(s + 1) == '^')) {
+            s++;
+        } else if (Q_IsColorString( s )) {
+            s++;
+            s++;
+        } else if (c >= 0x20 && c <= 0x7E) {
+            *d++ = c;
+            s++;
+        } else {
+            s++;
+        }
+    }
+    *d = '\0';
+
+    return string;
 }
 
 

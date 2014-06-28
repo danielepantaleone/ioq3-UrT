@@ -832,6 +832,110 @@ static void SV_Spoof_f(void) {
 
 }
 
+/**
+ * SV_ForceCaptain_f
+ * 
+ * @author Fenix
+ * @description Switch the captain flag for the given client
+ */
+static void SV_ForceCaptain_f(void) {
+    
+    int i;
+    client_t  *cl1, *cl2;
+    
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running\n");
+        return;
+    }
+    
+    // if we are not in match mode
+    if (!(SV_GetMatchState() & MATCH_ON)) {
+        return;
+    }
+    
+    // check for correct parameters
+    if (Cmd_Argc() < 2) {
+        Com_Printf("Usage: forcecaptain <client>\n");
+        return;
+    }
+    
+    // search the client
+    cl1 = SV_GetPlayerByHandle();
+    if (!cl1) {
+        return;
+    }
+    
+    // tokenize the command 
+    Cmd_TokenizeString("captain");
+    
+    // remove the captain flag from everyone in the 
+    // same team of the client we just found
+    for (i = 0, cl2 = svs.clients; i < sv_maxclients->integer; i++, cl2++) {
+
+        // if the client is not active
+        if (cl2->state != CS_ACTIVE) {
+            continue;
+        }
+
+        // if they are on different teams
+        if (SV_GetClientTeam(cl1 - svs.clients) != SV_GetClientTeam(cl2 - svs.clients)) {
+            continue;
+        }
+        
+        // if this dude is the captain
+        // remove the captain flag from him
+        if (cl2->captain) {
+            // the captain flag for cl2 will be reset by parsing the 
+            // ccprint in sv_game.c so there is no need to set it here
+            VM_Call(gvm, GAME_CLIENT_COMMAND, cl2 - svs.clients);
+        }
+    }
+    
+    // send the command
+    VM_Call(gvm, GAME_CLIENT_COMMAND, cl1 - svs.clients);
+
+}
+
+/**
+ * SV_ForceSub_f
+ * 
+ * @author Fenix
+ * @description Switch the substitute flag for the given client
+ */
+static void SV_ForceSub_f(void) {
+    
+    client_t  *cl;
+    
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running\n");
+        return;
+    }
+    
+    // if we are not in match mode
+    if (!(SV_GetMatchState() & MATCH_ON)) {
+        return;
+    }
+    
+    // check for correct parameters
+    if (Cmd_Argc() < 2) {
+        Com_Printf("Usage: forcesub <client>\n");
+        return;
+    }
+    
+    // search the client
+    cl = SV_GetPlayerByHandle();
+    if (!cl) {
+        return;
+    }
+    
+    // send the command
+    Cmd_TokenizeString("sub");
+    VM_Call(gvm, GAME_CLIENT_COMMAND, cl - svs.clients);
+
+}
+
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_ForceCvar_f_helper
 // Description : Set a CVAR for a user
@@ -1729,6 +1833,8 @@ void SV_AddOperatorCommands(void) {
     Cmd_AddCommand("sendclientcommand", SV_SendClientCommand_f);
     Cmd_AddCommand("forcecvar", SV_ForceCvar_f);
     Cmd_AddCommand("spoof", SV_Spoof_f);
+    Cmd_AddCommand("forcecaptain", SV_ForceCaptain_f);
+    Cmd_AddCommand("forcesub", SV_ForceSub_f);
     #ifndef PRE_RELEASE_DEMO
     Cmd_AddCommand("devmap", SV_Map_f);
     Cmd_AddCommand("spmap", SV_Map_f);

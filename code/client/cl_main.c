@@ -228,7 +228,7 @@ void CL_StopRecord_f(void) {
     clc.demofile = 0;
     clc.demorecording = qfalse;
     clc.spDemoRecording = qfalse;
-    Com_Printf("Stopped recording %s\n", clc.demoName);
+    Com_Printf("Stopped recording: %s\n", clc.demoName);
 }
 
 /**
@@ -289,6 +289,7 @@ void CL_DemoFilename(char *dname, char *fname) {
     // get the client name and escape invalid chars
     Cvar_VariableStringBuffer("name", name, sizeof(name));
     Q_CleanStr(name);
+    Q_CleanDemoStr(dname);
     
     // get the current time
     Com_RealTime(&now);
@@ -366,7 +367,7 @@ void CL_Record_f(void) {
     CL_DemoFilename(demoname, filename);
 
     // open the demo file
-    Com_Printf("Started recording %s...\n", demoname);
+    Com_Printf("Started recording: %s...\n", demoname);
     clc.demofile = FS_FOpenFileWrite(filename);
     if (!clc.demofile) {
         Com_Printf("%sERROR%s: couldn't open %s\n", S_COLOR_RED, S_COLOR_WHITE, filename);

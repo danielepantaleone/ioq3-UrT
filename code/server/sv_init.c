@@ -193,12 +193,20 @@ void SV_SetUserinfo(int index, const char *val) {
 // Description : Get the client userinfo
 /////////////////////////////////////////////////////////////////////
 void SV_GetUserinfo(int index, char *buffer, int bufferSize) { 
+    
     if (bufferSize < 1) {
         Com_Error(ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize);
     }
     if (index < 0 || index >= sv_maxclients->integer) {
         Com_Error(ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
     }
+    
+    if (sv_gametype->integer == GT_JUMP) {
+        // update the ghost flag is we are playing jump mode: the qvm calls
+        // this whenever it checks for ghosting so we need to track it here
+        svs.clients[index].ghost = SV_IsClientGhost(&svs.clients[index]);
+    }
+    
     Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
 }
 
@@ -714,11 +722,13 @@ static void SV_DoMapcycleRoutine(void) {
     
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Name        : SV_ClearRconUserList
-// Description : Clear the RCON user list.
-// Author      : Fenix
-////////////////////////////////////////////////////////////////////////////////
+#ifdef USE_AUTH
+/**
+ * SV_ClearRconUserList
+ * 
+ * @author Fenix
+ * @description Clear the RCON user list
+ */
 static void SV_ClearRconUserList(void) {
     int i;
     if (svs.rconuserlist != NULL) {
@@ -729,13 +739,14 @@ static void SV_ClearRconUserList(void) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Name        : SV_ReadRconUserList
-// Description : Read the rcon.cfg file from q3ut4 parsing the auth
-//               of clients who will be allowed to use RCON commands
-//               without having to insert the rcon password.
-// Author      : Fenix
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * SV_ReadRconUserList
+ * 
+ * @author Fenix
+ * @description Read the rcon.cfg file from q3ut4 parsing the auth
+ *              of clients who will be allowed to use RCON commands
+ *              without having to insert the rcon password
+ */
 static void SV_ReadRconUserList(void) {
     
     int            i, size, len;
@@ -793,6 +804,7 @@ static void SV_ReadRconUserList(void) {
     }
     
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_SpawnServer
@@ -970,8 +982,8 @@ void SV_SpawnServer(char *server, qboolean killBots) {
                 
                 } else {
                     
-                    client_t          *client;
-                    sharedEntity_t    *ent;
+                    client_t        *client;
+                    sharedEntity_t  *ent;
 
                     client = &svs.clients[i];
                     client->state = CS_ACTIVE;
@@ -980,6 +992,7 @@ void SV_SpawnServer(char *server, qboolean killBots) {
                     client->gentity = ent;
                     client->deltaMessage = -1;
                     client->nextSnapshotTime = svs.time;    // generate a snapshot immediately
+                    client->captain = qfalse;               // clear captain flag
 
                     VM_Call(gvm, GAME_CLIENT_BEGIN, i);
                     
@@ -1090,8 +1103,10 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // to all clients
     sv.state = SS_GAME;
     
+    #ifdef USE_AUTH
     // reload the list of rcon users
     SV_ReadRconUserList();
+    #endif
     
     // compute the nextmap
     SV_DoMapcycleRoutine();
@@ -1133,7 +1148,7 @@ void SV_Init(void) {
     sv_minPing = Cvar_Get("sv_minPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
     sv_maxPing = Cvar_Get("sv_maxPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
     sv_floodProtect = Cvar_Get("sv_floodProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
-    sv_newpurelist = Cvar_Get("sv_newpurelist", "0", CVAR_ARCHIVE);
+    sv_newpurelist = Cvar_Get("sv_newpurelist", "1", CVAR_ROM);
 
     // systeminfo
     Cvar_Get("sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM);
@@ -1177,6 +1192,8 @@ void SV_Init(void) {
     #ifdef USE_AUTH
     sv_authServerIP = Cvar_Get("sv_authServerIP", "", CVAR_TEMP | CVAR_ROM);
     sv_auth_engine = Cvar_Get("sv_auth_engine", "1", CVAR_ROM);
+    sv_rconusers = Cvar_Get("sv_rconusers", "1", CVAR_ARCHIVE);
+    sv_rconusersfile = Cvar_Get("sv_rconusersfile", "rcon.cfg", CVAR_ARCHIVE);
     #endif
     
     sv_disableradio = Cvar_Get("sv_disableradio", "0", CVAR_ARCHIVE);
@@ -1184,8 +1201,6 @@ void SV_Init(void) {
     sv_ghostradius = Cvar_Get("sv_ghostradius", "10.0", CVAR_ARCHIVE);
     sv_hidechatcmds = Cvar_Get("sv_hidechatcmds", "1", CVAR_ARCHIVE);
     sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
-    sv_rconusers = Cvar_Get("sv_rconusers", "1", CVAR_ARCHIVE);
-    sv_rconusersfile = Cvar_Get("sv_rconusersfile", "rcon.cfg", CVAR_ARCHIVE);
     
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();
@@ -1268,8 +1283,10 @@ void SV_Shutdown(char *finalmsg) {
         Z_Free(svs.clients);
     }
     
+    #ifdef USE_AUTH
     // clear rcon list
     SV_ClearRconUserList();
+    #endif
     
     Com_Memset(&svs, 0, sizeof(svs));
 

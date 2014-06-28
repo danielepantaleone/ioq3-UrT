@@ -707,6 +707,8 @@ void	Q_strcat( char *dest, int size, const char *src );
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
+// clean a string so it can be used as demo file name
+char *Q_CleanDemoStr( char *string );
 
 //=============================================
 
