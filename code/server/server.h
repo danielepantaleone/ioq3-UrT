@@ -31,6 +31,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define    PERS_SCORE          0    // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 #define    MAX_ENT_CLUSTERS    16
 
+// skeetshoot defines
+#define MAX_SKEETS 32               // amount of skeetshoot which will be animated in skeetshoot game mode
+#define MIN_SKEET_SPAWN_TIME 3000   // min amount of milliseconds a skeet will stay at spawn point
+#define MAX_SKEET_SPAWN_TIME 8000   // max amount of milliseconds a skeet will stay at spawn point
+#define SKEET_CLASSHASH 284875700   // classhash of the skeet entity
+
 typedef struct svEntity_s {
     struct worldSector_s    *worldSector;
     struct svEntity_s       *nextEntityInWorldSector;
@@ -41,6 +47,10 @@ typedef struct svEntity_s {
     int                     lastCluster;                    // if all the clusters don't fit in clusternums
     int                     areanum, areanum2;
     int                     snapshotCounter;                // used to prevent double adding from portal views
+    
+    qboolean                skeet;                          // qtrue if this entity is a skeet
+    vec3_t                  skeetorigin;                    // coordinates of the skeet spawn point
+    int                     skeetLaunchTime;                // timestamp expressing the time the skeet should be pulled out 
 } svEntity_t;
 
 typedef enum {
@@ -62,11 +72,14 @@ typedef struct {
     int                 snapshotCounter;                    // incremented for each snapshot built
     int                 timeResidual;                       // <= 1000 / sv_frame->value
     int                 nextFrameTime;                      // when time > nextFrameTime, process world
+    int                 lastVoteTime;                       // last callvote timestamp
+    
     struct cmodel_s     *models[MAX_MODELS];
     char                *configstrings[MAX_CONFIGSTRINGS];
     char                *entityParsePoint;                  // used during game VM init
     svEntity_t          svEntities[MAX_GENTITIES];
-
+    svEntity_t          *skeets[MAX_SKEETS];                // pointers to skeet entities
+    
     // the game virtual machine will update these on init and changes
     sharedEntity_t      *gentities;
     int                 gentitySize;
@@ -77,7 +90,6 @@ typedef struct {
     int                 restartTime;
     int                 time;
     
-    int                 lastVoteTime;       // last callvote timestamp
 } server_t;
 
 typedef struct {
@@ -331,6 +343,7 @@ extern    cvar_t    *sv_failedvotetime;
 extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
+extern    cvar_t    *sv_skeetshoot;
 
 //
 // sv_main.c
@@ -345,6 +358,7 @@ qboolean    SV_CheckCallvoteArgs(void);
 int         SV_GetClientTeam(int cid);
 int         SV_GetMatchState(void);
 qboolean    SV_IsClientGhost(client_t *cl);
+qboolean    SV_IsSkeetInSpawn(svEntity_t *sEnt);
 void QDECL  SV_SendServerCommand(client_t *cl, const char *fmt, ...);
 void        SV_AddOperatorCommands(void);
 void        SV_RemoveOperatorCommands(void);
@@ -362,6 +376,9 @@ void SV_GetUserinfo(int index, char *buffer, int bufferSize);
 void SV_ChangeMaxClients(void);
 void SV_SpawnServer(char *server, qboolean killBots);
 int  SV_MakeCompressedPureList(void);
+void SV_FreeRconUserList(void);
+void SV_InitRconUserList(void);
+void SV_InitSkeetShoot(void);
 
 //
 // sv_client.c

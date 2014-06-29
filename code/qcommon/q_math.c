@@ -149,17 +149,21 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 //==============================================================
 
-int		Q_rand( int *seed ) {
-	*seed = (69069 * *seed + 1);
-	return *seed;
+int Q_rand(int *seed) {
+    *seed = (69069 * *seed + 1);
+    return *seed;
 }
 
-float	Q_random( int *seed ) {
-	return ( Q_rand( seed ) & 0xffff ) / (float)0x10000;
+int Q_randrange(int *seed, int min, int max) {
+    return (Q_rand(seed) % (max - min) + min);
 }
 
-float	Q_crandom( int *seed ) {
-	return 2.0 * ( Q_random( seed ) - 0.5 );
+float Q_random(int *seed) {
+    return (Q_rand(seed) & 0xffff) / (float)0x10000;
+}
+
+float Q_crandom(int *seed) {
+    return 2.0 * (Q_random(seed) - 0.5);
 }
 
 //=======================================================

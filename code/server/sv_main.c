@@ -76,6 +76,7 @@ cvar_t    *sv_failedvotetime;
 cvar_t    *sv_ghostradius;
 cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
+cvar_t    *sv_skeetshoot;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -401,6 +402,39 @@ qboolean SV_IsClientGhost(client_t *cl) {
     return ghost > 0 ? qtrue : qfalse;
 
 }
+
+/**
+ * SV_IsSkeetInSpawn
+ * 
+ * @author Fenix
+ * @description Check whether the given skeet is at spawn point
+ * @param sEnt The skeet entity
+ * @return qtrue if the skeet is at spawn, qfalse otherwise
+ */
+qboolean SV_IsSkeetInSpawn(svEntity_t *sEnt) {
+    
+    sharedEntity_t *gEnt;
+    
+    // if we are not playing skeetshoot
+    if (sv_gametype->integer != GT_FFA || sv_skeetshoot->integer <= 0) {
+        return qfalse;
+    }
+    
+    // if not a skeet 
+    if (!sEnt->skeet) {
+        return qfalse;
+    }
+    
+    // if we can't get a proper sharedEntity_t
+    gEnt = SV_GEntityForSvEntity(sEnt);
+    if (!gEnt) {
+        return qfalse;
+    }
+    
+    // do the comparison
+    return VectorCompare(sEnt->skeetorigin, gEnt->r.currentOrigin);
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -1439,6 +1473,74 @@ void SV_CheckDemoRecording(void) {
 
 }
 
+/**
+ * SV_SkeetThink
+ * 
+ * @author Fenix
+ * @description Main skee think function
+ */
+void SV_SkeetThink(void) {
+    
+    int i;
+    int seed;
+    vec3_t vel;
+    svEntity_t *sEnt;
+    sharedEntity_t *gEnt;
+    
+    // if we are not playing skeetshoot mode
+    if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
+        return;
+    }
+    
+    // set the seed
+    seed = sv.time;
+    
+    // loop through all the skeets checking whether they 
+    // need to be launched or repositioned at spawn point
+    for (i = 0; i < MAX_SKEETS; i++) {
+        
+        // if we don't have more skeets to check
+        if (!(sEnt = sv.skeets[i])) {
+            break;
+        }
+        
+        // get the corresponding sharedEntity_t
+        gEnt = SV_GEntityForSvEntity(sEnt);
+        if (!gEnt) {
+            continue;
+        }
+        
+        if (SV_IsSkeetInSpawn(sEnt)) {
+            
+            // check if it's time to launch the skeet
+            if (sv.time > sEnt->skeetLaunchTime) {
+                vel[0] = 0.0f;                      // this needs to be randomized
+                vel[1] = 0.0f;                      // this needs to be randomized
+                vel[2] = 1000.0f;                   // keep this one static: it's the down-up vector
+                VectorClear(gEnt->s.pos.trDelta);
+                VectorAdd(gEnt->s.pos.trDelta, vel, gEnt->s.pos.trDelta);
+                gEnt->s.pos.trTime = sv.time - 50;
+                gEnt->s.pos.trType = TR_GRAVITY;
+            }
+            
+        } else {
+            
+            // check if it's time to reposition the skeet
+            if (gEnt->r.currentOrigin[2] < sEnt->skeetorigin[2]) {
+                SV_UnlinkEntity(gEnt);
+                VectorCopy(sEnt->skeetorigin, gEnt->r.currentOrigin);       
+                sEnt->skeetLaunchTime = sv.time + Q_randrange(&seed, MIN_SKEET_SPAWN_TIME, MAX_SKEET_SPAWN_TIME);
+                gEnt->s.pos.trTime = sv.time;
+                gEnt->s.pos.trType = TR_STATIONARY;
+                SV_LinkEntity(gEnt);
+            }
+        
+        }
+         
+    }
+    
+}
+
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_Frame
 // Description : Player movement occurs as a result of packet events, 
@@ -1571,5 +1673,8 @@ void SV_Frame(int msec) {
     
     // check that we are recording online players
     SV_CheckDemoRecording();
+    
+    // run the skeet think function
+    SV_SkeetThink();
     
 }

@@ -724,12 +724,12 @@ static void SV_DoMapcycleRoutine(void) {
 
 #ifdef USE_AUTH
 /**
- * SV_ClearRconUserList
+ * SV_FreeRconUserList
  * 
  * @author Fenix
  * @description Clear the RCON user list
  */
-static void SV_ClearRconUserList(void) {
+void SV_FreeRconUserList(void) {
     int i;
     if (svs.rconuserlist != NULL) {
         for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
@@ -740,14 +740,14 @@ static void SV_ClearRconUserList(void) {
 }
 
 /**
- * SV_ReadRconUserList
+ * SV_InitRconUserList
  * 
  * @author Fenix
  * @description Read the rcon.cfg file from q3ut4 parsing the auth
  *              of clients who will be allowed to use RCON commands
  *              without having to insert the rcon password
  */
-static void SV_ReadRconUserList(void) {
+void SV_InitRconUserList(void) {
     
     int            i, size, len;
     char           *buffer;
@@ -790,7 +790,7 @@ static void SV_ReadRconUserList(void) {
     }
     
     // clear previous list
-    SV_ClearRconUserList();
+    SV_FreeRconUserList();
     
     svs.rconuserlist = Z_Malloc(MAX_RCON_USERS * sizeof(char *));
     for (i = 0; (i < MAX_RCON_USERS) && (token = COM_Parse(&buffer)) && (token[0]); i++) {
@@ -805,6 +805,60 @@ static void SV_ReadRconUserList(void) {
     
 }
 #endif
+
+
+/**
+ * SV_InitSkeetShoot
+ * 
+ * @author Fenix
+ * @description Initialize server settings for skeetshoot mode
+ */
+void SV_InitSkeetShoot(void) {
+    
+    int i, j;
+    int seed;
+    int offset;
+    svEntity_t *sEnt;
+    sharedEntity_t *gEnt;
+    
+    // if we are not playing skeetshoot mode
+    if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
+        return;
+    }
+    
+    // classhash offset
+    offset = sizeof(entityState_t) + 
+             sizeof(entityShared_t) + 
+             sizeof(void *) * 5 + 
+             sizeof(qboolean);
+            
+    // set the seed
+    seed = sv.time;
+    
+    // loop through all the entities finding skeets
+    for (i = 0, j = 0, sEnt = sv.svEntities; i < MAX_GENTITIES && j < MAX_SKEETS; i++, sEnt++) {
+        
+        if (!sEnt) {
+            continue;
+        }
+        
+        gEnt = SV_GEntityForSvEntity(sEnt);
+        if (!gEnt) {
+            continue;
+        }
+
+        // if the classhash matches consider this entity as a skeet
+        if (*(int *)((byte *)sv.gentities + sv.gentitySize * (i) + offset) == SKEET_CLASSHASH) {
+            sv.skeets[j] = sEnt;
+            sv.skeets[j]->skeet = qtrue;
+            sv.skeets[j]->skeetLaunchTime = sv.time + Q_randrange(&seed, MIN_SKEET_SPAWN_TIME, MAX_SKEET_SPAWN_TIME);
+            VectorCopy(gEnt->r.currentOrigin, sv.skeets[j]->skeetorigin);  // save spawnpoint origin
+            j++;
+        }
+
+    }
+    
+}
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_SpawnServer
@@ -1105,11 +1159,14 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     
     #ifdef USE_AUTH
     // reload the list of rcon users
-    SV_ReadRconUserList();
+    SV_InitRconUserList();
     #endif
     
     // compute the nextmap
     SV_DoMapcycleRoutine();
+    
+    // initialize skeetshoot
+    SV_InitSkeetShoot();
     
     // mark last vote time
     sv.lastVoteTime = svs.time;
@@ -1201,6 +1258,7 @@ void SV_Init(void) {
     sv_ghostradius = Cvar_Get("sv_ghostradius", "10.0", CVAR_ARCHIVE);
     sv_hidechatcmds = Cvar_Get("sv_hidechatcmds", "1", CVAR_ARCHIVE);
     sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
+    sv_skeetshoot = Cvar_Get("sv_skeetshoot", "0", CVAR_ARCHIVE);
     
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();
@@ -1285,7 +1343,7 @@ void SV_Shutdown(char *finalmsg) {
     
     #ifdef USE_AUTH
     // clear rcon list
-    SV_ClearRconUserList();
+    SV_FreeRconUserList();
     #endif
     
     Com_Memset(&svs, 0, sizeof(svs));
