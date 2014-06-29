@@ -101,6 +101,58 @@ void SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...) {
     SV_SendServerCommand(cl, "print \"%s\n\"", str);
 }
 
+/**
+ * SV_BroadcastSoundToClient
+ * 
+ * @author Fenix
+ * @param ps The playerState_t struct of the client to who send the sound
+ * @param name The path to the sound to be played
+ * @description Send a sound to a client
+ */
+void SV_BroadcastSoundToClient(playerState_t *ps, const char *name) {
+    
+    int i;
+    int bits;
+    int index = -1;
+    int max = MAX_SOUNDS;
+    int start = CS_SOUNDS;
+    char buffer[MAX_STRING_CHARS];
+    
+    if (!name || !name[0]) {
+        // invalid name supplied
+        index = 0;
+    }
+    
+    for (i = 1 ; i < max ; i++) {
+        SV_GetConfigstring(start + i, buffer, sizeof(buffer));
+        if (!buffer[0]) {
+            break;
+        }
+        if (!Q_stricmp(buffer, name)) {
+            index = i;
+            break;
+        }
+    }
+    
+    if (index == -1) {
+        // if there is no config string for this sound, 
+        // create a new one but do not overflow the limits
+        if (i == max) {
+            return;
+        }
+        
+        SV_SetConfigstring(start + i, name);
+        index = i;
+    }
+    
+    bits = ps->externalEvent & EV_EVENT_BITS;
+    bits = (bits + EV_EVENT_BIT1) & EV_EVENT_BITS;
+    ps->externalEvent = EV_GENERAL_SOUND | bits;
+    ps->externalEventParm = index;
+    ps->externalEventTime = sv.time;
+    
+}
+
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_LogPrintf
@@ -402,39 +454,6 @@ qboolean SV_IsClientGhost(client_t *cl) {
     return ghost > 0 ? qtrue : qfalse;
 
 }
-
-/**
- * SV_IsSkeetInSpawn
- * 
- * @author Fenix
- * @description Check whether the given skeet is at spawn point
- * @param sEnt The skeet entity
- * @return qtrue if the skeet is at spawn, qfalse otherwise
- */
-qboolean SV_IsSkeetInSpawn(svEntity_t *sEnt) {
-    
-    sharedEntity_t *gEnt;
-    
-    // if we are not playing skeetshoot
-    if (sv_gametype->integer != GT_FFA || sv_skeetshoot->integer <= 0) {
-        return qfalse;
-    }
-    
-    // if not a skeet 
-    if (!sEnt->skeet) {
-        return qfalse;
-    }
-    
-    // if we can't get a proper sharedEntity_t
-    gEnt = SV_GEntityForSvEntity(sEnt);
-    if (!gEnt) {
-        return qfalse;
-    }
-    
-    // do the comparison
-    return VectorCompare(sEnt->skeetorigin, gEnt->r.currentOrigin);
-}
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -1474,6 +1493,79 @@ void SV_CheckDemoRecording(void) {
 }
 
 /**
+ * SV_SkeetRespawn
+ * 
+ * @author Fenix
+ * @param sEnt The svEntity_t struct of the skeet
+ * @param gEnt The sharedEntity_t struct of the skeet
+ * @description Respawn a skeet in the spawn point
+ */
+void SV_SkeetRespawn(svEntity_t *sEnt, sharedEntity_t *gEnt) {
+    
+    // if we are not playing skeetshoot mode
+    if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
+        return;
+    }
+    
+    // if not a skeet
+    if (!sEnt->skeet) {
+        return;
+    }
+    
+    // if already at spawnpoint
+    if (!sEnt->skeetLaunched) {
+        return;
+    }
+    
+    SV_UnlinkEntity(gEnt);
+    VectorCopy(sEnt->skeetorigin, gEnt->r.currentOrigin);       
+    sEnt->skeetLaunched = qfalse;
+    sEnt->skeetLaunchTime = sv.time + Q_randrange(MIN_SKEET_SPAWN_TIME, MAX_SKEET_SPAWN_TIME);
+    gEnt->s.pos.trTime = sv.time;
+    gEnt->s.pos.trType = TR_STATIONARY;
+    SV_LinkEntity(gEnt);
+    
+}
+
+/**
+ * SV_LaunchSkeet
+ * 
+ * @author Fenix
+ * @param sEnt The svEntity_t struct of the skeet
+ * @param gEnt The sharedEntity_t struct of the skeet
+ * @description Launch a skeet in the air
+ */
+void SV_SkeetLaunch(svEntity_t *sEnt, sharedEntity_t *gEnt) {
+    
+    vec3_t vel;
+    
+    // if we are not playing skeetshoot mode
+    if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
+        return;
+    }
+    
+    // if not a skeet
+    if (!sEnt->skeet) {
+        return;
+    }
+    
+    // if already in the air
+    if (sEnt->skeetLaunched) {
+        return;
+    }
+    
+    vel[0] = 0.0f;                      // this needs to be randomized
+    vel[1] = 0.0f;                      // this needs to be randomized
+    vel[2] = SKEET_SPEED_FIXED;         // keep this one static: it's the up-down vector
+    VectorClear(gEnt->s.pos.trDelta);
+    VectorAdd(gEnt->s.pos.trDelta, vel, gEnt->s.pos.trDelta);
+    gEnt->s.pos.trTime = sv.time - 50;
+    gEnt->s.pos.trType = TR_GRAVITY;
+    sEnt->skeetLaunched = qtrue;
+    
+}
+
+/**
  * SV_SkeetThink
  * 
  * @author Fenix
@@ -1482,8 +1574,6 @@ void SV_CheckDemoRecording(void) {
 void SV_SkeetThink(void) {
     
     int i;
-    int seed;
-    vec3_t vel;
     svEntity_t *sEnt;
     sharedEntity_t *gEnt;
     
@@ -1491,9 +1581,6 @@ void SV_SkeetThink(void) {
     if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
         return;
     }
-    
-    // set the seed
-    seed = sv.time;
     
     // loop through all the skeets checking whether they 
     // need to be launched or repositioned at spawn point
@@ -1510,42 +1597,29 @@ void SV_SkeetThink(void) {
             continue;
         }
         
-        if (SV_IsSkeetInSpawn(sEnt)) {
-            
+        if (sEnt->skeetLaunched) {
+            // check if it's time to reposition the skeet
+            if (gEnt->r.currentOrigin[2] <= sEnt->skeetorigin[2]) {
+                SV_SkeetRespawn(sEnt, gEnt);
+            }
+        } else {
             // check if it's time to launch the skeet
             if (sv.time > sEnt->skeetLaunchTime) {
-                vel[0] = 0.0f;                      // this needs to be randomized
-                vel[1] = 0.0f;                      // this needs to be randomized
-                vel[2] = 1000.0f;                   // keep this one static: it's the down-up vector
-                VectorClear(gEnt->s.pos.trDelta);
-                VectorAdd(gEnt->s.pos.trDelta, vel, gEnt->s.pos.trDelta);
-                gEnt->s.pos.trTime = sv.time - 50;
-                gEnt->s.pos.trType = TR_GRAVITY;
+                SV_SkeetLaunch(sEnt, gEnt);
             }
-            
-        } else {
-            
-            // check if it's time to reposition the skeet
-            if (gEnt->r.currentOrigin[2] < sEnt->skeetorigin[2]) {
-                SV_UnlinkEntity(gEnt);
-                VectorCopy(sEnt->skeetorigin, gEnt->r.currentOrigin);       
-                sEnt->skeetLaunchTime = sv.time + Q_randrange(&seed, MIN_SKEET_SPAWN_TIME, MAX_SKEET_SPAWN_TIME);
-                gEnt->s.pos.trTime = sv.time;
-                gEnt->s.pos.trType = TR_STATIONARY;
-                SV_LinkEntity(gEnt);
-            }
-        
         }
          
     }
     
 }
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_Frame
-// Description : Player movement occurs as a result of packet events, 
-//               which happen before SV_Frame is called
-/////////////////////////////////////////////////////////////////////
+/**
+ * SV_Frame
+ * 
+ * @param Current timestamp
+ * @description Player movement occurs as a result of packet 
+ *              events, which happen before SV_Frame is called
+ */
 void SV_Frame(int msec) {
     
     int frameMsec;

@@ -149,21 +149,63 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 //==============================================================
 
-int Q_rand(int *seed) {
-    *seed = (69069 * *seed + 1);
-    return *seed;
+#define N 624
+#define M 397
+#define A 0x9908b0dfUL
+#define U 0x80000000UL
+#define L 0x7fffffffUL
+ 
+static unsigned long x[N];
+static int next;
+
+void Q_seed(unsigned long s) {
+   
+    int i;
+    x[0] = s & 0xffffffffUL;
+    for (i = 1; i < N; i++) {
+        x[i] = (1812433253UL * (x[i - 1] ^ (x[i - 1] >> 30)) + i);
+        x[i] &= 0xffffffffUL;
+   }
 }
 
-int Q_randrange(int *seed, int min, int max) {
-    return (Q_rand(seed) % (max - min) + min);
+unsigned long Q_rand(void) {
+    
+    int i;
+    unsigned long y, a;
+ 
+    if (next == N) {
+        next = 0;
+        for (i = 0; i < N - 1; i++) {
+            y = (x[i] & U) | x[i + 1] & L;
+            a = (y & 0x1UL) ? A : 0x0UL;
+            x[i] = x[(i + M) % N] ^ (y >> 1) ^ a;
+        }
+ 
+        y = (x[N - 1] & U) | x[0] & L;
+        a = (y & 0x1UL) ? A : 0x0UL;
+        x[N - 1] = x[M - 1] ^ (y >> 1) ^ a;
+   }
+ 
+   y = x[next++];
+ 
+   y ^= (y >> 11);
+   y ^= (y << 7) & 0x9d2c5680UL;
+   y ^= (y << 15) & 0xefc60000UL;
+   y ^= (y >> 18);
+ 
+   return y;
 }
 
-float Q_random(int *seed) {
-    return (Q_rand(seed) & 0xffff) / (float)0x10000;
+int Q_randrange(int min, int max) {
+    return ((int)Q_rand() % (max - min) + min);
 }
 
-float Q_crandom(int *seed) {
-    return 2.0 * (Q_random(seed) - 0.5);
+float Q_random(void) {
+    return (float)((Q_rand() & 0xffff) / (float)0x10000);
+}
+
+float Q_crandom(void) {
+    return 2.0 * (Q_random() - 0.5);
 }
 
 //=======================================================

@@ -29,12 +29,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #define    PERS_SCORE          0    // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
+#define    PERS_KILLED         8
 #define    MAX_ENT_CLUSTERS    16
 
 // skeetshoot defines
 #define MAX_SKEETS 32               // amount of skeetshoot which will be animated in skeetshoot game mode
-#define MIN_SKEET_SPAWN_TIME 3000   // min amount of milliseconds a skeet will stay at spawn point
-#define MAX_SKEET_SPAWN_TIME 8000   // max amount of milliseconds a skeet will stay at spawn point
+#define MIN_SKEET_SPAWN_TIME 1000   // min amount of milliseconds a skeet will stay at spawn point
+#define MAX_SKEET_SPAWN_TIME 4000   // max amount of milliseconds a skeet will stay at spawn point
+#define SKEET_SPEED_FIXED 2000.0f   // fixed vertical speed for skeet pull out
 #define SKEET_CLASSHASH 284875700   // classhash of the skeet entity
 
 typedef struct svEntity_s {
@@ -51,6 +53,7 @@ typedef struct svEntity_s {
     qboolean                skeet;                          // qtrue if this entity is a skeet
     vec3_t                  skeetorigin;                    // coordinates of the skeet spawn point
     int                     skeetLaunchTime;                // timestamp expressing the time the skeet should be pulled out 
+    qboolean                skeetLaunched;                  // whether the skeet is in the air or not
 } svEntity_t;
 
 typedef enum {
@@ -171,7 +174,7 @@ typedef struct client_s {
     int                 snapshotMsec;             // requests a snapshot every snapshotMsec unless rate choked
     int                 pureAuthentic;
     
-    qboolean  gotCP;                              // TTimo - additional flag to distinguish between a 
+    qboolean            gotCP;                    // TTimo - additional flag to distinguish between a 
                                                   // bad pure checksum, and no cp command at all
 
     // TTimo
@@ -198,6 +201,7 @@ typedef struct client_s {
     qboolean            ready;                  // used in match mode and jump mode
     qboolean            captain;                // whether this client is the captain of his team
     qboolean            ghost;                  // whether this client has ghosting enabled client side
+    int                 lastEventSequence;      // last event sequence number parsed by this client
     
     #ifdef USE_AUTH
     qboolean            rconuser;               // whether this client is an RCON user or not
@@ -291,6 +295,10 @@ typedef struct {
 #define MATCH_RR 0x02
 #define MATCH_BR 0x04
 
+// Events
+#define EV_FIRE_WEAPON 31
+#define EV_GENERAL_SOUND 35
+
 extern    serverStatic_t    svs;                // persistant server info across maps
 extern    server_t          sv;                 // cleared each map
 extern    vm_t              *gvm;               // game virtual machine
@@ -350,6 +358,7 @@ extern    cvar_t    *sv_skeetshoot;
 //
 void        SV_FinalMessage (char *message);
 void        SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...);
+void        SV_BroadcastSoundToClient(playerState_t *ps, const char *name);
 void QDECL  SV_LogPrintf(const char *fmt, ...);
 void        SV_LoadPositionFromFile(client_t *cl, char *mapname);
 void        SV_SavePositionToFile(client_t *cl, char *mapname);
@@ -358,12 +367,14 @@ qboolean    SV_CheckCallvoteArgs(void);
 int         SV_GetClientTeam(int cid);
 int         SV_GetMatchState(void);
 qboolean    SV_IsClientGhost(client_t *cl);
-qboolean    SV_IsSkeetInSpawn(svEntity_t *sEnt);
 void QDECL  SV_SendServerCommand(client_t *cl, const char *fmt, ...);
 void        SV_AddOperatorCommands(void);
 void        SV_RemoveOperatorCommands(void);
 void        SV_MasterHeartbeat(void);
 void        SV_MasterShutdown(void);
+void        SV_SkeetRespawn(svEntity_t *sEnt, sharedEntity_t *gEnt);
+void        SV_SkeetLaunch(svEntity_t *sEnt, sharedEntity_t *gEnt);
+void        SV_SkeetThink(void);
 
 //
 // sv_init.c
@@ -396,6 +407,9 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
 #endif
 
 void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK);
+void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount);
+void SV_SkeetShoot(client_t *cl, playerState_t *ps);
+void SV_ClientEvents(client_t *cl);
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
 void SV_GhostThink(client_t *cl);
 void SV_WriteDownloadToClient(client_t *cl , msg_t *msg);

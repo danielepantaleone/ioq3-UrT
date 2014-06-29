@@ -2135,12 +2135,10 @@ int Com_EventLoop( void ) {
 			// this cvar allows simulation of connections that
 			// drop a lot of packets.  Note that loopback connections
 			// don't go through here at all.
-			if ( com_dropsim->value > 0 ) {
-				static int seed;
-
-				if ( Q_random( &seed ) < com_dropsim->value ) {
-					break;		// drop this packet
-				}
+			if (com_dropsim->value > 0) {
+                            if (Q_random() < com_dropsim->value) {
+                            	break;		// drop this packet
+                            }
 			}
 
 			evFrom = *(netadr_t *)ev.evPtr;

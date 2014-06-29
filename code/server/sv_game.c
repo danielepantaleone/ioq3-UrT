@@ -144,10 +144,9 @@ void SV_GameSendServerCommand(int clientNum, const char *text) {
                         &val[5], &val[6], &val[7], &val[8], &val[9], auth) != EOF) {
 
             if (!Q_stricmp("scoress", cmd)) {
-                
-                // set the readi flag: will cast int to qboolean
-                svs.clients[val[0]].ready = val[6];
 
+                svs.clients[val[0]].ready = val[6];
+                        
                 #ifdef USE_AUTH
                 // if the guys is authed and we didn't parsed his auth already
                 if ((Q_stricmp("---", auth) != 0) && (Q_stricmp(svs.clients[val[0]].auth, auth) != 0)) {

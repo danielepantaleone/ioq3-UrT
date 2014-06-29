@@ -1900,19 +1900,179 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
     
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//                                                                            //
-//  UTILITIES                                                                 //
-//                                                                            //
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                          //
+//  UTILITIES                                                                                               //
+//                                                                                                          //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_GhostThink
-// Description : Mark the client contentmask with CONTENT_CORPSE
-//               if the client is hitting another client and ghosting
-//               is enabled clientside
-// Author      : Fenix
-/////////////////////////////////////////////////////////////////////
+/**
+ * SV_SkeetAddScore
+ * 
+ * @author Fenix
+ * @param cl The client to who add the score
+ * @param ps The client playerState_t structure
+ * @param amount The amount of score to add
+ * @description Add score to a client after a successful skeet shoot
+ */
+void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount) {
+    
+    int i;
+    char *score;
+    client_t *dst;
+    
+    // if we are not playing skeetshoot mode
+    if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
+        return;
+    }
+    
+    // nothing to add
+    if (!amount) {
+        return;
+    }
+    
+    // increase the score
+    ps->persistant[PERS_SCORE] += amount; 
+    
+    // FIXME: this is a really ugly hack to let the client scoreboard update without having 
+    // to press the TAB button: not sure if I actually can do it better than this from the engine.
+    #ifdef USE_AUTH
+    score = va("scoress %i %i %i %i %i %i %i %i %i %i %s",
+            cl - svs.clients, ps->persistant[PERS_SCORE], cl->ping, sv.time / 60000, 
+            0, ps->persistant[PERS_KILLED], cl->ready, 0, 0, 0, cl->auth);
+    #else
+    score = va("scoress %i %i %i %i %i %i %i %i %i %i %s",
+            cl - svs.clients, ps->persistant[PERS_SCORE], cl->ping, sv.time / 60000, 
+            0, ps->persistant[PERS_KILLED], cl->ready, 0, 0, 0, "---");
+    #endif
+
+    for (i = 0, dst = svs.clients; i < sv_maxclients->integer; i++, dst++) {
+        
+        // if the client is not active
+        if (dst->state != CS_ACTIVE) {
+            continue;
+        }
+        
+        // send the score
+        SV_SendServerCommand(dst, score);
+
+    }
+    
+    // log it for external bots
+    SV_LogPrintf("SkeetShoot: %i %i %i\n", cl - svs.clients, amount, ps->persistant[PERS_SCORE]);
+
+} 
+
+/**
+ * SV_SkeetShoot
+ * 
+ * @author Fenix
+ * @param cl The client who is shooting
+ * @param ps The client playerState_t structure
+ * @description Check whether this client shot to a skeet
+ */
+void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
+    
+    svEntity_t *sEnt;
+    sharedEntity_t *gEnt;
+    sharedEntity_t *self;
+    trace_t trace;
+    vec3_t muzzle;
+    vec3_t forward;
+    vec3_t right;
+    vec3_t end;
+    vec3_t up;
+    
+    // if we are not playing skeetshoot mode
+    if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
+        return;
+    }
+    
+    self = SV_GentityNum(cl - svs.clients);
+    if (!self) {
+        Com_Printf("ERROR: couldn't retrieve client entity given it's slot number: %i\n", cl - svs.clients);
+        return;
+    }
+    
+    AngleVectors(ps->viewangles, forward, right, up);   // the the angle vectors of the client
+    VectorCopy(self->s.pos.trBase, muzzle);             // claculate the muzzle origin
+    muzzle[2] += ps->viewheight;                        // set the muzzle on the eye point
+    VectorMA(muzzle, 16384, forward, end);              // calculate end point of the trace
+    
+    // fire a trace to see what this client hit
+    SV_Trace(&trace, muzzle, NULL, NULL, end, cl - svs.clients, MASK_SHOT, qfalse);
+    
+    // get the entity we hit
+    sEnt = &sv.svEntities[trace.entityNum];
+    
+    if (!sEnt) {
+        return;
+    }
+    // check if we have to perform this hit
+    if (!sEnt || !sEnt->skeet || !sEnt->skeetLaunched) {
+        return;
+    }
+    
+    gEnt = SV_GEntityForSvEntity(sEnt);
+    if (!gEnt) {
+        return;
+    }
+
+    SV_SkeetAddScore(cl, ps, 1);                                        // increase score
+    SV_BroadcastSoundToClient(ps, "sound/headshot.wav");                // send the hit sound
+    SV_SkeetRespawn(sEnt, gEnt);                                        // respawn the skeet
+    
+}
+
+/**
+ * SV_ClientEvents
+ * 
+ * @author Fenix
+ * @param cl The client who to parse events
+ * @description Handle events for the given client
+ */
+void SV_ClientEvents(client_t *cl) {
+    
+    int i;
+    int event;
+    playerState_t *ps;
+    
+    if (!cl) {
+        return;
+    }
+    
+    // get the client playerState_t struct
+    ps = SV_GameClientNum(cl - svs.clients);
+    if (!ps) {
+        return;
+    }
+    
+    if (cl->lastEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
+        cl->lastEventSequence = ps->eventSequence - MAX_PS_EVENTS;
+    }
+
+    // go through the predictable events
+    for (i = cl->lastEventSequence; i < ps->eventSequence; i++) {
+        event = ps->events[i & (MAX_PS_EVENTS - 1)];
+        if (event == EV_FIRE_WEAPON) {
+            SV_SkeetShoot(cl, ps);
+        } 
+    }
+    
+    // update last event sequence
+    cl->lastEventSequence = ps->eventSequence;
+    
+}
+
+/**
+ * SV_GhostThink
+ * 
+ * @author Fenix
+ * @param cl The client on who to activate ghosting
+ * @description Mark the client contentmask with CONTENT_CORPSE
+ *              if the client is hitting another client and ghosting
+ *              is enabled clientside
+ */
 void SV_GhostThink(client_t *cl) {
     
     int               i;
@@ -1983,11 +2143,14 @@ void SV_GhostThink(client_t *cl) {
     
 }
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_ClientThink
-// Description : Run the game client think function
-/////////////////////////////////////////////////////////////////////
-void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
+/**
+ * SV_ClientThink
+ * 
+ * @description Execute the think function of the given client
+ * @param cl The client who to run the think function of
+ * @param cmd The user command
+ */
+void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
 
     cl->lastUsercmd = *cmd;
     if (cl->state != CS_ACTIVE) {
@@ -1996,8 +2159,14 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
         return;
     }
     
+    // activate ghosting before qvm
     SV_GhostThink(cl);
+    
+    // execute qvm think function
     VM_Call(gvm, GAME_CLIENT_THINK, cl - svs.clients);
+    
+    // handle client events
+    SV_ClientEvents(cl);
     
 }
 

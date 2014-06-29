@@ -561,10 +561,11 @@ int Q_log2(int val);
 
 float Q_acos(float c);
 
-int Q_rand(int *seed);
-int Q_randrange(int *seed, int min, int max);
-float Q_random(int *seed);
-float Q_crandom(int *seed);
+void Q_seed(unsigned long s);
+unsigned long Q_rand(void);
+int Q_randrange(int min, int max);
+float Q_random(void);
+float Q_crandom(void);
 
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))

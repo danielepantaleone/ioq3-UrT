@@ -816,7 +816,6 @@ void SV_InitRconUserList(void) {
 void SV_InitSkeetShoot(void) {
     
     int i, j;
-    int seed;
     int offset;
     svEntity_t *sEnt;
     sharedEntity_t *gEnt;
@@ -831,9 +830,6 @@ void SV_InitSkeetShoot(void) {
              sizeof(entityShared_t) + 
              sizeof(void *) * 5 + 
              sizeof(qboolean);
-            
-    // set the seed
-    seed = sv.time;
     
     // loop through all the entities finding skeets
     for (i = 0, j = 0, sEnt = sv.svEntities; i < MAX_GENTITIES && j < MAX_SKEETS; i++, sEnt++) {
@@ -851,7 +847,7 @@ void SV_InitSkeetShoot(void) {
         if (*(int *)((byte *)sv.gentities + sv.gentitySize * (i) + offset) == SKEET_CLASSHASH) {
             sv.skeets[j] = sEnt;
             sv.skeets[j]->skeet = qtrue;
-            sv.skeets[j]->skeetLaunchTime = sv.time + Q_randrange(&seed, MIN_SKEET_SPAWN_TIME, MAX_SKEET_SPAWN_TIME);
+            sv.skeets[j]->skeetLaunchTime = sv.time + Q_randrange(MIN_SKEET_SPAWN_TIME, MAX_SKEET_SPAWN_TIME);
             VectorCopy(gEnt->r.currentOrigin, sv.skeets[j]->skeetorigin);  // save spawnpoint origin
             j++;
         }
@@ -968,6 +964,9 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // the loading stage, so connected clients don't have
     // to load during actual gameplay
     sv.state = SS_LOADING;
+    
+    // set the seed for random number generation
+    Q_seed(svs.time);
 
     // load and spawn all other entities
     SV_InitGameProgs();
