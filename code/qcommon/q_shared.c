@@ -1151,15 +1151,98 @@ void Com_TruncateLongString( char *buffer, const char *s )
 =====================================================================
 */
 
-static void Info_SkipToken(const char **s) {
-    const char *t = *s;
+static const char *SInfo_FindKey(const char *infostr, const char *key) {
     
-    while (*t && *t != '\\')
-        ++t;
+    const char *k, *p, *q;
+
+    k = infostr;
+    if (*k == '\\')
+        ++k;
+
+    while (*k) {
+        // save start position of key
+        q = k;
+
+        // match the key against the sequence starting at k
+        for (p = key; *p && *p == *k; ++p, ++k)
+            ;
+        
+        // if matching key
+        if ((*p == '\0') && (*k == '\\')) {
+            return q;
+        }
+        
+        // skip the key
+        while (*k && *k != '\\') ++k;
+        if (*k)
+            ++k;
+
+        // skip the value
+        while (*k && *k != '\\') ++k;
+        if (*k)
+            ++k;
+    }
+    // return pointer to the NUL-terminator
+    return k;
+}
+
+static char *SInfo_ValueForKey(const char *infostr, const char *key, char *valuebuf) {
     
-    if (*t) ++t;
+    const char *k;
+    char       *o;
+
+    if (!infostr || !key || !valuebuf) {
+        return NULL;
+    }
     
-    *s = t;
+    // obtain pointer to start of the key
+    k = SInfo_FindKey(infostr, key);
+
+    // skip the key
+    while (*k && *k != '\\') ++k;
+    if (*k)
+        ++k;
+
+    // copy value to output buffer
+    for (o = valuebuf; *k && *k != '\\';)
+        *o++ = *k++;
+    *o = 0;
+
+    return valuebuf;
+}
+
+static void SInfo_RemoveKey(char *infostr, const char *key) {
+    
+    const char *p;
+    char       *k;
+
+    if (!infostr || !key || !infostr[0] || !key[0]) {
+        return;
+    }
+    
+    // obtain pointer to start of the key
+    p = k = (char *) SInfo_FindKey(infostr, key);
+    
+    // if key not found, then nothing to remove
+    if (*p == '\0') {
+        return;
+    }
+
+    // skip the key
+    while (*p && *p != '\\') ++p;
+    if (*p)
+        ++p;
+
+    // skip the value
+    while (*p && *p != '\\') ++p;
+
+    // back up to backslash preceding key, if present
+    if (k > infostr)
+        --k;
+
+    // left shift remaining part of the info string
+    while ((*k++ = *p++))
+        ;
 }
 
 /*
@@ -1171,11 +1254,9 @@ key and returns the associated value, or an empty string.
 ===============
 */
 char *Info_ValueForKey(const char *infostr, const char *key) {
+    
     static char valuebuf[2][BIG_INFO_VALUE];
     static unsigned char valueindex = 0;
-    const char *k;
-    const char *p;
-    char *o;
     
     if (!infostr || !key) {
         return "";
@@ -1185,31 +1266,11 @@ char *Info_ValueForKey(const char *infostr, const char *key) {
         Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
     }
     
-    k = infostr;
-    while (*k) {
-        // match the key against the sequence starting at k
-        for (p = key; *p && *k == *p; ++k, ++p)
-            ;
-        // if matching key (partial matches NOT allowed)
-        if (!*p && *k == '\\') {
-            ++k;
-            break;
-        }
-        // key didn't match, skip the non-matching key and its value
-        Info_SkipToken(&k);
-        Info_SkipToken(&k);
-    }
-    
-    // alternate between value buffers to guarantee that a returned
-    // value is retained for a period of two Info_ValueForKey calls
-    valueindex ^= 1;
-
-    // copy value to output buffer
-    for (o = valuebuf[valueindex]; *k && *k != '\\';)
-        *o++ = *k++;
-    *o = 0;
-
-    return valuebuf[valueindex];
+    // Alternate between value buffers to guarantee that a returned
+    // value is retained for a period of two Info_ValueForKey calls.
+    // This is needed so that compares between two successive retrieved
+    // values work correctly.
+    return SInfo_ValueForKey(infostr, key, &valuebuf[valueindex ^= 1]);
 }
 
 /*
@@ -1258,114 +1319,29 @@ void Info_NextPair( const char **head, char *key, char *value ) {
 Info_RemoveKey
 ===================
 */
-void Info_RemoveKey( char *s, const char *key ) {
-	char	*start;
-	char	pkey[MAX_INFO_KEY];
-	char	value[MAX_INFO_VALUE];
-	char	*o;
+void Info_RemoveKey(char *infostr, const char *key) {
 
-	if ( strlen( s ) >= MAX_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" );
-	}
-
-	if (strchr (key, '\\')) {
-		return;
-	}
-
-	while (1)
-	{
-		start = s;
-		if (*s == '\\')
-			s++;
-		o = pkey;
-		while (*s != '\\')
-		{
-			if (!*s)
-				return;
-			*o++ = *s++;
-		}
-		*o = 0;
-		s++;
-
-		o = value;
-		while (*s != '\\' && *s)
-		{
-			if (!*s)
-				return;
-			*o++ = *s++;
-		}
-		*o = 0;
-
-		if (!strcmp (key, pkey) )
-		{
-			//strcpy is not safe for overlapping copies, use memmove
-			memmove(start, s, strlen(s) + 1);
-			return;
-		}
-
-		if (!*s)
-			return;
-	}
-
+    if (strlen(infostr) >= MAX_INFO_STRING) {
+        Com_Error(ERR_DROP, "Info_RemoveKey: oversize infostring");
+    }
+    
+    SInfo_RemoveKey(infostr, key);
 }
+
 
 /*
 ===================
 Info_RemoveKey_Big
 ===================
 */
-void Info_RemoveKey_Big( char *s, const char *key ) {
-	char	*start;
-	char	pkey[BIG_INFO_KEY];
-	char	value[BIG_INFO_VALUE];
-	char	*o;
+void Info_RemoveKey_Big(char *infostr, const char *key) {
 
-	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring" );
-	}
-
-	if (strchr (key, '\\')) {
-		return;
-	}
-
-	while (1)
-	{
-		start = s;
-		if (*s == '\\')
-			s++;
-		o = pkey;
-		while (*s != '\\')
-		{
-			if (!*s)
-				return;
-			*o++ = *s++;
-		}
-		*o = 0;
-		s++;
-
-		o = value;
-		while (*s != '\\' && *s)
-		{
-			if (!*s)
-				return;
-			*o++ = *s++;
-		}
-		*o = 0;
-
-		if (!strcmp (key, pkey) )
-		{
-			//strcpy is not safe for overlapping copies, use memmove
-			memmove(start, s, strlen(s) + 1);
-			return;
-		}
-
-		if (!*s)
-			return;
-	}
-
+    if (strlen(infostr) >= BIG_INFO_STRING) {
+        Com_Error(ERR_DROP, "Info_RemoveKey_Big: oversize infostring");
+    }
+    
+    SInfo_RemoveKey(infostr, key);
 }
-
-
 
 
 /*
