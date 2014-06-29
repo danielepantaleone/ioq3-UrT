@@ -1093,6 +1093,10 @@ void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 }
 
 
+qboolean Q_strempty(const char *s) {
+    return ( ( !s[0] ) ? qtrue : qfalse );
+}
+
 /*
 ============
 va
