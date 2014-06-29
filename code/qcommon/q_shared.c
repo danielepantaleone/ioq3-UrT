@@ -1352,26 +1352,37 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-qboolean Info_Validate( const char *s ) {
-	
-	char *tmp_s, old_s = '\0';
-	int nb = 0;
-	
-	for ( tmp_s = (char *)s ; *tmp_s != '\0' || ( s - tmp_s > MAX_INFO_STRING )  ; tmp_s ++ ) {
-		if ( *tmp_s < 32 || *tmp_s > 126 || *tmp_s == ';' || ( old_s == '\\' && *tmp_s == '"' ) )
-			return qfalse;
-		if ( *tmp_s == '\\' )
-			nb = 1 - nb;
-		old_s = *tmp_s;
-	}
-	
-	if ( s - tmp_s > MAX_INFO_STRING  )
-		return qfalse;
-	
-	if ( nb != 0 )
-		return qfalse;
-		
-	return qtrue;
+qboolean Info_Validate(const char *s) {
+    
+    const char *p;
+    char last;
+    int nb;
+    
+    last = nb = 0;
+
+    for ( p = s ; (p - s < MAX_INFO_STRING) ; p++ ) {
+        // < 32 also takes care of NUL-terminator
+        if (*p < 32 || *p > 126 || *p == ';') {
+            break;
+        }
+        if (last == '\\' && *p == '"') {
+            break;
+        }
+        if (*p == '\\') {
+            // The value of nb alternates between 0 and 1:
+            // nb will be 0 if the number of backslashes seen
+            // so far is either zero or an even amount.
+            // nb will be 1 if the number of backslashes seen
+            // so far is an odd amount.
+            nb = 1 - nb;
+        }
+        last = *p;
+    }
+
+    // If (up to this point) end of string hasn't been reached
+    // or there's an odd number of backslashes in the string,
+    // then it is an invalid info string.
+    return ( (*p != 0 || nb != 0) ? qfalse : qtrue );
 }
 
 /////////////////////////////////////////////////////////////////////
