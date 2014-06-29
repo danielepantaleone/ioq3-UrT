@@ -838,13 +838,14 @@ void SV_FlushRedirect(char *outputbuf) {
     NET_OutOfBandPrint(NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf);
 }
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_ParseGameRemoteCommand
-// Description : Parse game RCON commands allowing us to perform
-//               some operations before letting the game QVM module
-//               handle the command
-// Author      : Fenix
-/////////////////////////////////////////////////////////////////////
+/**
+ * SV_ParseGameRemoteCommand
+ * 
+ * @author Fenix
+ * @param text The command string which is going to be sent to the server
+ * @description Parse game RCON commands allowing us to perform some operations 
+ *              before letting the game QVM module handle the command
+ */
 void SV_ParseGameRemoteCommand(char *text) {
     
     int val;
@@ -860,6 +861,9 @@ void SV_ParseGameRemoteCommand(char *text) {
     if (!Q_stricmp(Cmd_Argv(0), "veto")) {
         val = sv_failedvotetime->integer * 1000;
         sv.lastVoteTime = svs.time - val;
+    } else if (!Q_stricmp(Cmd_Argv(0), "restart")) {
+        // re-initialize skeets
+        SV_InitSkeetShoot();
     }
     
 }
