@@ -1492,8 +1492,8 @@ static void SV_LoadPosition_f(client_t *cl) {
     
     int             i;
     int             cid;
-    int             run;
     int             angle;
+    qboolean        run;
     playerState_t   *ps;
     sharedEntity_t  *ent;
     
@@ -1503,7 +1503,7 @@ static void SV_LoadPosition_f(client_t *cl) {
     }
     
     cid = cl - svs.clients;
-    run = cl->jumprun;
+    run = cl->ready;
     
     // if the guy is in spectator mode
     if (SV_GetClientTeam(cid) == TEAM_SPECTATOR) {

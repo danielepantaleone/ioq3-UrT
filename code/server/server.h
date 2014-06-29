@@ -178,12 +178,12 @@ typedef struct client_s {
     int                 demo_deltas;        // how many delta frames did we let through so far?
     
     int                 oldServerTime;
-    qboolean            csUpdated[MAX_CONFIGSTRINGS+1];   
+    qboolean            csUpdated[MAX_CONFIGSTRINGS + 1];   
     
     vec3_t              savedPosition;          // saved client position    
     vec3_t              savedPositionAngle;     // saved client position angle
-    int                 jumprun;                // tells whether the client is in a jump run
     
+    qboolean            ready;                  // used in match mode and jump mode
     qboolean            captain;                // whether this client is the captain of his team
     qboolean            ghost;                  // whether this client has ghosting enabled client side
     

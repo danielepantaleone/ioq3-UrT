@@ -42,7 +42,7 @@ These commands can only be entered from stdin or by a remote operator datagram
 /////////////////////////////////////////////////////////////////////
 client_t *SV_GetPlayerByParam(const char *s) {
 
-    char        name[64];
+    char        name[MAX_NAME_LENGTH];
     int         count = 0;
     int         i, idnum;
     client_t    *cl;
@@ -95,17 +95,32 @@ client_t *SV_GetPlayerByParam(const char *s) {
             Q_CleanStr(name);
 
             // check for exact match
-            if (!Q_stricmp(name,s)) {
+            if (!Q_stricmp(name, s)) {
+                matches[0] = &svs.clients[i];
+                count = 1;
+                break;
+            }  
+            #ifdef USE_AUTH
+            // check exact match on auth name
+            else if (!Q_stricmp(cl->auth, s)) {
                 matches[0] = &svs.clients[i];
                 count = 1;
                 break;
             }
+            #endif
 
             // check for substring match
             if (Q_strisub(name, s)) {
                 matches[count] = &svs.clients[i];
                 count++;
             }
+            #ifdef USE_AUTH
+            // check substring match match on auth name
+            else if (!Q_stricmp(cl->auth, s)) {
+                matches[count] = &svs.clients[i];
+                count++;
+            }
+            #endif
 
         }
 
@@ -143,7 +158,7 @@ client_t *SV_GetPlayerByParam(const char *s) {
 static client_t *SV_GetPlayerByHandle(void) {
 
     char        *s;
-    char        name[64];
+    char        name[MAX_NAME_LENGTH];
     int         count = 0;
     int         i, idnum;
     client_t    *cl;
@@ -198,18 +213,32 @@ static client_t *SV_GetPlayerByHandle(void) {
             Q_CleanStr(name);
 
             // check for exact match
-            if (!Q_stricmp(name,s)) {
+            if (!Q_stricmp(name, s)) {
+                matches[0] = &svs.clients[i];
+                count = 1;
+                break;
+            }  
+            #ifdef USE_AUTH
+            // check exact match on auth name
+            else if (!Q_stricmp(cl->auth, s)) {
                 matches[0] = &svs.clients[i];
                 count = 1;
                 break;
             }
+            #endif
 
             // check for substring match
             if (Q_strisub(name, s)) {
                 matches[count] = &svs.clients[i];
                 count++;
             }
-
+            #ifdef USE_AUTH
+            // check substring match match on auth name
+            else if (!Q_stricmp(cl->auth, s)) {
+                matches[count] = &svs.clients[i];
+                count++;
+            }
+            #endif
         }
 
         if (count == 0) {
@@ -648,7 +677,7 @@ static void SV_Teleport_f(void) {
     }
     
     // if in a jumprun
-    if (cl1->jumprun) {
+    if (cl1->ready) {
         return;
     }
     
@@ -664,7 +693,7 @@ static void SV_Teleport_f(void) {
         }
         
         // if in a jumprun
-        if (cl2->jumprun) {
+        if (cl2->ready) {
             SV_BroadcastMessageToClient(cl1, "%s is currently doing a jump run", cl2->name);
             return;
         }
@@ -1044,10 +1073,11 @@ static void SV_ForceCvar_f(void) {
     
 }
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_Status_f
-// Description : Print server status informations
-/////////////////////////////////////////////////////////////////////
+/**
+ * SV_Status_f
+ * 
+ * @description Print server status informations
+ */
 static void SV_Status_f(void) {
 
     int            i, j, l;
@@ -1055,7 +1085,8 @@ static void SV_Status_f(void) {
     playerState_t  *ps;
     const char     *s;
     int            ping;
-
+    char           name[MAX_NAME_LENGTH];
+    
     // make sure server is running
     if (!com_sv_running->integer) {
         Com_Printf("Server is not running\n");
@@ -1084,13 +1115,16 @@ static void SV_Status_f(void) {
             ping = cl->ping < 9999 ? cl->ping : 9999;
             Com_Printf("%4i ", ping);
         }
-
-        Com_Printf("%s", cl->name);
         
-        // TTimo adding a ^7 to reset the color
-        // NOTE: colored names in status breaks the padding (WONTFIX)
+        // copy the name locally and remove color codes
+        // otherwise they will break the padding 
+        Q_strncpyz(name, cl->name, sizeof(name));
+        Q_CleanStr(name);
+        
+        Com_Printf("%s", name);
+        
         Com_Printf("^7");
-        l = 16 - strlen(cl->name);
+        l = 16 - strlen(name);
         for (j=0 ; j<l ; j++) {
             Com_Printf(" ");
         }

@@ -145,11 +145,9 @@ void SV_GameSendServerCommand(int clientNum, const char *text) {
 
             if (!Q_stricmp("scoress", cmd)) {
                 
-                // get the jumprun value if we are playing jump
-                if (sv_gametype->integer == GT_JUMP) {
-                    svs.clients[val[0]].jumprun = val[6];
-                }
-                
+                // set the readi flag: will cast int to qboolean
+                svs.clients[val[0]].ready = val[6];
+
                 #ifdef USE_AUTH
                 // if the guys is authed and we didn't parsed his auth already
                 if ((Q_stricmp("---", auth) != 0) && (Q_stricmp(svs.clients[val[0]].auth, auth) != 0)) {
