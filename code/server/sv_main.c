@@ -147,7 +147,7 @@ void SV_BroadcastSoundToClient(playerState_t *ps, const char *name) {
     
     bits = ps->externalEvent & EV_EVENT_BITS;
     bits = (bits + EV_EVENT_BIT1) & EV_EVENT_BITS;
-    ps->externalEvent = EV_GENERAL_SOUND | bits;
+    ps->externalEvent = EV_GLOBAL_SOUND | bits;
     ps->externalEventParm = index;
     ps->externalEventTime = sv.time;
     
@@ -843,12 +843,15 @@ void SV_FlushRedirect(char *outputbuf) {
  * 
  * @author Fenix
  * @param text The command string which is going to be sent to the server
- * @description Parse game RCON commands allowing us to perform some operations 
- *              before letting the game QVM module handle the command
+ * @description Parse game RCON commands allowing us to perform some extra 
+ *              operations before/after letting the game module handle the command
  */
 void SV_ParseGameRemoteCommand(char *text) {
     
+    int i;
     int val;
+    svEntity_t *sEnt;
+    sharedEntity_t *gEnt;
     
     Cmd_TokenizeString(text);	
     
@@ -859,11 +862,46 @@ void SV_ParseGameRemoteCommand(char *text) {
     
     // if it's a rcon veto command
     if (!Q_stricmp(Cmd_Argv(0), "veto")) {
+        
+        // this will remove the failed vote time basically
+        // so it will be possible to start a new callvote
         val = sv_failedvotetime->integer * 1000;
         sv.lastVoteTime = svs.time - val;
+        
     } else if (!Q_stricmp(Cmd_Argv(0), "restart")) {
-        // re-initialize skeets
-        SV_InitSkeetShoot();
+        
+        // if we are playing skeetshoot mode
+        if (sv_skeetshoot->integer > 0 && sv_gametype->integer == GT_FFA) {
+
+            // loop through all the skeets repositioning them
+            // as spawn point and flagging them as stationary
+            for (i = 0; i < MAX_SKEETS; i++) {
+
+                // if we don't have more skeets to check
+                if (!(sEnt = sv.skeets[i])) {
+                    break;
+                }
+                
+                // get the corresponding sharedEntity_t
+                gEnt = SV_GEntityForSvEntity(sEnt);
+                if (!gEnt) {
+                    continue;
+                }
+                
+                SV_UnlinkEntity(gEnt);
+                VectorCopy(sEnt->skeetorigin, gEnt->r.currentOrigin);
+                sEnt->skeet = qfalse;
+                sEnt->skeetLaunched = qfalse;
+                gEnt->s.pos.trTime = sv.time;
+                gEnt->s.pos.trType = TR_STATIONARY;
+                SV_LinkEntity(gEnt);
+           
+            } 
+        
+            // re-initialize
+            SV_InitSkeetShoot();
+        }
+    
     }
     
 }
