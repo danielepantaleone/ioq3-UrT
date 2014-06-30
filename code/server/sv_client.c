@@ -1388,6 +1388,9 @@ void SV_UserinfoChanged(client_t *cl) {
 /////////////////////////////////////////////////////////////////////
 void SV_UpdateUserinfo_f(client_t *cl) {
     
+    int i;
+    playerState_t *ps;
+    
     if ((sv_floodProtect->integer) && (cl->state >= CS_ACTIVE) && (svs.time < cl->nextReliableUserTime)) {
         Q_strncpyz(cl->userinfobuffer, Cmd_Argv(1), sizeof(cl->userinfobuffer));
         SV_BroadcastMessageToClient(cl, "^7[^3WARNING^7] Command ^1delayed ^7due to sv_floodprotect!");
@@ -1406,6 +1409,14 @@ void SV_UpdateUserinfo_f(client_t *cl) {
     // get the ghosting value for this client if we are playing the correct gametype.
     // we'll set this after qagame overriding cvar values so engine and qvm are in sync.
     cl->ghost = sv_gametype->integer == GT_JUMP ? SV_IsClientGhost(cl) : qfalse;
+    
+    // if we are playing skeetshoot backup weapon configuration
+    if (sv_skeetshoot->integer > 0 && sv_gametype->integer == GT_FFA) {
+        ps = SV_GameClientNum(cl - svs.clients);
+        for (i = 0; i < MAX_WEAPONS; i++) {
+            cl->weapon[i] = ps->powerups[i];
+        }
+    }
 
 }
 
@@ -1973,6 +1984,7 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount) {
  */
 void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     
+    int i;
     svEntity_t *sEnt;
     sharedEntity_t *gEnt;
     sharedEntity_t *self;
@@ -1986,6 +1998,11 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     // if we are not playing skeetshoot mode
     if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
         return;
+    }
+    
+     // restore weapon configuration: unlimited ammo
+    for (i = 0; i < MAX_WEAPONS; i++) {
+        ps->powerups[i] = cl->weapon[i];
     }
     
     self = SV_GentityNum(cl - svs.clients);
@@ -2041,12 +2058,7 @@ void SV_ClientEvents(client_t *cl) {
         return;
     }
     
-    // get the client playerState_t struct
     ps = SV_GameClientNum(cl - svs.clients);
-    if (!ps) {
-        return;
-    }
-    
     if (cl->lastEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
         cl->lastEventSequence = ps->eventSequence - MAX_PS_EVENTS;
     }
@@ -2056,7 +2068,9 @@ void SV_ClientEvents(client_t *cl) {
         event = ps->events[i & (MAX_PS_EVENTS - 1)];
         if (event == EV_FIRE_WEAPON) {
             SV_SkeetShoot(cl, ps);
-        } 
+        } else {
+            Com_Printf("EVENT: %i\n", event);
+        }
     }
     
     // update last event sequence

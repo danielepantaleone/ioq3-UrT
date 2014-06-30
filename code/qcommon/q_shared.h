@@ -977,10 +977,10 @@ typedef struct {
 //=========================================================
 
 // bit field limits
-#define	MAX_STATS				16
+#define	MAX_STATS                       16
 #define	MAX_PERSISTANT			16
 #define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				16		
+#define	MAX_WEAPONS                     16		
 
 #define	MAX_PS_EVENTS			2
 
@@ -1040,7 +1040,7 @@ typedef struct playerState_s {
 	int			weapon;			// copied to entityState_t->weapon
 	int			weaponstate;
 
-	vec3_t		viewangles;		// for fixed views
+	vec3_t		        viewangles;		// for fixed views
 	int			viewheight;
 
 	// damage feedback

@@ -202,6 +202,7 @@ typedef struct client_s {
     qboolean            captain;                // whether this client is the captain of his team
     qboolean            ghost;                  // whether this client has ghosting enabled client side
     int                 lastEventSequence;      // last event sequence number parsed by this client
+    int                 weapon[MAX_WEAPONS];
     
     #ifdef USE_AUTH
     qboolean            rconuser;               // whether this client is an RCON user or not
@@ -297,7 +298,7 @@ typedef struct {
 
 // Events
 #define EV_FIRE_WEAPON 31
-#define EV_GENERAL_SOUND 35
+#define EV_GLOBAL_SOUND 36
 
 extern    serverStatic_t    svs;                // persistant server info across maps
 extern    server_t          sv;                 // cleared each map
