@@ -77,6 +77,7 @@ cvar_t    *sv_ghostradius;
 cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
 cvar_t    *sv_skeetshoot;
+cvar_t    *sv_skeetspeed;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -102,10 +103,10 @@ void SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...) {
 }
 
 /**
- * SV_BroadcastSoundToClient
+ * SV_BroadcastSound
  * 
  * @author Fenix
- * @param ps The playerState_t struct of the client to who send the sound
+ * @param ps The playerState_t struct of the player to who broadcast the sound
  * @param name The path to the sound to be played
  * @description Send a sound to a client
  */
@@ -144,10 +145,10 @@ void SV_BroadcastSoundToClient(playerState_t *ps, const char *name) {
         SV_SetConfigstring(start + i, name);
         index = i;
     }
-    
+
     bits = ps->externalEvent & EV_EVENT_BITS;
     bits = (bits + EV_EVENT_BIT1) & EV_EVENT_BITS;
-    ps->externalEvent = EV_GLOBAL_SOUND | bits;
+    ps->externalEvent = EV_GENERAL_SOUND | bits;
     ps->externalEventParm = index;
     ps->externalEventTime = sv.time;
     
@@ -1595,12 +1596,14 @@ void SV_SkeetLaunch(svEntity_t *sEnt, sharedEntity_t *gEnt) {
     if (sEnt->skeetLaunched) {
         return;
     }
+
+    vel[0] = MIN_SKEET_ANG_X + (float)(Q_random() / ((float)RAND_MAX / (MAX_SKEET_ANG_X - MIN_SKEET_ANG_X)));
+    vel[1] = MIN_SKEET_ANG_Y + (float)(Q_random() / ((float)RAND_MAX / (MAX_SKEET_ANG_Y - MIN_SKEET_ANG_Y)));
+    vel[2] = 1.0f;
     
-    vel[0] = 0.0f;                      // this needs to be randomized
-    vel[1] = 0.0f;                      // this needs to be randomized
-    vel[2] = SKEET_SPEED_FIXED;         // keep this one static: it's the up-down vector
-    VectorClear(gEnt->s.pos.trDelta);
-    VectorAdd(gEnt->s.pos.trDelta, vel, gEnt->s.pos.trDelta);
+    VectorNormalize(vel);                       // normalize the vector
+    VectorMultiply(vel, sv_skeetspeed->value);  // add the speed
+    VectorCopy(vel, gEnt->s.pos.trDelta);       // copy it in the entity speed
     gEnt->s.pos.trTime = sv.time - 50;
     gEnt->s.pos.trType = TR_GRAVITY;
     sEnt->skeetLaunched = qtrue;

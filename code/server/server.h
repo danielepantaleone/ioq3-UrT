@@ -33,11 +33,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define    MAX_ENT_CLUSTERS    16
 
 // skeetshoot defines
-#define MAX_SKEETS 32               // amount of skeetshoot which will be animated in skeetshoot game mode
-#define MIN_SKEET_SPAWN_TIME 1000   // min amount of milliseconds a skeet will stay at spawn point
-#define MAX_SKEET_SPAWN_TIME 4000   // max amount of milliseconds a skeet will stay at spawn point
-#define SKEET_SPEED_FIXED 2000.0f   // fixed vertical speed for skeet pull out
-#define SKEET_CLASSHASH 284875700   // classhash of the skeet entity
+#define MAX_SKEETS              32              // amount of skeetshoot which will be animated in skeetshoot game mode
+#define MIN_SKEET_SPAWN_TIME    1000            // min amount of milliseconds a skeet will stay at spawn point
+#define MAX_SKEET_SPAWN_TIME    4000            // max amount of milliseconds a skeet will stay at spawn point
+#define MIN_SKEET_ANG_X        -M_PI / 8.0f
+#define MAX_SKEET_ANG_X         M_PI / 8.0f
+#define MIN_SKEET_ANG_Y         M_PI / 6.0f
+#define MAX_SKEET_ANG_Y         M_PI / 3.0f
+#define SKEET_CLASSHASH         284875700       // classhash of the skeet entity
 
 typedef struct svEntity_s {
     struct worldSector_s    *worldSector;
@@ -202,7 +205,6 @@ typedef struct client_s {
     qboolean            captain;                // whether this client is the captain of his team
     qboolean            ghost;                  // whether this client has ghosting enabled client side
     int                 lastEventSequence;      // last event sequence number parsed by this client
-    int                 weapon[MAX_WEAPONS];
     
     #ifdef USE_AUTH
     qboolean            rconuser;               // whether this client is an RCON user or not
@@ -298,7 +300,7 @@ typedef struct {
 
 // Events
 #define EV_FIRE_WEAPON 31
-#define EV_GLOBAL_SOUND 36
+#define EV_GENERAL_SOUND 59
 
 extern    serverStatic_t    svs;                // persistant server info across maps
 extern    server_t          sv;                 // cleared each map
@@ -353,6 +355,7 @@ extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_skeetshoot;
+extern    cvar_t    *sv_skeetspeed;
 
 //
 // sv_main.c
@@ -410,7 +413,7 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
 void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK);
 void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount);
 void SV_SkeetShoot(client_t *cl, playerState_t *ps);
-void SV_ClientEvents(client_t *cl);
+void SV_ClientEventsPostQVM(client_t *cl);
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
 void SV_GhostThink(client_t *cl);
 void SV_WriteDownloadToClient(client_t *cl , msg_t *msg);

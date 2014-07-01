@@ -644,7 +644,7 @@ void SV_SendClientGameState(client_t *client) {
     msg_t            msg;
     byte             msgBuffer[MAX_MSGLEN];
 
-    Com_DPrintf ("SV_SendClientGameState() for %s\n", client->name);
+    Com_DPrintf("SV_SendClientGameState() for %s\n", client->name);
     Com_DPrintf("Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name);
     client->state = CS_PRIMED;
     client->pureAuthentic = 0;
@@ -1388,9 +1388,6 @@ void SV_UserinfoChanged(client_t *cl) {
 /////////////////////////////////////////////////////////////////////
 void SV_UpdateUserinfo_f(client_t *cl) {
     
-    int i;
-    playerState_t *ps;
-    
     if ((sv_floodProtect->integer) && (cl->state >= CS_ACTIVE) && (svs.time < cl->nextReliableUserTime)) {
         Q_strncpyz(cl->userinfobuffer, Cmd_Argv(1), sizeof(cl->userinfobuffer));
         SV_BroadcastMessageToClient(cl, "^7[^3WARNING^7] Command ^1delayed ^7due to sv_floodprotect!");
@@ -1410,14 +1407,6 @@ void SV_UpdateUserinfo_f(client_t *cl) {
     // we'll set this after qagame overriding cvar values so engine and qvm are in sync.
     cl->ghost = sv_gametype->integer == GT_JUMP ? SV_IsClientGhost(cl) : qfalse;
     
-    // if we are playing skeetshoot backup weapon configuration
-    if (sv_skeetshoot->integer > 0 && sv_gametype->integer == GT_FFA) {
-        ps = SV_GameClientNum(cl - svs.clients);
-        for (i = 0; i < MAX_WEAPONS; i++) {
-            cl->weapon[i] = ps->powerups[i];
-        }
-    }
-
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1868,8 +1857,7 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
 
     // drop the connection if we have somehow lost commands
     if (seq > cl->lastClientCommand + 1) {
-        Com_Printf("Client %s lost %i clientCommands\n", cl->name, 
-            seq - cl->lastClientCommand + 1);
+        Com_Printf("Client %s lost %i clientCommands\n", cl->name, seq - cl->lastClientCommand + 1);
         SV_DropClient(cl, "Lost reliable commands");
         return qfalse;
     }
@@ -1984,7 +1972,6 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount) {
  */
 void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     
-    int i;
     svEntity_t *sEnt;
     sharedEntity_t *gEnt;
     sharedEntity_t *self;
@@ -1998,11 +1985,6 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     // if we are not playing skeetshoot mode
     if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
         return;
-    }
-    
-     // restore weapon configuration: unlimited ammo
-    for (i = 0; i < MAX_WEAPONS; i++) {
-        ps->powerups[i] = cl->weapon[i];
     }
     
     self = SV_GentityNum(cl - svs.clients);
@@ -2035,9 +2017,9 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
         return;
     }
 
-    SV_SkeetAddScore(cl, ps, 1);                                        // increase score
-    SV_BroadcastSoundToClient(ps, "sound/headshot.wav");                // send the hit sound
-    SV_SkeetRespawn(sEnt, gEnt);                                        // respawn the skeet
+    SV_SkeetAddScore(cl, ps, 1);                                              // increase score
+    SV_BroadcastSoundToClient(ps, "sound/headshot.wav");                      // send the hit sound
+    SV_SkeetRespawn(sEnt, gEnt);                                              // respawn the skeet
     
 }
 
@@ -2068,9 +2050,7 @@ void SV_ClientEvents(client_t *cl) {
         event = ps->events[i & (MAX_PS_EVENTS - 1)];
         if (event == EV_FIRE_WEAPON) {
             SV_SkeetShoot(cl, ps);
-        } else {
-            Com_Printf("EVENT: %i\n", event);
-        }
+        } 
     }
     
     // update last event sequence
