@@ -555,14 +555,15 @@ void CrossProduct( const vec3_t v1, const vec3_t v2, vec3_t cross );
 
 vec_t VectorNormalize (vec3_t v);		// returns vector length
 vec_t VectorNormalize2( const vec3_t v, vec3_t out );
+void VectorMultiply(vec3_t v, const float val);
 void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out );
 void VectorRotate( vec3_t in, vec3_t matrix[3], vec3_t out );
 int Q_log2(int val);
 
 float Q_acos(float c);
 
-void Q_seed(unsigned long s);
-unsigned long Q_rand(void);
+void Q_seed(unsigned int s);
+int Q_rand(void);
 int Q_randrange(int min, int max);
 float Q_random(void);
 float Q_crandom(void);

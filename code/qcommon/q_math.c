@@ -149,59 +149,20 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 //==============================================================
 
-#define N 624
-#define M 397
-#define A 0x9908b0dfUL
-#define U 0x80000000UL
-#define L 0x7fffffffUL
- 
-static unsigned long x[N];
-static int next;
-
-void Q_seed(unsigned long s) {
-   
-    int i;
-    x[0] = s & 0xffffffffUL;
-    for (i = 1; i < N; i++) {
-        x[i] = (1812433253UL * (x[i - 1] ^ (x[i - 1] >> 30)) + i);
-        x[i] &= 0xffffffffUL;
-   }
+void Q_seed(unsigned int s) {
+    srand(s);
 }
 
-unsigned long Q_rand(void) {
-    
-    int i;
-    unsigned long y, a;
- 
-    if (next == N) {
-        next = 0;
-        for (i = 0; i < N - 1; i++) {
-            y = (x[i] & U) | x[i + 1] & L;
-            a = (y & 0x1UL) ? A : 0x0UL;
-            x[i] = x[(i + M) % N] ^ (y >> 1) ^ a;
-        }
- 
-        y = (x[N - 1] & U) | x[0] & L;
-        a = (y & 0x1UL) ? A : 0x0UL;
-        x[N - 1] = x[M - 1] ^ (y >> 1) ^ a;
-   }
- 
-   y = x[next++];
- 
-   y ^= (y >> 11);
-   y ^= (y << 7) & 0x9d2c5680UL;
-   y ^= (y << 15) & 0xefc60000UL;
-   y ^= (y >> 18);
- 
-   return y;
+int Q_rand(void) {
+    return rand();
 }
 
 int Q_randrange(int min, int max) {
-    return ((int)Q_rand() % (max - min) + min);
+    return (Q_rand() % (max - min) + min);
 }
 
 float Q_random(void) {
-    return (float)((Q_rand() & 0xffff) / (float)0x10000);
+    return (float)Q_rand();
 }
 
 float Q_crandom(void) {
@@ -1132,41 +1093,42 @@ qboolean BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs,
 	return qtrue;
 }
 
-vec_t VectorNormalize( vec3_t v ) {
-	// NOTE: TTimo - Apple G4 altivec source uses double?
-	float	length, ilength;
+vec_t VectorNormalize(vec3_t v) {
+    
+    float length;
+    length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
+    length = sqrt(length);
 
-	length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-	length = sqrt (length);
-
-	if ( length ) {
-		ilength = 1/length;
-		v[0] *= ilength;
-		v[1] *= ilength;
-		v[2] *= ilength;
-	}
-		
-	return length;
+    if (length) {
+        v[0] /= length;
+        v[1] /= length;
+        v[2] /= length;
+    }
+        
+    return length;
 }
 
-vec_t VectorNormalize2( const vec3_t v, vec3_t out) {
-	float	length, ilength;
+vec_t VectorNormalize2(const vec3_t v, vec3_t out) {
+    
+    float length;
+    length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
+    length = sqrt(length);
 
-	length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-	length = sqrt (length);
+    if (length) {
+        out[0] = v[0] / length;
+        out[1] = v[1] / length;
+        out[2] = v[2] / length;
+    } else {
+        VectorClear(out);
+    }
+        
+    return length;
+}
 
-	if (length)
-	{
-		ilength = 1/length;
-		out[0] = v[0]*ilength;
-		out[1] = v[1]*ilength;
-		out[2] = v[2]*ilength;
-	} else {
-		VectorClear( out );
-	}
-		
-	return length;
-
+void VectorMultiply(vec3_t v, const float val) {
+    v[0] *= val;
+    v[1] *= val;
+    v[2] *= val;
 }
 
 void _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc) {
