@@ -1906,6 +1906,61 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * SV_BackupWeaponState
+ * 
+ * @author Fenix
+ * @param cl The client who we need to backup the weapon state
+ * @param ps The playerState_t struct of the client we need to backup the weapon state
+ * @description Backup the weapon state of the given client
+ */
+void SV_BackupWeaponState(client_t *cl, playerState_t *ps) {
+    
+    int i;
+    
+    if (!cl || !ps) {
+        return;
+    }
+    
+    // if not playing the correct mode
+    if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
+        return;
+    }
+    
+    for (i = 0; i < MAX_POWERUPS; i++) {
+        cl->powerups[i] = ps->powerups[i];
+    }
+
+}
+
+/**
+ * SV_RestoreWeaponState
+ * 
+ * @author Fenix
+ * @param cl The client who we need to restore the weapon state
+ * @param ps The playerState_t struct of the client we need to restore the weapon state
+ * @description Backup the weapon state of the given client
+ */
+void SV_RestoreWeaponState(client_t *cl, playerState_t *ps) {
+    
+    int i;
+    
+    if (!cl || !ps) {
+        return;
+    }
+    
+    // if not playing the correct mode
+    if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
+        return;
+    }
+    
+    if (ps->weaponstate == WEAPON_FIRING) {
+        for (i = 0; i < MAX_POWERUPS; i++) {
+            ps->powerups[i] = cl->powerups[i];
+        }
+    }
+}
+
+/**
  * SV_SkeetAddScore
  * 
  * @author Fenix
@@ -2018,7 +2073,7 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     }
 
     SV_SkeetAddScore(cl, ps, 1);                                              // increase score
-    SV_BroadcastSoundToClient(ps, "sound/headshot.wav");                      // send the hit sound
+    SV_BroadcastSoundToClient(ps, "sound/surfaces/bullets/concrete1.wav");    // send the hit sound
     SV_SkeetRespawn(sEnt, gEnt);                                              // respawn the skeet
     
 }
@@ -2028,19 +2083,18 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
  * 
  * @author Fenix
  * @param cl The client who to parse events
+ * @param ps The playerState_t struct of the client we are parsing events
  * @description Handle events for the given client
  */
-void SV_ClientEvents(client_t *cl) {
+void SV_ClientEvents(client_t *cl, playerState_t *ps) {
     
     int i;
     int event;
-    playerState_t *ps;
     
-    if (!cl) {
+    if (!cl || !ps) {
         return;
     }
     
-    ps = SV_GameClientNum(cl - svs.clients);
     if (cl->lastEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
         cl->lastEventSequence = ps->eventSequence - MAX_PS_EVENTS;
     }
@@ -2120,9 +2174,6 @@ void SV_GhostThink(client_t *cl) {
             continue;
         }
         
-        // print in developer log so we can fine tune the ghosting box radius
-        Com_DPrintf("SV_GhostThink: client %d is touching client %d\n", ent->s.number, oth->s.number);
-        
         // set the content mask and exit
         ent->r.contents &= ~CONTENTS_BODY;
         ent->r.contents |= CONTENTS_CORPSE;        
@@ -2145,7 +2196,9 @@ void SV_GhostThink(client_t *cl) {
  * @param cmd The user command
  */
 void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
-
+    
+    playerState_t *ps;
+    
     cl->lastUsercmd = *cmd;
     if (cl->state != CS_ACTIVE) {
         // may have been kicked 
@@ -2153,14 +2206,23 @@ void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
         return;
     }
     
-    // activate ghosting before qvm
+    // get the playerstate of this client
+    ps = SV_GameClientNum(cl - svs.clients);
+    
+    // execute server side ghosting
     SV_GhostThink(cl);
     
+    // backup weapon state if necessary
+    SV_BackupWeaponState(cl, ps);
+            
     // execute qvm think function
     VM_Call(gvm, GAME_CLIENT_THINK, cl - svs.clients);
     
     // handle client events
-    SV_ClientEvents(cl);
+    SV_ClientEvents(cl, ps);
+    
+    // restore weapon state if necessary
+    SV_RestoreWeaponState(cl, ps);
     
 }
 
@@ -2268,16 +2330,16 @@ static void SV_UserMove(client_t *cl, msg_t *msg, qboolean delta) {
             continue;
         }
         
-        SV_ClientThink(cl, &cmds[ i ]);
+        SV_ClientThink(cl, &cmds[i]);
         
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//                                                                            //
-//  USER COMMAND EXECUTION                                                    //
-//                                                                            //
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                          //
+//  USER COMMAND EXECUTION                                                                                  //
+//                                                                                                          //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_ExecuteClientMessage

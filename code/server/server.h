@@ -36,8 +36,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_SKEETS              32              // amount of skeetshoot which will be animated in skeetshoot game mode
 #define MIN_SKEET_SPAWN_TIME    1000            // min amount of milliseconds a skeet will stay at spawn point
 #define MAX_SKEET_SPAWN_TIME    4000            // max amount of milliseconds a skeet will stay at spawn point
-#define MIN_SKEET_ANG_X        -M_PI / 8.0f
-#define MAX_SKEET_ANG_X         M_PI / 8.0f
+#define MIN_SKEET_ANG_X        -M_PI / 2.5f
+#define MAX_SKEET_ANG_X         M_PI / 2.5f
 #define MIN_SKEET_ANG_Y         M_PI / 6.0f
 #define MAX_SKEET_ANG_Y         M_PI / 3.0f
 #define SKEET_CLASSHASH         284875700       // classhash of the skeet entity
@@ -205,6 +205,7 @@ typedef struct client_s {
     qboolean            captain;                // whether this client is the captain of his team
     qboolean            ghost;                  // whether this client has ghosting enabled client side
     int                 lastEventSequence;      // last event sequence number parsed by this client
+    int                 powerups[MAX_POWERUPS]; // for weapon configuration backup
     
     #ifdef USE_AUTH
     qboolean            rconuser;               // whether this client is an RCON user or not
@@ -391,9 +392,13 @@ void SV_GetUserinfo(int index, char *buffer, int bufferSize);
 void SV_ChangeMaxClients(void);
 void SV_SpawnServer(char *server, qboolean killBots);
 int  SV_MakeCompressedPureList(void);
+void SV_InitSkeetShoot(void);
+
+#ifdef USE_AUTH
 void SV_FreeRconUserList(void);
 void SV_InitRconUserList(void);
-void SV_InitSkeetShoot(void);
+#endif
+
 
 //
 // sv_client.c
@@ -405,18 +410,19 @@ void SV_ExecuteClientMessage(client_t *cl, msg_t *msg);
 void SV_UserinfoChanged(client_t *cl);
 void SV_ClientEnterWorld(client_t *client, usercmd_t *cmd);
 void SV_DropClient(client_t *drop, const char *reason);
+void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK);
+void SV_BackupWeaponState(client_t *cl, playerState_t *ps);
+void SV_RestoreWeaponState(client_t *cl, playerState_t *ps);
+void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount);
+void SV_SkeetShoot(client_t *cl, playerState_t *ps);
+void SV_ClientEvents(client_t *cl, playerState_t *ps);
+void SV_ClientThink (client_t *cl, usercmd_t *cmd);
+void SV_GhostThink(client_t *cl);
+void SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
 
 #ifdef USE_AUTH
 void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message);
 #endif
-
-void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK);
-void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount);
-void SV_SkeetShoot(client_t *cl, playerState_t *ps);
-void SV_ClientEventsPostQVM(client_t *cl);
-void SV_ClientThink (client_t *cl, usercmd_t *cmd);
-void SV_GhostThink(client_t *cl);
-void SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
 
 //
 // sv_ccmds.c
