@@ -1953,10 +1953,8 @@ void SV_RestoreWeaponState(client_t *cl, playerState_t *ps) {
         return;
     }
     
-    if (ps->weaponstate == WEAPON_FIRING) {
-        for (i = 0; i < MAX_POWERUPS; i++) {
-            ps->powerups[i] = cl->powerups[i];
-        }
+    for (i = 0; i < MAX_POWERUPS; i++) {
+        ps->powerups[i] = cl->powerups[i];
     }
 }
 
@@ -2104,6 +2102,7 @@ void SV_ClientEvents(client_t *cl, playerState_t *ps) {
         event = ps->events[i & (MAX_PS_EVENTS - 1)];
         if (event == EV_FIRE_WEAPON) {
             SV_SkeetShoot(cl, ps);
+            SV_RestoreWeaponState(cl, ps);
         } 
     }
     
@@ -2220,9 +2219,6 @@ void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
     
     // handle client events
     SV_ClientEvents(cl, ps);
-    
-    // restore weapon state if necessary
-    SV_RestoreWeaponState(cl, ps);
     
 }
 
