@@ -149,12 +149,20 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 //==============================================================
 
-void Q_seed(unsigned int s) {
-    srand(s);
+int x = 123456789;
+int y = 362436069;
+int z = 521288629;
+int w = 886751235;
+
+void Q_seed(unsigned int seed) {
+    w = seed;
 }
 
 int Q_rand(void) {
-    return rand();
+    int t = (x ^ (x << 11)) & MAX_RAND;
+    x = y; y = z; z = w;
+    w = (w ^ (w >> 19) ^ (t ^ (t >> 8)));
+    return w;
 }
 
 int Q_randrange(int min, int max) {

@@ -1597,13 +1597,14 @@ void SV_SkeetLaunch(svEntity_t *sEnt, sharedEntity_t *gEnt) {
         return;
     }
 
-    vel[0] = MIN_SKEET_ANG_X + (float)(Q_random() / ((float)RAND_MAX / (MAX_SKEET_ANG_X - MIN_SKEET_ANG_X)));
-    vel[1] = MIN_SKEET_ANG_Y + (float)(Q_random() / ((float)RAND_MAX / (MAX_SKEET_ANG_Y - MIN_SKEET_ANG_Y)));
+    vel[0] = MIN_SKEET_ANG_X + (float)(Q_random() / ((float)MAX_RAND / (MAX_SKEET_ANG_X - MIN_SKEET_ANG_X)));
+    vel[1] = MIN_SKEET_ANG_Y + (float)(Q_random() / ((float)MAX_RAND / (MAX_SKEET_ANG_Y - MIN_SKEET_ANG_Y)));
     vel[2] = 1.0f;
     
-    VectorNormalize(vel);                       // normalize the vector
-    VectorMultiply(vel, sv_skeetspeed->value);  // add the speed
-    VectorCopy(vel, gEnt->s.pos.trDelta);       // copy it in the entity speed
+    VectorNormalize(vel);
+    VectorMultiply(vel, sv_skeetspeed->value);
+    VectorCopy(vel, gEnt->s.pos.trDelta);
+    
     gEnt->s.pos.trTime = sv.time - 50;
     gEnt->s.pos.trType = TR_GRAVITY;
     sEnt->skeetLaunched = qtrue;
