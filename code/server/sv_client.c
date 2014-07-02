@@ -2217,6 +2217,14 @@ void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
     // execute qvm think function
     VM_Call(gvm, GAME_CLIENT_THINK, cl - svs.clients);
     
+    // if we are playing skeetshoot mode
+    if (sv_skeetshoot->integer > 0 && sv_gametype->integer == GT_FFA) {
+        ps->persistant[PERS_KILLED] = 0;
+        ps->stats[STAT_PMOVE] &= ~(1 << 2);
+        ps->stats[STAT_PMOVE] &= ~(1 << 3);
+        ps->stats[STAT_AMOVE] &= ~(1 << 0); 
+    }
+    
     // handle client events
     SV_ClientEvents(cl, ps);
     

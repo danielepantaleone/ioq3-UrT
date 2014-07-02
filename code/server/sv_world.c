@@ -217,18 +217,7 @@ void SV_LinkEntity(sharedEntity_t *gEnt) {
         // unlink from old position
         SV_UnlinkEntity(gEnt);
     }
-    
-    // if we are playing skeetshoot activate ghosting for all the players
-    // so they can't shoot each other (otherwise it will fuck up scores)
-    if (sv_skeetshoot->integer > 0 && sv_gametype->integer == GT_FFA){
-        if (gEnt->r.contents & CONTENTS_BODY){
-            if (gEnt->s.number >= 0 && gEnt->s.number < sv_maxclients->integer){
-                gEnt->r.contents &= ~CONTENTS_BODY;
-                gEnt->r.contents |= CONTENTS_CORPSE;
-            }
-        }
-    }  
-    
+
     // encode the size into the entityState_t 
     // for client prediction
     if (gEnt->r.bmodel) {
@@ -547,7 +536,7 @@ void SV_ClipMoveToEntities(moveclip_t *clip) {
                 // don't clip against other missiles from our owner
                 continue;    
             }
-            
+
         }
 
         // if it doesn't have any brushes of a type we

@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define    PERS_SCORE          0    // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 #define    PERS_KILLED         8
+#define    STAT_HEALTH         0
+#define    STAT_PMOVE          8
+#define    STAT_AMOVE         13
+
 #define    MAX_ENT_CLUSTERS    16
 
 // skeetshoot defines

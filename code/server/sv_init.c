@@ -854,6 +854,11 @@ void SV_InitSkeetShoot(void) {
 
     }
     
+    // set the respawn protection cvar to a really high 
+    // value so players can't shoot each other: current value
+    // 604800 correspond to one week ^_^
+    Cvar_Set("g_respawnProtection", "604800");
+    
 }
 
 /////////////////////////////////////////////////////////////////////
