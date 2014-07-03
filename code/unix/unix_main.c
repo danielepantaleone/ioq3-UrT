@@ -528,7 +528,7 @@ void Sys_ConsoleInputInit( void )
               characters  EOF,  EOL,  EOL2, ERASE, KILL, REPRINT,
               STATUS, and WERASE, and buffers by lines.
      ISIG: when any of the characters  INTR,  QUIT,  SUSP,  or
-              DSUSP are received, generate the corresponding sig­
+              DSUSP are received, generate the corresponding sigï¿½
               nal
     */              
     tc.c_lflag &= ~(ECHO | ICANON);
@@ -1216,10 +1216,10 @@ char *Sys_GetClipboardData(void) {
     }
     #endif
     if (fp != NULL) {
-        cliptext = Z_Malloc(1024);
-        if (fgets(cliptext, sizeof(cliptext) - 1, fp) != NULL) {
-            data = Z_Malloc(sizeof(cliptext) + 1);
-            Q_strncpyz(data, cliptext, sizeof(cliptext));
+        cliptext = Z_Malloc(MAX_STRING_CHARS);
+        if (fgets(cliptext, MAX_STRING_CHARS - 1, fp) != NULL) {
+            data = Z_Malloc(MAX_STRING_CHARS + 1);
+            Q_strncpyz(data, cliptext, MAX_STRING_CHARS);
             strtok(data, "\n\r\b");
         }
         pclose(fp);

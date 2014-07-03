@@ -2229,7 +2229,7 @@ void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
     SV_ClientEvents(cl, ps);
     
     if (sv_noStamina->integer > 0) {
-        ps->stats[STAT_STAMINA] = 30000;
+        ps->stats[STAT_STAMINA] = ps->stats[STAT_HEALTH] * 300;
     }  
     
 }
