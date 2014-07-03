@@ -1988,7 +1988,9 @@ void SV_GhostThink(client_t *cl) {
 // Description : Run the game client think function
 /////////////////////////////////////////////////////////////////////
 void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
-
+    
+    playerState_t *ps;
+    
     cl->lastUsercmd = *cmd;
     if (cl->state != CS_ACTIVE) {
         // may have been kicked 
@@ -1996,8 +1998,16 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
         return;
     }
     
+    // get the playerstate of this client
+    ps = SV_GameClientNum(cl - svs.clients);
+    
     SV_GhostThink(cl);
+    
     VM_Call(gvm, GAME_CLIENT_THINK, cl - svs.clients);
+    
+    if (sv_noStamina->integer > 0) {
+        ps->stats[STAT_STAMINA] = 30000;
+    }  
     
 }
 

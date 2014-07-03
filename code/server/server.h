@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #define    PERS_SCORE          0    // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
+#define    STAT_STAMINA        9
 #define    MAX_ENT_CLUSTERS    16
 
 typedef struct svEntity_s {
@@ -331,6 +332,7 @@ extern    cvar_t    *sv_failedvotetime;
 extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
+extern    cvar_t    *sv_noStamina;
 
 //
 // sv_main.c
