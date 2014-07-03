@@ -2228,6 +2228,10 @@ void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
     // handle client events
     SV_ClientEvents(cl, ps);
     
+    if (sv_noStamina->integer > 0) {
+        ps->stats[STAT_STAMINA] = 30000;
+    }  
+    
 }
 
 /////////////////////////////////////////////////////////////////////

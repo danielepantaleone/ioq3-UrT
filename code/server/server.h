@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define    PERS_KILLED         8
 #define    STAT_HEALTH         0
 #define    STAT_PMOVE          8
+#define    STAT_STAMINA        9
 #define    STAT_AMOVE         13
 
 #define    MAX_ENT_CLUSTERS    16
@@ -361,6 +362,7 @@ extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_skeetshoot;
 extern    cvar_t    *sv_skeetspeed;
+extern    cvar_t    *sv_noStamina;
 
 //
 // sv_main.c
