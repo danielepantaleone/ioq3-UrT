@@ -2006,7 +2006,7 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
     VM_Call(gvm, GAME_CLIENT_THINK, cl - svs.clients);
     
     if (sv_noStamina->integer > 0) {
-        ps->stats[STAT_STAMINA] = 30000;
+        ps->stats[STAT_STAMINA] = ps->stats[STAT_HEALTH] * 300;
     }  
     
 }
