@@ -45,6 +45,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_SKEET_ANG_X         M_PI / 2.5f
 #define MIN_SKEET_ANG_Y         M_PI / 6.0f
 #define MAX_SKEET_ANG_Y         M_PI / 3.0f
+#define MAX_SKEET_DISTANCE      10000
+#define SKEET_SCORE_DST_1       3500
+#define SKEET_SCORE_DST_2       5000
+#define SKEET_SCORE_DST_3       6500
+
 #define SKEET_CLASSHASH         284875700       // classhash of the skeet entity
 
 typedef struct svEntity_s {
@@ -306,6 +311,7 @@ typedef struct {
 
 // Events
 #define EV_FIRE_WEAPON 31
+#define EV_MISSILE_MISS 55
 #define EV_GENERAL_SOUND 59
 
 extern    serverStatic_t    svs;                // persistant server info across maps
@@ -419,7 +425,7 @@ void SV_DropClient(client_t *drop, const char *reason);
 void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK);
 void SV_BackupWeaponState(client_t *cl, playerState_t *ps);
 void SV_RestoreWeaponState(client_t *cl, playerState_t *ps);
-void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount);
+void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr);
 void SV_SkeetShoot(client_t *cl, playerState_t *ps);
 void SV_ClientEvents(client_t *cl, playerState_t *ps);
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);

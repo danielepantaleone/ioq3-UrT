@@ -1964,27 +1964,48 @@ void SV_RestoreWeaponState(client_t *cl, playerState_t *ps) {
  * @author Fenix
  * @param cl The client to who add the score
  * @param ps The client playerState_t structure
- * @param amount The amount of score to add
+ * @param tr The traced used for the skeet hit
  * @description Add score to a client after a successful skeet shoot
  */
-void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount) {
+void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
     
     int i;
-    char *score;
+    int points;
+    float distance;
+    char name[MAX_NAME_LENGTH];
     client_t *dst;
+    char *score;
     
     // if we are not playing skeetshoot mode
     if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
         return;
     }
     
-    // nothing to add
-    if (!amount) {
-        return;
+    // calculate the shot distance
+    distance = Distance(ps->origin, tr->endpos);
+    
+    // increase the score according to the distance of the shot
+    if (distance <= SKEET_SCORE_DST_1) {
+        points = 1;
+    } else if (distance > SKEET_SCORE_DST_1 && distance <= SKEET_SCORE_DST_2) {
+        points = 2;
+    } else if (distance > SKEET_SCORE_DST_2 && distance <= SKEET_SCORE_DST_3) {
+        points = 3;
+    } else {
+        points = 4;
     }
     
     // increase the score
-    ps->persistant[PERS_SCORE] += amount; 
+    ps->persistant[PERS_SCORE] += points; 
+    
+    // clean the player name
+    Q_strncpyz(name, cl->name, sizeof(name));
+    Q_CleanStr(name);
+    
+    // display a skeetshot report
+    SV_BroadcastMessageToClient(NULL, "%s%s %sscores %s%d %spoints for shooting a skeet at %s%.2f %smeters", 
+                                S_COLOR_YELLOW, name, S_COLOR_WHITE, S_COLOR_GREEN, points, S_COLOR_WHITE, 
+                                S_COLOR_YELLOW, COM_UnitsToMeters(distance), S_COLOR_WHITE);
     
     // FIXME: this is a really ugly hack to let the client scoreboard update without having 
     // to press the TAB button: not sure if I actually can do it better than this from the engine.
@@ -2011,7 +2032,7 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, int amount) {
     }
     
     // log it for external bots
-    SV_LogPrintf("SkeetShoot: %i %i %i\n", cl - svs.clients, amount, ps->persistant[PERS_SCORE]);
+    SV_LogPrintf("SkeetShoot: %i: %f %i %i\n", cl - svs.clients, distance, points, ps->persistant[PERS_SCORE]);
 
 } 
 
@@ -2069,10 +2090,10 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     if (!gEnt) {
         return;
     }
-
-    SV_SkeetAddScore(cl, ps, 1);                                              // increase score
-    SV_BroadcastSoundToClient(ps, "sound/surfaces/bullets/concrete1.wav");    // send the hit sound
-    SV_SkeetRespawn(sEnt, gEnt);                                              // respawn the skeet
+    
+    SV_BroadcastSoundToClient(ps, "sound/surfaces/bullets/concrete1.wav");  // send the hit sound
+    SV_SkeetAddScore(cl, ps, &trace);                                       // increase score
+    SV_SkeetRespawn(sEnt, gEnt);                                            // respawn the skeet
     
 }
 

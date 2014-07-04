@@ -23,6 +23,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
+
+/**
+ * COM_UnitsToMeters
+ * 
+ * @author Fenix
+ * @param distance The distance in Q3 Units
+ * @description Convert a given distance from Q3 Units to Meters
+ * @return The distance converted in meters
+ */
+float COM_UnitsToMeters(float distance) {
+    return COM_UnitsToFeets(distance) * 0.3048;
+}
+
+/**
+ * COM_UnitsToFeets
+ * 
+ * @author Fenix
+ * @param distance The distance in Q3 Units
+ * @description Convert a given distance from Q3 Units to Feets
+ * @return The distance converted in feets
+ */
+float COM_UnitsToFeets(float distance) {
+    return distance / 8;
+}
+
 float Com_Clamp( float min, float max, float value ) {
 	if ( value < min ) {
 		return min;

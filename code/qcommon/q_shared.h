@@ -615,6 +615,9 @@ int Q_isnan( float x );
 
 //=============================================
 
+float COM_UnitsToMeters(float distance);
+float COM_UnitsToFeets(float distance);
+
 float Com_Clamp( float min, float max, float value );
 
 char	*COM_SkipPath( char *pathname );

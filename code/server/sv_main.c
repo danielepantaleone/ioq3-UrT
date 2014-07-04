@@ -155,7 +155,6 @@ void SV_BroadcastSoundToClient(playerState_t *ps, const char *name) {
     
 }
 
-
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_LogPrintf
 // Description : Print in the log file
@@ -1646,7 +1645,7 @@ void SV_SkeetThink(void) {
         
         if (sEnt->skeetLaunched) {
             // check if it's time to reposition the skeet
-            if (gEnt->r.currentOrigin[2] <= sEnt->skeetorigin[2]) {
+            if (Distance(sEnt->skeetorigin, gEnt->r.currentOrigin) >= MAX_SKEET_DISTANCE) {
                 SV_SkeetRespawn(sEnt, gEnt);
             }
         } else {
