@@ -367,10 +367,14 @@ void SCR_DrawClock(void) {
     
     qtime_t now;
     char    string[16];
-    
-    
+   
     // if we are paused
     if (!Cvar_VariableValue("cl_drawclock")) {
+        return;
+    }
+    
+    // if 2D drawing is disabled
+    if (!Cvar_VariableValue("cg_draw2D")) {
         return;
     }
     
@@ -399,6 +403,11 @@ void SCR_DrawHealth(void) {
     
     // if we are not supposed to draw
     if (!Cvar_VariableValue("cl_drawHealth")) {
+        return;
+    }
+    
+    // if 2D drawing is disabled
+    if (!Cvar_VariableValue("cg_draw2D")) {
         return;
     }
     
