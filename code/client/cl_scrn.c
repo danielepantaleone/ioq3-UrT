@@ -395,11 +395,11 @@ void SCR_DrawClock(void) {
 /////////////////////////////////////////////////////////////////////
 void SCR_DrawHealth(void) {
     
-    int xx;
     int health;
-    int health_col;
-    vec4_t box_col;
+    float xx = 54.0f;
+    float yy = 449.0f;
     char health_str[32];
+    char *health_col = S_COLOR_WHITE;
     
     // if we are not supposed to draw
     if (!Cvar_VariableValue("cl_drawHealth")) {
@@ -422,25 +422,22 @@ void SCR_DrawHealth(void) {
         return;
     }
     
-    // draw the box container
-    box_col[0] = 0.0f;
-    box_col[1] = 0.0f;
-    box_col[2] = 0.0f;
-    box_col[3] = 0.85f;
-    SCR_FillRect(6, 380, 44.0f, 16.0f, box_col);
-    
     if (health >= 66) {
-        health_col = 2; // green
+        health_col = S_COLOR_GREEN;
     } else if (health < 66 && health >= 33) {
-        health_col = 3; // yellow
+        health_col = S_COLOR_YELLOW;
     } else {
-        health_col = 1; // red
+        health_col = S_COLOR_RED;
+    }
+    
+    // adjust so it doesn't overlap the location string
+    if (Cvar_VariableValue("cg_crosshairNamesType") == 0) {
+        yy = 439.0f;
     }
     
     // draw the health
-    Com_sprintf(health_str, sizeof(health_str), "%d%%", health);
-    xx = 28 - (SCR_GetSmallStringWidth(health_str) / 2);
-    SCR_DrawStringExtNoShadow(xx, 384, SMALLCHAR_WIDTH, health_str, g_color_table[health_col], qtrue);
+    Com_sprintf(health_str, sizeof(health_str), "H:%s%d%%", health_col, health);
+    SCR_DrawStringExt(xx, yy, SMALLCHAR_WIDTH, health_str, g_color_table[7], qfalse);
 
 }
 
