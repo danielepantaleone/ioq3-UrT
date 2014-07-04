@@ -45,14 +45,16 @@ versions of OSX, please refer to the original repository README*
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * fixed map searching algorithm: no more unpredictability
 * fixed `stopserverdemo` command being executed on non-dedicated servers
-* replace **Ban Kick** message being displayed upon client auth ban with something understandable
+* replace auth ban message something understandable
 * unlocked `sv_fps` cvar from game module constraint
 
 ### *Client*
 
 * correctly draw new game module color codes in console
+* correctly hide clock when cg_draw2d is set to zero
 * fixed clipboard data paste crashing the client engine on unix systems
-* fixed linux SDL gamma bug using XF86 (by [clearskies](https://github.com/clearskies))
+* fixed linux/mac copy&paste considering only the first six characters of a string
+* fixed linux SDL gamma bug using XF86
 * improved in-game console readability
 * improved windows dedicated console readability
 * unlock `snaps` cvar from game module constraint
@@ -77,11 +79,12 @@ versions of OSX, please refer to the original repository README*
 ## Credits
 
 Even though most of the code has been written by me and / or revised by me, some ideas have been taken from 
-other versions of ioquake3: because of that I would like to give the necessary credits to the people from which 
+other versions of ioquake3: because of that I would like to give the necessary credits to the people
 I took ideas from:
 
 * [Rambetter](https://github.com/Rambetter)
 * [clearskies](https://github.com/clearskies)
 * [mickael9](https://bitbucket.org/mickael9)
+* [SudoKing](https://github.com/sudoking)
 
 For the original README please check: https://github.com/Barbatos/ioq3-for-UrbanTerror-4
