@@ -311,7 +311,6 @@ typedef struct {
 
 // Events
 #define EV_FIRE_WEAPON 31
-#define EV_MISSILE_MISS 55
 #define EV_GENERAL_SOUND 59
 
 extern    serverStatic_t    svs;                // persistant server info across maps
