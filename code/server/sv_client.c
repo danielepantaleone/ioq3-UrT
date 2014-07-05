@@ -2010,6 +2010,9 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
                                 S_COLOR_YELLOW, name, S_COLOR_WHITE, S_COLOR_YELLOW, points, S_COLOR_WHITE, 
                                 S_COLOR_YELLOW, COM_UnitsToMeters(distance), S_COLOR_WHITE);
     
+    // send the personal skeet shot bigtext
+    SV_BroadcastBigMessageToClient(cl, "%s+%d", S_COLOR_GREEN, points);
+    
     // FIXME: this is a really ugly hack to let the client scoreboard update without having 
     // to press the TAB button: not sure if I actually can do it better than this from the engine.
     #ifdef USE_AUTH

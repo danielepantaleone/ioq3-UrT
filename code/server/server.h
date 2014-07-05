@@ -373,6 +373,7 @@ extern    cvar_t    *sv_noStamina;
 //
 void        SV_FinalMessage (char *message);
 void        SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...);
+void        SV_BroadcastBigMessageToClient(client_t *cl, const char *fmt, ...);
 void        SV_BroadcastSoundToClient(playerState_t *ps, const char *name);
 void QDECL  SV_LogPrintf(const char *fmt, ...);
 void        SV_LoadPositionFromFile(client_t *cl, char *mapname);

@@ -85,11 +85,14 @@ cvar_t    *sv_noStamina;
 //                                                                                                          //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_BroadcastMessageToClient
-// Description : Send a server message to a specific client
-// Author      : Fenix
-/////////////////////////////////////////////////////////////////////
+/**
+ * SV_BroadcastMessageToClient
+ * 
+ * @author Fenix
+ * @desctiption Send a server message to a specific client
+ * @param cl The client to who send the message
+ * @param fmt The message to be sent
+ */
 void SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...) {
     
     char    str[MAX_STRING_CHARS];
@@ -100,6 +103,26 @@ void SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...) {
     va_end(ap);
     
     SV_SendServerCommand(cl, "print \"%s\n\"", str);
+}
+
+/**
+ * SV_BroadcastBigMessageToClient
+ * 
+ * @author Fenix
+ * @desctiption Send a bigtext message to a specific client
+ * @param cl The client to who send the message
+ * @param fmt The message to be sent
+ */
+void SV_BroadcastBigMessageToClient(client_t *cl, const char *fmt, ...) {
+    
+    char    str[MAX_STRING_CHARS];
+    va_list ap;
+    
+    va_start(ap, fmt);
+    vsprintf(str, fmt, ap);
+    va_end(ap);
+    
+    SV_SendServerCommand(cl, "cp \"%s\n\"", str);
 }
 
 /**
