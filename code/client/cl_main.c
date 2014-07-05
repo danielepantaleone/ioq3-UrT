@@ -289,7 +289,6 @@ void CL_DemoFilename(char *dname, char *fname) {
     // get the client name and escape invalid chars
     Cvar_VariableStringBuffer("name", name, sizeof(name));
     Q_CleanStr(name);
-    Q_CleanDemoStr(dname);
     
     // get the current time
     Com_RealTime(&now);
@@ -298,6 +297,11 @@ void CL_DemoFilename(char *dname, char *fname) {
     Com_sprintf(dname, MAX_OSPATH, "%04d_%02d_%02d_%s_%s_%s", now.tm_year + 1900, 
                                                               now.tm_mon + 1, 
                                                               now.tm_mday, name, mapname, gametype);
+    
+    // remove invalid characters 
+    // from the demo name
+    Q_CleanDemoStr(dname);
+    
     #ifdef USE_DEMO_FORMAT_42
     Com_sprintf(fname, MAX_OSPATH, "demos/%s.urtdemo", dname);
     #else
