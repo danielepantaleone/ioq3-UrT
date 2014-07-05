@@ -1263,7 +1263,6 @@ void SV_Init(void) {
     sv_hidechatcmds = Cvar_Get("sv_hidechatcmds", "1", CVAR_ARCHIVE);
     sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
     sv_skeetshoot = Cvar_Get("sv_skeetshoot", "0", CVAR_ARCHIVE);
-    sv_skeetspeed = Cvar_Get("sv_skeetspeed", "0", CVAR_ARCHIVE);
     sv_noStamina = Cvar_Get("sv_noStamina", "0", CVAR_ARCHIVE);
     
     // initialize bot cvars so they are listed and can be set before loading the botlib

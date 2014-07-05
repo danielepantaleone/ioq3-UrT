@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MIN_SKEET_ANG_Y         M_PI / 6.0f
 #define MAX_SKEET_ANG_Y         M_PI / 3.0f
 #define MAX_SKEET_DISTANCE      10000
+#define SKEET_SPEED             2800
 #define SKEET_SCORE_DST_1       3500
 #define SKEET_SCORE_DST_2       5000
 #define SKEET_SCORE_DST_3       6500
@@ -366,7 +367,6 @@ extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_skeetshoot;
-extern    cvar_t    *sv_skeetspeed;
 extern    cvar_t    *sv_noStamina;
 
 //

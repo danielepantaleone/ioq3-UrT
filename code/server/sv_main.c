@@ -77,7 +77,6 @@ cvar_t    *sv_ghostradius;
 cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
 cvar_t    *sv_skeetshoot;
-cvar_t    *sv_skeetspeed;
 cvar_t    *sv_noStamina;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1613,7 +1612,7 @@ void SV_SkeetLaunch(svEntity_t *sEnt, sharedEntity_t *gEnt) {
     vel[2] = 1.0f;
     
     VectorNormalize(vel);
-    VectorMultiply(vel, sv_skeetspeed->value);
+    VectorMultiply(vel, SKEET_SPEED);
     VectorCopy(vel, gEnt->s.pos.trDelta);
     
     gEnt->s.pos.trTime = sv.time - 50;
