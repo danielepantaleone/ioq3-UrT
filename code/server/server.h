@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define    MAX_ENT_CLUSTERS    16
 
 // skeetshoot defines
-#define MAX_SKEETS              32              // amount of skeetshoot which will be animated in skeetshoot game mode
+#define MAX_SKEETS              64              // amount of skeetshoot which will be animated in skeetshoot game mode
 #define MIN_SKEET_SPAWN_TIME    1000            // min amount of milliseconds a skeet will stay at spawn point
 #define MAX_SKEET_SPAWN_TIME    4000            // max amount of milliseconds a skeet will stay at spawn point
 #define MIN_SKEET_ANG_X        -M_PI / 2.5f
@@ -50,7 +50,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SKEET_SCORE_DST_1       4000
 #define SKEET_SCORE_DST_2       6000
 #define SKEET_SCORE_DST_3       8000
-
 #define SKEET_CLASSHASH         284875700       // classhash of the skeet entity
 
 typedef struct svEntity_s {
