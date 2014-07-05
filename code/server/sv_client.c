@@ -2007,7 +2007,7 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
     
     // display a skeetshot report
     SV_BroadcastMessageToClient(NULL, "%s%s %sscores %s%d %spoints for shooting a skeet at %s%.2f %smeters", 
-                                S_COLOR_YELLOW, name, S_COLOR_WHITE, S_COLOR_GREEN, points, S_COLOR_WHITE, 
+                                S_COLOR_YELLOW, name, S_COLOR_WHITE, S_COLOR_YELLOW, points, S_COLOR_WHITE, 
                                 S_COLOR_YELLOW, COM_UnitsToMeters(distance), S_COLOR_WHITE);
     
     // FIXME: this is a really ugly hack to let the client scoreboard update without having 
