@@ -1686,6 +1686,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             if (Q_stricmp("say", Cmd_Argv(0)) == 0 || Q_stricmp("say_team", Cmd_Argv(0)) == 0) {
                 
                 if (sv_hidechatcmds->integer > 0) {
+                    
                     // check for a BOT (b3 or w/e) command to be issued
                     // if a match is found the text string is hidden to
                     // everyone but the client who issued it
@@ -1731,7 +1732,8 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                 // on the server before checking for spam
                 if (Cmd_Argc() >= 2 && SV_CallvoteEnabled(Cmd_Argv(1))) {
                     
-                    // check for correct arguments
+                    // check for correct arguments: if this return qfalse,
+                    // the gamecode will not fire the callvote event.
                     if (SV_CheckCallvoteArgs()) {
                     
                         // loop throught all the clients searching
@@ -1776,11 +1778,8 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                             sv.lastVoteTime = svs.time;
                             
                         }
-                    
                     }
-                
                 }
-            
             }
             
             if (argsFromOneMaxlen >= 0) {
@@ -1793,16 +1792,19 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                     while (*arg) {
                         
                         if (++charCount > argsFromOneMaxlen) {
-                            exploitDetected = qtrue; break;
+                            exploitDetected = qtrue; 
+                            break;
                         }
                         
                         if (*arg == '$') {
                             if (++dollarCount > MAX_DOLLAR_VARS) {
-                                exploitDetected = qtrue; break;
+                                exploitDetected = qtrue; 
+                                break;
                             }
                             charCount += STRLEN_INCREMENT_PER_DOLLAR_VAR;
                             if (charCount > argsFromOneMaxlen) {
-                                exploitDetected = qtrue; break;
+                                exploitDetected = qtrue; 
+                                break;
                             }
                         }
                         arg++;
@@ -1814,7 +1816,8 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                     
                     if (i != 1) {
                         if (++charCount > argsFromOneMaxlen) {
-                            exploitDetected = qtrue; break;
+                            exploitDetected = qtrue; 
+                            break;
                         }
                     }
                 }
