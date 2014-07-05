@@ -265,40 +265,41 @@ void SV_SavePositionToFile(client_t *cl, char *mapname) {
 typedef struct {
     char    *name;
     int     flags;
+    int     params;
 } callvote_t;
 
 callvote_t callvotes[] = { 
-    { "reload", 1 << 0 },
-    { "restart", 1 << 1 },
-    { "map", 1 << 2 },
-    { "nextmap", 1 << 3 },
-    { "kick", 1 << 4 },
-    { "clientkick", 1 << 4 },
-    { "swapteams", 1 << 5 },
-    { "shuffleteams", 1 << 6 },
-    { "g_friendlyfire", 1 << 7 },
-    { "g_followstrict", 1 << 8 },
-    { "g_gametype", 1 << 9 },
-    { "g_waverespawns", 1 << 10 },
-    { "timelimit", 1 << 11},
-    { "fraglimit", 1 << 12},
-    { "capturelimit", 1 << 13},
-    { "g_respawndelay", 1 << 14 },
-    { "g_redwave", 1 << 15 },
-    { "g_bluewave", 1 << 16 },
-    { "g_bombexplodetime", 1 << 17 },
-    { "g_bombdefusetime", 1 << 18 },
-    { "g_roundtime", 1 << 19 },
-    { "g_cahtime",  1 << 20 },
-    { "g_warmup", 1 << 21 },
-    { "g_matchmode", 1 << 22 },
-    { "g_timeouts", 1 << 23 },
-    { "g_timeoutlength", 1<< 24 },
-    { "exec", 1 << 25 },
-    { "g_swaproles", 1 << 26 },
-    { "g_maxrounds", 1 << 27 },
-    { "g_gear", 1 << 28 },
-    { "cyclemap", 1 << 29 },
+    { "reload",                 1 << 0,  2 },
+    { "restart",                1 << 1,  2 },
+    { "map",                    1 << 2,  3 },
+    { "nextmap",                1 << 3,  3 },
+    { "kick",                   1 << 4,  3 },
+    { "clientkick",             1 << 4,  3 },
+    { "swapteams",              1 << 5,  2 },
+    { "shuffleteams",           1 << 6,  2 },
+    { "g_friendlyfire",         1 << 7,  3 },
+    { "g_followstrict",         1 << 8,  3 },
+    { "g_gametype",             1 << 9,  3 },
+    { "g_waverespawns",         1 << 10, 3 },
+    { "timelimit",              1 << 11, 3 },
+    { "fraglimit",              1 << 12, 3 },
+    { "capturelimit",           1 << 13, 3 },
+    { "g_respawndelay",         1 << 14, 3 },
+    { "g_redwave",              1 << 15, 3 },
+    { "g_bluewave",             1 << 16, 3 },
+    { "g_bombexplodetime",      1 << 17, 3 },
+    { "g_bombdefusetime",       1 << 18, 3 },
+    { "g_roundtime",            1 << 19, 3 },
+    { "g_cahtime",              1 << 20, 3 },
+    { "g_warmup",               1 << 21, 3 },
+    { "g_matchmode",            1 << 22, 3 },
+    { "g_timeouts",             1 << 23, 3 },
+    { "g_timeoutlength",        1 << 24, 3 },
+    { "exec",                   1 << 25, 3 },
+    { "g_swaproles",            1 << 26, 3 },
+    { "g_maxrounds",            1 << 27, 3 },
+    { "g_gear",                 1 << 28, 3 },
+    { "cyclemap",               1 << 29, 2 },
     { NULL }
 };
 
@@ -329,31 +330,41 @@ qboolean SV_CallvoteEnabled(char *text) {
 //               if it's going to be blocked by the game module
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
-qboolean SV_CheckCallvoteArgs() {
+qboolean SV_CheckCallvoteArgs(void) {
     
+    int val;
+    callvote_t *p;
     char mapname[MAX_QPATH];
     
-    if (!Q_stricmp(Cmd_Argv(1), "map") || !Q_stricmp(Cmd_Argv(1), "nextmap")) {
-        
-        if (Cmd_Argc() < 3) {
-            return qfalse;
+    // check for minimum parameters to be specified
+    for (p = callvotes; p->name; p++) {
+        if (!Q_stricmp(Cmd_Argv(1), p->name)) {
+            if (Cmd_Argc() < p->params)
+                return qfalse;
+            break;
         }
-        
+    }
+    
+    // additional checks for map/nextmap callvotes
+    if (!Q_stricmp(Cmd_Argv(1), "map") || !Q_stricmp(Cmd_Argv(1), "nextmap")) {
         SV_GetMapSoundingLike(mapname, Cmd_Argv(2), sizeof(mapname));
         if (!mapname[0]) {
             return qfalse;
         }
-        
-    } else if (!Q_stricmp(Cmd_Argv(1), "kick") || !Q_stricmp(Cmd_Argv(1), "clientkick")) {
-        
-        if (Cmd_Argc() < 3) {
-            return qfalse;
-        }
-
+    } 
+    // additional checks for kick/clientkick callvotes
+    else if (!Q_stricmp(Cmd_Argv(1), "kick") || !Q_stricmp(Cmd_Argv(1), "clientkick")) {
+        // invalid client supplied
         if (!SV_GetPlayerByParam(Cmd_Argv(2))) {
             return qfalse;
         }
-        
+    }
+    // additional checks for g_gametype callvotes
+    else if (!Q_stricmp(Cmd_Argv(1), "g_gametype")) {
+        val = atoi(Cmd_Argv(2));
+        if ((val < GT_FFA) || (val == GT_SINGLE_PLAYER) || (val > GT_JUMP)) {
+            return qfalse;
+        }
     }
     
     return qtrue;
