@@ -1648,7 +1648,7 @@ void SV_SkeetLaunch(svEntity_t *sEnt, sharedEntity_t *gEnt) {
  * SV_SkeetThink
  * 
  * @author Fenix
- * @description Main skee think function
+ * @description Main skeet think function
  */
 void SV_SkeetThink(void) {
     
@@ -1677,15 +1677,24 @@ void SV_SkeetThink(void) {
         }
         
         if (sEnt->skeetLaunched) {
+            
             // check if it's time to reposition the skeet
             if (Distance(sEnt->skeetorigin, gEnt->r.currentOrigin) >= MAX_SKEET_DISTANCE) {
+                // this ill unlink the skeet from the current world,
+                // flag it as TR_STATIONARY and place it back at spawn.
                 SV_SkeetRespawn(sEnt, gEnt);
-            }
+            } 
+            
         } else {
+            
             // check if it's time to launch the skeet
             if (sv.time > sEnt->skeetLaunchTime) {
+                // this will just calculate the direction vector and apply
+                // skeet velocity to it: the entity will start moving in the 
+                // world starting from the next server frame.
                 SV_SkeetLaunch(sEnt, gEnt);
             }
+            
         }
          
     }
