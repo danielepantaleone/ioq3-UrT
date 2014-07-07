@@ -412,22 +412,22 @@ void SV_InitRconUserList(void);
 //
 // sv_client.c
 //
-void SV_GetChallenge(netadr_t from);
-void SV_DirectConnect(netadr_t from);
-void SV_AuthorizeIpPacket(netadr_t from);
-void SV_ExecuteClientMessage(client_t *cl, msg_t *msg);
-void SV_UserinfoChanged(client_t *cl);
-void SV_ClientEnterWorld(client_t *client, usercmd_t *cmd);
-void SV_DropClient(client_t *drop, const char *reason);
-void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK);
-void SV_BackupWeaponState(client_t *cl, playerState_t *ps);
-void SV_RestoreWeaponState(client_t *cl, playerState_t *ps);
-void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr);
-void SV_SkeetShoot(client_t *cl, playerState_t *ps);
-void SV_ClientEvents(client_t *cl, playerState_t *ps);
-void SV_ClientThink (client_t *cl, usercmd_t *cmd);
-void SV_GhostThink(client_t *cl);
-void SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
+void     SV_GetChallenge(netadr_t from);
+void     SV_DirectConnect(netadr_t from);
+void     SV_AuthorizeIpPacket(netadr_t from);
+void     SV_ExecuteClientMessage(client_t *cl, msg_t *msg);
+void     SV_UserinfoChanged(client_t *cl);
+void     SV_ClientEnterWorld(client_t *client, usercmd_t *cmd);
+void     SV_DropClient(client_t *drop, const char *reason);
+void     SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK);
+void     SV_BackupWeaponState(client_t *cl, playerState_t *ps);
+void     SV_RestoreWeaponState(client_t *cl, playerState_t *ps);
+void     SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr);
+qboolean SV_SkeetShoot(client_t *cl, playerState_t *ps);
+void     SV_ClientEvents(client_t *cl, playerState_t *ps);
+void     SV_ClientThink (client_t *cl, usercmd_t *cmd);
+void     SV_GhostThink(client_t *cl);
+void     SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
 
 #ifdef USE_AUTH
 void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message);

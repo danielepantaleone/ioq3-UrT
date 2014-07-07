@@ -2060,7 +2060,7 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
  * @param ps The client playerState_t structure
  * @description Check whether this client shot to a skeet
  */
-void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
+qboolean SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     
     svEntity_t *sEnt;
     sharedEntity_t *gEnt;
@@ -2074,13 +2074,13 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     
     // if we are not playing skeetshoot mode
     if (sv_skeetshoot->integer <= 0 || sv_gametype->integer != GT_FFA) {
-        return;
+        return qfalse;
     }
     
     self = SV_GentityNum(cl - svs.clients);
     if (!self) {
         Com_Printf("ERROR: couldn't retrieve client entity given it's slot number: %i\n", cl - svs.clients);
-        return;
+        return qfalse;
     }
     
     AngleVectors(ps->viewangles, forward, right, up);   // the the angle vectors of the client
@@ -2095,21 +2095,22 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     sEnt = &sv.svEntities[trace.entityNum];
     
     if (!sEnt) {
-        return;
+        return qfalse;
     }
     // check if we have to perform this hit
     if (!sEnt || !sEnt->skeet || !sEnt->skeetLaunched) {
-        return;
+        return qfalse;
     }
     
     gEnt = SV_GEntityForSvEntity(sEnt);
     if (!gEnt) {
-        return;
+        return qfalse;
     }
     
     SV_BroadcastSoundToClient(ps, "sound/surfaces/bullets/concrete1.wav");  // send the hit sound
     SV_SkeetAddScore(cl, ps, &trace);                                       // increase score
     SV_SkeetRespawn(sEnt, gEnt);                                            // respawn the skeet
+    return qtrue;
     
 }
 
@@ -2138,7 +2139,10 @@ void SV_ClientEvents(client_t *cl, playerState_t *ps) {
     for (i = cl->lastEventSequence; i < ps->eventSequence; i++) {
         event = ps->events[i & (MAX_PS_EVENTS - 1)];
         if (event == EV_FIRE_WEAPON) {
-            SV_SkeetShoot(cl, ps);
+            if (!SV_SkeetShoot(cl, ps)) {
+                // log skeet miss for statistics
+                SV_LogPrintf("SkeetMiss: %i\n", cl - svs.clients);
+            }
             SV_RestoreWeaponState(cl, ps);
         } 
     }
