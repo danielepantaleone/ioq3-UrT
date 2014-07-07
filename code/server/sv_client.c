@@ -1961,6 +1961,19 @@ void SV_RestoreWeaponState(client_t *cl, playerState_t *ps) {
     }
 }
 
+typedef struct {
+    int points;
+    int min;
+    int max;
+} skeetscore_t;
+
+skeetscore_t skeetscores[] = { 
+    { 1,    0,  5000 },
+    { 2, 5000,  6500 },
+    { 4, 6500,  8000 },
+    { 8, 8000,  MAX_SKEET_TRACE },
+};
+
 /**
  * SV_SkeetAddScore
  * 
@@ -1973,7 +1986,7 @@ void SV_RestoreWeaponState(client_t *cl, playerState_t *ps) {
 void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
     
     int i;
-    int points;
+    int points = 1;
     float distance;
     char name[MAX_NAME_LENGTH];
     client_t *dst;
@@ -1988,14 +2001,11 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
     distance = Distance(ps->origin, tr->endpos);
     
     // increase the score according to the distance of the shot
-    if (distance <= SKEET_SCORE_DST_1) {
-        points = 1;
-    } else if (distance > SKEET_SCORE_DST_1 && distance <= SKEET_SCORE_DST_2) {
-        points = 2;
-    } else if (distance > SKEET_SCORE_DST_2 && distance <= SKEET_SCORE_DST_3) {
-        points = 3;
-    } else {
-        points = 4;
+    for (i = 0; i < sizeof(skeetscores); i++) {
+        if (distance >= skeetscores[i].min && distance < skeetscores[i].max) {
+            points = skeetscores[i].points;
+            break;
+        }
     }
     
     // increase the score
@@ -2076,7 +2086,7 @@ void SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     AngleVectors(ps->viewangles, forward, right, up);   // the the angle vectors of the client
     VectorCopy(self->s.pos.trBase, muzzle);             // claculate the muzzle origin
     muzzle[2] += ps->viewheight;                        // set the muzzle on the eye point
-    VectorMA(muzzle, 16384, forward, end);              // calculate end point of the trace
+    VectorMA(muzzle, MAX_SKEET_TRACE, forward, end);    // calculate end point of the trace
     
     // fire a trace to see what this client hit
     SV_Trace(&trace, muzzle, NULL, NULL, end, cl - svs.clients, MASK_SHOT, qfalse);
