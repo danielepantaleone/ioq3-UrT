@@ -2047,9 +2047,10 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
 
     }
     
-    // log it for external bots
-    SV_LogPrintf("SkeetShoot: %i: %f %i %i\n", cl - svs.clients, distance, points, ps->persistant[PERS_SCORE]);
-
+    if (Cvar_VariableIntegerValue("g_loghits")) {
+        // log it for external bots
+        SV_LogPrintf("SkeetShoot: %i: %f %i %i\n", cl - svs.clients, distance, points, ps->persistant[PERS_SCORE]);
+    }
 } 
 
 /**
@@ -2140,8 +2141,10 @@ void SV_ClientEvents(client_t *cl, playerState_t *ps) {
         event = ps->events[i & (MAX_PS_EVENTS - 1)];
         if (event == EV_FIRE_WEAPON) {
             if (!SV_SkeetShoot(cl, ps)) {
-                // log skeet miss for statistics
-                SV_LogPrintf("SkeetMiss: %i\n", cl - svs.clients);
+                if (Cvar_VariableIntegerValue("g_loghits")) {
+                    // log skeet miss for statistics
+                    SV_LogPrintf("SkeetMiss: %i\n", cl - svs.clients);
+                }
             }
             SV_RestoreWeaponState(cl, ps);
         } 
