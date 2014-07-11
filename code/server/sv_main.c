@@ -77,6 +77,7 @@ cvar_t    *sv_ghostradius;
 cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
 cvar_t    *sv_skeetshoot;
+cvar_t    *sv_skeetspeed;
 cvar_t    *sv_noStamina;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1629,13 +1630,18 @@ void SV_SkeetLaunch(svEntity_t *sEnt, sharedEntity_t *gEnt) {
     if (sEnt->skeetLaunched) {
         return;
     }
-
-    vel[0] = MIN_SKEET_ANG_X + (float)(Q_random() / ((float)MAX_RAND / (MAX_SKEET_ANG_X - MIN_SKEET_ANG_X)));
-    vel[1] = MIN_SKEET_ANG_Y + (float)(Q_random() / ((float)MAX_RAND / (MAX_SKEET_ANG_Y - MIN_SKEET_ANG_Y)));
+    
+    // when computing the trajectory angle we actually keep the UP vector fixed: 
+    // since we will normalize the vector it's useful to keep one vector fixed so 
+    // we reason as if we are in a 2D environment and so compute only the front and side
+    // components of our trajectory. This is not very correct from and engineering point
+    // of view but gives the expected result.
+    vel[0] = MIN_SKEET_X + (Q_random() / ((float)MAX_RAND / (MAX_SKEET_X - MIN_SKEET_X)));
+    vel[1] = MIN_SKEET_Y + (Q_random() / ((float)MAX_RAND / (MAX_SKEET_Y - MIN_SKEET_Y)));
     vel[2] = 1.0f;
     
     VectorNormalize(vel);
-    VectorMultiply(vel, SKEET_SPEED);
+    VectorMultiply(vel, sv_skeetspeed->integer);
     VectorCopy(vel, gEnt->s.pos.trDelta);
     
     gEnt->s.pos.trTime = sv.time - 50;

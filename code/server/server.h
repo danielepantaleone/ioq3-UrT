@@ -41,10 +41,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_SKEETS              64              // amount of skeetshoot which will be animated in skeetshoot game mode
 #define MIN_SKEET_SPAWN_TIME    1000            // min amount of milliseconds a skeet will stay at spawn point
 #define MAX_SKEET_SPAWN_TIME    4000            // max amount of milliseconds a skeet will stay at spawn point
-#define MIN_SKEET_ANG_X        -M_PI / 2.5f
-#define MAX_SKEET_ANG_X         M_PI / 2.5f
-#define MIN_SKEET_ANG_Y         M_PI / 6.0f
-#define MAX_SKEET_ANG_Y         M_PI / 3.0f
+#define MIN_SKEET_X            -M_PI / 2.5f
+#define MAX_SKEET_X             M_PI / 2.5f
+#define MIN_SKEET_Y             M_PI / 3.0f
+#define MAX_SKEET_Y             M_PI / 2.0f
 #define MAX_SKEET_DISTANCE      10000
 #define MAX_SKEET_TRACE         16384
 #define SKEET_SPEED             2800
@@ -364,6 +364,7 @@ extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_skeetshoot;
+extern    cvar_t    *sv_skeetspeed;
 extern    cvar_t    *sv_noStamina;
 
 //

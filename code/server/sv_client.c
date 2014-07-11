@@ -2098,6 +2098,7 @@ qboolean SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     if (!sEnt) {
         return qfalse;
     }
+    
     // check if we have to perform this hit
     if (!sEnt || !sEnt->skeet || !sEnt->skeetLaunched) {
         return qfalse;
