@@ -34,7 +34,7 @@ versions of OSX, please refer to the original repository README*
 * added server-side ghosting feature: fix partial entity collision in jump mode
 * added custom mapcycle parsing utility
 * added `tell` command: send a private message to a specific client (works with partial client name)
-* added flood protect fix patch: allow 2 reliable client commands every 1.5 seconds
+* added flood protect fix: allow 2 reliable client commands every 1.5 seconds
 * added RCON `teleport` command: teleport a specific client to another one or to the given coordinates
 * added RCON `position` command: retrieve client world coordinates
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
@@ -45,7 +45,7 @@ versions of OSX, please refer to the original repository README*
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * fixed map searching algorithm: no more unpredictability
 * fixed `stopserverdemo` command being executed on non-dedicated servers
-* replace auth ban message something understandable
+* replaced auth ban message with something understandable
 * unlocked `sv_fps` cvar from game module constraint
 
 ### *Client*
