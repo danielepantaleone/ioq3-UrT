@@ -442,6 +442,7 @@ gotnewcl:
 void SV_DropClient(client_t *drop, const char *reason) {
     
     int            i;
+    char           bigreason[MAX_STRING_CHARS];
     challenge_t    *challenge;
 
     if (drop->state == CS_ZOMBIE) {
@@ -478,8 +479,16 @@ void SV_DropClient(client_t *drop, const char *reason) {
     // this will remove the body, among other things
     VM_Call(gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients);
 
+    if (sv_dropSuffix->string) {
+        // drop suffix speficied so append it to the disconnect message
+        Com_sprintf(bigreason, sizeof(bigreason), "%s %s- %s", reason, S_COLOR_WHITE, sv_dropSuffix->string);
+    } else {
+        // use the same string used in the kick server message
+        Com_sprintf(bigreason, sizeof(bigreason), "%s", reason);
+    }
+    
     // add the disconnect command
-    SV_SendServerCommand(drop, "disconnect \"%s\"", reason);
+    SV_SendServerCommand(drop, "disconnect \"%s\"", bigreason);
 
     if (drop->netchan.remoteAddress.type == NA_BOT) {
         SV_BotFreeClient(drop - svs.clients);
