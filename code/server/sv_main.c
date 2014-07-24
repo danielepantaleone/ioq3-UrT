@@ -72,7 +72,7 @@ cvar_t    *sv_rconusersfile;
 #endif
 
 cvar_t    *sv_disableradio;
-cvar_t    *sv_failedvotetime;
+cvar_t    *sv_callvoteWaitTime;
 cvar_t    *sv_ghostradius;
 cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
@@ -819,7 +819,7 @@ void SV_ParseGameRemoteCommand(char *text) {
     
     // if it's a rcon veto command
     if (!Q_stricmp(Cmd_Argv(0), "veto")) {
-        val = sv_failedvotetime->integer * 1000;
+        val = sv_callvoteWaitTime->integer * 1000;
         sv.lastVoteTime = svs.time - val;
     }
     
