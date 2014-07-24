@@ -559,10 +559,6 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
     // tell everyone why they got dropped
     SV_BroadcastMessageToClient(NULL, "%s %swas %sauth banned %sby an admin", 
                                 drop->name, S_COLOR_WHITE, S_COLOR_RED, S_COLOR_WHITE);
-    
-    if (strlen(reason) > 0) {
-        SV_BroadcastMessageToClient(NULL, reason);
-    }
 
     if (drop->download)    {
         FS_FCloseFile(drop->download);
