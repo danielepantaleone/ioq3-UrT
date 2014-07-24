@@ -63,13 +63,15 @@ versions of OSX, please refer to the original repository README*
 
 ### *Server*
 
-* `sv_failedvotetime` - defines the amount of seconds between callvotes
+* `sv_callvotewaittime` - defines the amount of seconds between callvotes
 * `sv_autodemo` - auto record serverside demos of everyone when in matchmode
 * `sv_disableradio` - totally disable radio calls in jump mode
 * `sv_ghostradius` - specify the radius of the ghosting bounding box
 * `sv_rconusers` - allow clients to use rcon commands without having to type the password
 * `sv_rconuserfile` - specifies the name of the file from which to read auth logins
 * `sv_hidechatcmds` - hide big brother bot commands to everyone but the who issued them
+* `sv_dropsuffix` -  a custom message in the disconnect box when a client gets disconnected
+* `sv_checkclientguid` - check guid validity upon client connection
 
 ### *Client*
 
