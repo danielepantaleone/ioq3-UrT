@@ -1994,8 +1994,14 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
     VM_Call(gvm, GAME_CLIENT_THINK, cl - svs.clients);
     
     if (sv_noStamina->integer > 0) {
+        // restore stamina according to the player health
         ps->stats[STAT_STAMINA] = ps->stats[STAT_HEALTH] * 300;
     }  
+    
+    if (sv_noKnife->integer > 0) {
+        // hopefully the player hasn't filled up their weapon slots
+        ps->powerups[0] = ps->powerups[MAX_POWERUPS - 1];
+    }
     
 }
 

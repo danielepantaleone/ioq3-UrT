@@ -333,6 +333,7 @@ extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_noStamina;
+extern    cvar_t    *sv_noKnife;
 
 //
 // sv_main.c
