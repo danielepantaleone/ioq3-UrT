@@ -1620,10 +1620,6 @@ static ucmd_t ucmds[] = {
     {"nextdl", SV_NextDownload_f},
     {"stopdl", SV_StopDownload_f},
     {"donedl", SV_DoneDownload_f},
-    {NULL, NULL}
-};
-
-static ucmd_t ucmds_floodcontrol[] = {
     {"save", SV_SavePosition_f},
     {"savepos", SV_SavePosition_f},
     {"load", SV_LoadPosition_f},
@@ -1653,25 +1649,14 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
     qboolean      exploitDetected = qfalse;
     
     Cmd_TokenizeString(s);
-
-    // see if it is a server level command
-    for (u = ucmds_floodcontrol; u->name ; u++) {
+    
+    for (u = ucmds; u->name ; u++) {
         if (!Q_stricmp(Cmd_Argv(0), u->name)) {
-            u->func(cl);
+            if (clientOK) {
+                u->func(cl);
+            }
             bProcessed = qtrue;
             break;
-        }
-    }
-    
-    if (!bProcessed) {
-        for (u = ucmds; u->name ; u++) {
-            if (!Q_stricmp(Cmd_Argv(0), u->name)) {
-                if (clientOK) {
-                    u->func(cl);
-                }
-                bProcessed = qtrue;
-                break;
-            }
         }
     }
     
