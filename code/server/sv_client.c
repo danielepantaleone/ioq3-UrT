@@ -164,6 +164,36 @@ void SV_AuthorizeIpPacket(netadr_t from) {
     
 }
 
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_ApproveGuid
+// Description : Returns a false value if and only if a client with 
+//               this cl_guid should not be allowed to enter the 
+//               server. The check is only made if sv_checkClientGuid 
+//               is nonzero positive, otherwise every guid passes.
+//               A cl_guid string must have length 32 and consist of 
+//               characters '0' through '9' and 'A' through 'F'.
+/////////////////////////////////////////////////////////////////////
+qboolean SV_ApproveGuid( const char *guid) {
+
+    int    i;
+    int    length;
+    char   c;
+    
+    if (sv_checkClientGuid->integer > 0) {
+        length = strlen(guid); 
+        if (length != 32) { 
+            return qfalse; 
+        }
+        for (i = 31; i >= 0;) {
+            c = guid[i--];
+            if (!(('0' <= c && c <= '9') || ('A' <= c && c <= 'F'))) {
+                return qfalse;
+            }
+        }
+    }
+    return qtrue;
+}
+
 #define PB_MESSAGE "PunkBuster Anti-Cheat software must be installed " \
                    "and Enabled in order to join this server. An updated game patch can be downloaded from " \
                    "www.idsoftware.com"
@@ -260,16 +290,23 @@ void SV_DirectConnect(netadr_t from) {
 
         // never reject a LAN client based on ping
         if (!Sys_IsLANAddress(from)) {
+            
+            // check for valid guid
+            if (!SV_ApproveGuid(Info_ValueForKey(userinfo, "cl_guid"))) {
+                NET_OutOfBandPrint(NS_SERVER, from, "print\nInvalid GUID detected: get legit bro!\n");
+                Com_DPrintf("Invalid cl_guid: rejected connection from %s\n", NET_AdrToString(from));
+                return;
+            }
 
             if (sv_minPing->value && ping < sv_minPing->value) {
                 NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is for high pings only\n");
-                Com_DPrintf ("Client %i rejected on a too low ping\n", i);
+                Com_DPrintf("Client %i rejected on a too low ping\n", i);
                 return;
             }
 
             if (sv_maxPing->value && ping > sv_maxPing->value) {
                 NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is for low pings only\n");
-                Com_DPrintf ("Client %i rejected on a too high ping\n", i);
+                Com_DPrintf("Client %i rejected on a too high ping\n", i);
                 return;
             }
 
