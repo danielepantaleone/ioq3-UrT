@@ -1685,7 +1685,7 @@ void SV_SkeetThink(void) {
         if (sEnt->skeetLaunched) {
             
             // check if it's time to reposition the skeet
-            if (Distance(sEnt->skeetorigin, gEnt->r.currentOrigin) >= MAX_SKEET_DISTANCE) {
+            if (Distance(sEnt->skeetorigin, gEnt->r.currentOrigin) >= MAX_SKEET_TRACE) {
                 // this ill unlink the skeet from the current world,
                 // flag it as TR_STATIONARY and place it back at spawn.
                 SV_SkeetRespawn(sEnt, gEnt);

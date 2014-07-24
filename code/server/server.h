@@ -45,8 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_SKEET_X             M_PI / 2.5f
 #define MIN_SKEET_Y             M_PI / 3.0f
 #define MAX_SKEET_Y             M_PI / 2.0f
-#define MAX_SKEET_DISTANCE      10000
-#define MAX_SKEET_TRACE         16384
+#define MAX_SKEET_TRACE         18000
 #define SKEET_SPEED             2800
 #define SKEET_CLASSHASH         284875700       // classhash of the skeet entity
 

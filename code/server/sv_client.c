@@ -1968,10 +1968,10 @@ typedef struct {
 } skeetscore_t;
 
 skeetscore_t skeetscores[] = { 
-    { 1,    0,  5000 },
-    { 2, 5000,  6500 },
-    { 4, 6500,  8000 },
-    { 8, 8000,  MAX_SKEET_TRACE },
+    { 1,    0,  7000  },
+    { 2, 7000,  10000 },
+    { 4, 10000, 14000 },
+    { 8, 14000, MAX_SKEET_TRACE },
 };
 
 /**
@@ -2067,6 +2067,8 @@ qboolean SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     sharedEntity_t *gEnt;
     sharedEntity_t *self;
     trace_t trace;
+    vec3_t mins = { -1.0f, -1.0f, -1.0f }; 
+    vec3_t maxs = {  1.0f,  1.0f,  1.0f };
     vec3_t muzzle;
     vec3_t forward;
     vec3_t right;
@@ -2090,7 +2092,7 @@ qboolean SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     VectorMA(muzzle, MAX_SKEET_TRACE, forward, end);    // calculate end point of the trace
     
     // fire a trace to see what this client hit
-    SV_Trace(&trace, muzzle, NULL, NULL, end, cl - svs.clients, MASK_SHOT, qfalse);
+    SV_Trace(&trace, muzzle, mins, maxs, end, cl - svs.clients, MASK_SHOT, qfalse);
     
     // get the entity we hit
     sEnt = &sv.svEntities[trace.entityNum];
