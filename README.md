@@ -71,7 +71,9 @@ versions of OSX, please refer to the original repository README*
 * `sv_rconuserfile` - specifies the name of the file from which to read auth logins
 * `sv_hidechatcmds` - hide big brother bot commands to everyone but the who issued them
 * `sv_dropsuffix` -  a custom message in the disconnect box when a client gets disconnected
+* `sv_dropSignature` - a signature to be attached to the drop suffix message
 * `sv_checkclientguid` - check guid validity upon client connection
+* `sv_noknife` - totally removes the knife from the server
 
 ### *Client*
 

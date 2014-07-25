@@ -517,11 +517,12 @@ void SV_DropClient(client_t *drop, const char *reason) {
     VM_Call(gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients);
 
     if (sv_dropSuffix->string) {
-        // drop suffix speficied so append it to the disconnect message
-        Com_sprintf(bigreason, sizeof(bigreason), "%s %s- %s", reason, S_COLOR_WHITE, sv_dropSuffix->string);
+        // drop suffix specified so append it to the disconnect message
+        Com_sprintf(bigreason, sizeof(bigreason), "%s\n\n%s%s\n\n%s%s", reason, S_COLOR_WHITE, 
+                    sv_dropSuffix->string, S_COLOR_WHITE, sv_dropSignature->string);
     } else {
         // use the same string used in the kick server message
-        Com_sprintf(bigreason, sizeof(bigreason), "%s", reason);
+        Com_sprintf(bigreason, sizeof(bigreason), "%s%s", S_COLOR_RED, reason);
     }
     
     // add the disconnect command

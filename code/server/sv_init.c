@@ -1204,6 +1204,7 @@ void SV_Init(void) {
     sv_noStamina = Cvar_Get("sv_noStamina", "0", CVAR_ARCHIVE);
     sv_noKnife = Cvar_Get("sv_noKnife", "0", CVAR_ARCHIVE);
     sv_dropSuffix = Cvar_Get("sv_dropSuffix", "", CVAR_ARCHIVE);
+    sv_dropSignature = Cvar_Get("sv_dropSignature", "", CVAR_ARCHIVE);
     sv_checkClientGuid = Cvar_Get("sv_checkClientGuid", "1", CVAR_ARCHIVE);
     
     // initialize bot cvars so they are listed and can be set before loading the botlib
