@@ -2095,8 +2095,8 @@ qboolean SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     sharedEntity_t *gEnt;
     sharedEntity_t *self;
     trace_t trace;
-    vec3_t mins = { -1.0f, -1.0f, -1.0f }; 
-    vec3_t maxs = {  1.0f,  1.0f,  1.0f };
+    vec3_t mins = { -0.5f, -0.5f, -0.5f }; 
+    vec3_t maxs = {  0.5f,  0.5f,  0.5f };
     vec3_t muzzle;
     vec3_t forward;
     vec3_t right;
