@@ -78,6 +78,7 @@ cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
 cvar_t    *sv_skeetshoot;
 cvar_t    *sv_skeetspeed;
+cvar_t    *sv_skeetpoints;
 cvar_t    *sv_noStamina;
 cvar_t    *sv_noKnife;
 cvar_t    *sv_dropSuffix;

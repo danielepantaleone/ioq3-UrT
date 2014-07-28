@@ -1264,6 +1264,7 @@ void SV_Init(void) {
     sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
     sv_skeetshoot = Cvar_Get("sv_skeetshoot", "0", CVAR_ARCHIVE);
     sv_skeetspeed = Cvar_Get("sv_skeetspeed", "2800", CVAR_ARCHIVE);
+    sv_skeetpoints = Cvar_Get("sv_skeetpoints", "0", CVAR_ARCHIVE); 
     sv_noStamina = Cvar_Get("sv_noStamina", "0", CVAR_ARCHIVE);
     sv_noKnife = Cvar_Get("sv_noKnife", "0", CVAR_ARCHIVE);
     sv_dropSuffix = Cvar_Get("sv_dropSuffix", "", CVAR_ARCHIVE);

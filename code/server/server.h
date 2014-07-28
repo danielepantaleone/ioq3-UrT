@@ -364,6 +364,7 @@ extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_skeetshoot;
 extern    cvar_t    *sv_skeetspeed;
+extern    cvar_t    *sv_skeetpoints;
 extern    cvar_t    *sv_noStamina;
 extern    cvar_t    *sv_noKnife;
 extern    cvar_t    *sv_dropSuffix;
