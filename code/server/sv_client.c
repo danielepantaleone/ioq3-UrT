@@ -2057,11 +2057,11 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
     // to press the TAB button: not sure if I actually can do it better than this from the engine.
     #ifdef USE_AUTH
     score = va("scoress %i %i %i %i %i %i %i %i %i %i %s",
-            cl - svs.clients, ps->persistant[PERS_SCORE], cl->ping, sv.time / 60000, 
+            (int)(cl - svs.clients), ps->persistant[PERS_SCORE], cl->ping, sv.time / 60000, 
             0, ps->persistant[PERS_KILLED], cl->ready, 0, 0, 0, cl->auth);
     #else
     score = va("scoress %i %i %i %i %i %i %i %i %i %i %s",
-            cl - svs.clients, ps->persistant[PERS_SCORE], cl->ping, sv.time / 60000, 
+            (int)(cl - svs.clients), ps->persistant[PERS_SCORE], cl->ping, sv.time / 60000, 
             0, ps->persistant[PERS_KILLED], cl->ready, 0, 0, 0, "---");
     #endif
 
