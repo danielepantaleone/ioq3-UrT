@@ -2079,7 +2079,7 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
     
     if (Cvar_VariableIntegerValue("g_loghits")) {
         // log it for external bots
-        SV_LogPrintf("SkeetShoot: %i: %f %i %i\n", cl - svs.clients, distance, points, ps->persistant[PERS_SCORE]);
+        SV_LogPrintf("SkeetShoot: %i: %f %i %i\n", (int)(cl - svs.clients), distance, points, ps->persistant[PERS_SCORE]);
     }
 } 
 
@@ -2113,7 +2113,7 @@ qboolean SV_SkeetShoot(client_t *cl, playerState_t *ps) {
     
     self = SV_GentityNum(cl - svs.clients);
     if (!self) {
-        Com_Printf("ERROR: couldn't retrieve client entity given it's slot number: %i\n", cl - svs.clients);
+        Com_Printf("ERROR: couldn't retrieve client entity given it's slot number: %i\n", (int)(cl - svs.clients));
         return qfalse;
     }
     
