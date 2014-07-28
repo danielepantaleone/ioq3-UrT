@@ -34,7 +34,7 @@ versions of OSX, please refer to the original repository README*
 * added server-side ghosting feature: fix partial entity collision in jump mode
 * added custom mapcycle parsing utility
 * added `tell` command: send a private message to a specific client (works with partial client name)
-* added flood protect fix patch: allow 2 reliable client commands every 1.5 seconds
+* added flood protect fix: allow 2 reliable client commands every 1.5 seconds
 * added RCON `teleport` command: teleport a specific client to another one or to the given coordinates
 * added RCON `position` command: retrieve client world coordinates
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
@@ -45,7 +45,7 @@ versions of OSX, please refer to the original repository README*
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * fixed map searching algorithm: no more unpredictability
 * fixed `stopserverdemo` command being executed on non-dedicated servers
-* replace auth ban message something understandable
+* replaced auth ban message with something understandable
 * unlocked `sv_fps` cvar from game module constraint
 
 ### *Client*
@@ -63,13 +63,17 @@ versions of OSX, please refer to the original repository README*
 
 ### *Server*
 
-* `sv_failedvotetime` - defines the amount of seconds between callvotes
+* `sv_callvotewaittime` - defines the amount of seconds between callvotes
 * `sv_autodemo` - auto record serverside demos of everyone when in matchmode
 * `sv_disableradio` - totally disable radio calls in jump mode
 * `sv_ghostradius` - specify the radius of the ghosting bounding box
 * `sv_rconusers` - allow clients to use rcon commands without having to type the password
 * `sv_rconuserfile` - specifies the name of the file from which to read auth logins
 * `sv_hidechatcmds` - hide big brother bot commands to everyone but the who issued them
+* `sv_dropsuffix` -  a custom message in the disconnect box when a client gets disconnected
+* `sv_dropSignature` - a signature to be attached to the drop suffix message
+* `sv_checkclientguid` - check guid validity upon client connection
+* `sv_noknife` - totally removes the knife from the server
 
 ### *Client*
 

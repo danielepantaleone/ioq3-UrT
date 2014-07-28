@@ -164,6 +164,36 @@ void SV_AuthorizeIpPacket(netadr_t from) {
     
 }
 
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_ApproveGuid
+// Description : Returns a false value if and only if a client with 
+//               this cl_guid should not be allowed to enter the 
+//               server. The check is only made if sv_checkClientGuid 
+//               is nonzero positive, otherwise every guid passes.
+//               A cl_guid string must have length 32 and consist of 
+//               characters '0' through '9' and 'A' through 'F'.
+/////////////////////////////////////////////////////////////////////
+qboolean SV_ApproveGuid( const char *guid) {
+
+    int    i;
+    int    length;
+    char   c;
+    
+    if (sv_checkClientGuid->integer > 0) {
+        length = strlen(guid); 
+        if (length != 32) { 
+            return qfalse; 
+        }
+        for (i = 31; i >= 0;) {
+            c = guid[i--];
+            if (!(('0' <= c && c <= '9') || ('A' <= c && c <= 'F'))) {
+                return qfalse;
+            }
+        }
+    }
+    return qtrue;
+}
+
 #define PB_MESSAGE "PunkBuster Anti-Cheat software must be installed " \
                    "and Enabled in order to join this server. An updated game patch can be downloaded from " \
                    "www.idsoftware.com"
@@ -260,16 +290,23 @@ void SV_DirectConnect(netadr_t from) {
 
         // never reject a LAN client based on ping
         if (!Sys_IsLANAddress(from)) {
+            
+            // check for valid guid
+            if (!SV_ApproveGuid(Info_ValueForKey(userinfo, "cl_guid"))) {
+                NET_OutOfBandPrint(NS_SERVER, from, "print\nInvalid GUID detected: get legit bro!\n");
+                Com_DPrintf("Invalid cl_guid: rejected connection from %s\n", NET_AdrToString(from));
+                return;
+            }
 
             if (sv_minPing->value && ping < sv_minPing->value) {
                 NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is for high pings only\n");
-                Com_DPrintf ("Client %i rejected on a too low ping\n", i);
+                Com_DPrintf("Client %i rejected on a too low ping\n", i);
                 return;
             }
 
             if (sv_maxPing->value && ping > sv_maxPing->value) {
                 NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is for low pings only\n");
-                Com_DPrintf ("Client %i rejected on a too high ping\n", i);
+                Com_DPrintf("Client %i rejected on a too high ping\n", i);
                 return;
             }
 
@@ -442,6 +479,7 @@ gotnewcl:
 void SV_DropClient(client_t *drop, const char *reason) {
     
     int            i;
+    char           bigreason[MAX_STRING_CHARS];
     challenge_t    *challenge;
 
     if (drop->state == CS_ZOMBIE) {
@@ -478,8 +516,17 @@ void SV_DropClient(client_t *drop, const char *reason) {
     // this will remove the body, among other things
     VM_Call(gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients);
 
+    if (sv_dropSuffix->string) {
+        // drop suffix specified so append it to the disconnect message
+        Com_sprintf(bigreason, sizeof(bigreason), "%s\n\n%s%s\n\n%s%s", reason, S_COLOR_WHITE, 
+                    sv_dropSuffix->string, S_COLOR_WHITE, sv_dropSignature->string);
+    } else {
+        // use the same string used in the kick server message
+        Com_sprintf(bigreason, sizeof(bigreason), "%s%s", S_COLOR_RED, reason);
+    }
+    
     // add the disconnect command
-    SV_SendServerCommand(drop, "disconnect \"%s\"", reason);
+    SV_SendServerCommand(drop, "disconnect \"%s\"", bigreason);
 
     if (drop->netchan.remoteAddress.type == NA_BOT) {
         SV_BotFreeClient(drop - svs.clients);
@@ -550,10 +597,6 @@ void SV_Auth_DropClient(client_t *drop, const char *reason, const char *message)
     // tell everyone why they got dropped
     SV_BroadcastMessageToClient(NULL, "%s %swas %sauth banned %sby an admin", 
                                 drop->name, S_COLOR_WHITE, S_COLOR_RED, S_COLOR_WHITE);
-    
-    if (strlen(reason) > 0) {
-        SV_BroadcastMessageToClient(NULL, reason);
-    }
 
     if (drop->download)    {
         FS_FCloseFile(drop->download);
@@ -1620,10 +1663,6 @@ static ucmd_t ucmds[] = {
     {"nextdl", SV_NextDownload_f},
     {"stopdl", SV_StopDownload_f},
     {"donedl", SV_DoneDownload_f},
-    {NULL, NULL}
-};
-
-static ucmd_t ucmds_floodcontrol[] = {
     {"save", SV_SavePosition_f},
     {"savepos", SV_SavePosition_f},
     {"load", SV_LoadPosition_f},
@@ -1653,25 +1692,14 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
     qboolean      exploitDetected = qfalse;
     
     Cmd_TokenizeString(s);
-
-    // see if it is a server level command
-    for (u = ucmds_floodcontrol; u->name ; u++) {
+    
+    for (u = ucmds; u->name ; u++) {
         if (!Q_stricmp(Cmd_Argv(0), u->name)) {
-            u->func(cl);
+            if (clientOK) {
+                u->func(cl);
+            }
             bProcessed = qtrue;
             break;
-        }
-    }
-    
-    if (!bProcessed) {
-        for (u = ucmds; u->name ; u++) {
-            if (!Q_stricmp(Cmd_Argv(0), u->name)) {
-                if (clientOK) {
-                    u->func(cl);
-                }
-                bProcessed = qtrue;
-                break;
-            }
         }
     }
     
@@ -1758,7 +1786,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                         if (playercount > 1) {  
                             
                             // extend spamming to all the players, not just one
-                            wtime = sv_failedvotetime->integer * 1000;
+                            wtime = sv_callvoteWaitTime->integer * 1000;
                             if (sv.lastVoteTime && (sv.lastVoteTime + wtime > svs.time)) {
                                 wtime = (int)(((sv.lastVoteTime + wtime) - svs.time) / 1000);
                                 if (wtime < 60) {
@@ -2276,8 +2304,14 @@ void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
     SV_ClientEvents(cl, ps);
     
     if (sv_noStamina->integer > 0) {
+        // restore stamina according to the player health
         ps->stats[STAT_STAMINA] = ps->stats[STAT_HEALTH] * 300;
     }  
+    
+    if (sv_noKnife->integer > 0) {
+        // hopefully the player hasn't filled up their weapon slots
+        ps->powerups[0] = ps->powerups[MAX_POWERUPS - 1];
+    }
     
 }
 

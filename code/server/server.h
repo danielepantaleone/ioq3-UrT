@@ -358,13 +358,17 @@ extern    cvar_t    *sv_rconusersfile;
 #endif
 
 extern    cvar_t    *sv_disableradio;
-extern    cvar_t    *sv_failedvotetime;
+extern    cvar_t    *sv_callvoteWaitTime;
 extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
 extern    cvar_t    *sv_skeetshoot;
 extern    cvar_t    *sv_skeetspeed;
 extern    cvar_t    *sv_noStamina;
+extern    cvar_t    *sv_noKnife;
+extern    cvar_t    *sv_dropSuffix;
+extern    cvar_t    *sv_dropSignature;
+extern    cvar_t    *sv_checkClientGuid;
 
 //
 // sv_main.c

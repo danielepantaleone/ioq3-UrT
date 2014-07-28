@@ -72,13 +72,17 @@ cvar_t    *sv_rconusersfile;
 #endif
 
 cvar_t    *sv_disableradio;
-cvar_t    *sv_failedvotetime;
+cvar_t    *sv_callvoteWaitTime;
 cvar_t    *sv_ghostradius;
 cvar_t    *sv_hidechatcmds;
 cvar_t    *sv_autodemo;
 cvar_t    *sv_skeetshoot;
 cvar_t    *sv_skeetspeed;
 cvar_t    *sv_noStamina;
+cvar_t    *sv_noKnife;
+cvar_t    *sv_dropSuffix;
+cvar_t    *sv_dropSignature;
+cvar_t    *sv_checkClientGuid;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
@@ -900,7 +904,7 @@ void SV_ParseGameRemoteCommand(char *text) {
         
         // this will remove the failed vote time basically
         // so it will be possible to start a new callvote
-        val = sv_failedvotetime->integer * 1000;
+        val = sv_callvoteWaitTime->integer * 1000;
         sv.lastVoteTime = svs.time - val;
         
     } else if (!Q_stricmp(Cmd_Argv(0), "restart")) {

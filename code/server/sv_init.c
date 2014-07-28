@@ -1258,13 +1258,17 @@ void SV_Init(void) {
     #endif
     
     sv_disableradio = Cvar_Get("sv_disableradio", "0", CVAR_ARCHIVE);
-    sv_failedvotetime = Cvar_Get("sv_failedvotetime", "300", CVAR_ARCHIVE);
+    sv_callvoteWaitTime = Cvar_Get("sv_callvoteWaitTime", "300", CVAR_ARCHIVE);
     sv_ghostradius = Cvar_Get("sv_ghostradius", "10.0", CVAR_ARCHIVE);
     sv_hidechatcmds = Cvar_Get("sv_hidechatcmds", "1", CVAR_ARCHIVE);
     sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
     sv_skeetshoot = Cvar_Get("sv_skeetshoot", "0", CVAR_ARCHIVE);
     sv_skeetspeed = Cvar_Get("sv_skeetspeed", "2800", CVAR_ARCHIVE);
     sv_noStamina = Cvar_Get("sv_noStamina", "0", CVAR_ARCHIVE);
+    sv_noKnife = Cvar_Get("sv_noKnife", "0", CVAR_ARCHIVE);
+    sv_dropSuffix = Cvar_Get("sv_dropSuffix", "", CVAR_ARCHIVE);
+    sv_dropSignature = Cvar_Get("sv_dropSignature", "", CVAR_ARCHIVE);
+    sv_checkClientGuid = Cvar_Get("sv_checkClientGuid", "1", CVAR_ARCHIVE);
     
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();
