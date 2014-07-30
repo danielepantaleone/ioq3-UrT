@@ -1996,9 +1996,9 @@ typedef struct {
 } skeetscore_t;
 
 skeetscore_t skeetscores[] = { 
-    { 1,    0,  7000  },
-    { 2, 7000,  10000 },
-    { 4, 10000, 14000 },
+    { 1,    0,  5000  },
+    { 2, 5000,  90000 },
+    { 4, 9000, 14000 },
     { 8, 14000, MAX_SKEET_TRACE },
 };
 
