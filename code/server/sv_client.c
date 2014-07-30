@@ -2017,6 +2017,7 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
     int points = 1;
     float distance;
     char name[MAX_NAME_LENGTH];
+    char auth[MAX_NAME_LENGTH];
     client_t *dst;
     char *score;
     
@@ -2056,14 +2057,14 @@ void SV_SkeetAddScore(client_t *cl, playerState_t *ps, trace_t *tr) {
     // FIXME: this is a really ugly hack to let the client scoreboard update without having 
     // to press the TAB button: not sure if I actually can do it better than this from the engine.
     #ifdef USE_AUTH
-    score = va("scoress %i %i %i %i %i %i %i %i %i %i %s",
-            (int)(cl - svs.clients), ps->persistant[PERS_SCORE], cl->ping, sv.time / 60000, 
-            0, ps->persistant[PERS_KILLED], cl->ready, 0, 0, 0, cl->auth);
+    Q_strncpyz(auth, cl->auth, sizeof(auth));
     #else
+    Q_strncpyz(auth, "---", sizeof(auth));
+    #endif
+
     score = va("scoress %i %i %i %i %i %i %i %i %i %i %s",
             (int)(cl - svs.clients), ps->persistant[PERS_SCORE], cl->ping, sv.time / 60000, 
-            0, ps->persistant[PERS_KILLED], cl->ready, 0, 0, 0, "---");
-    #endif
+            0, ps->persistant[PERS_KILLED], cl->ready, 0, 0, 0, auth);
 
     for (i = 0, dst = svs.clients; i < sv_maxclients->integer; i++, dst++) {
         
