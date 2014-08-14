@@ -445,7 +445,7 @@ static void SV_MapRestart_f(void) {
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Com_Printf("Server is not running\n");
         return;
     }
 
@@ -469,8 +469,7 @@ static void SV_MapRestart_f(void) {
     // check for maxclients change
     if (sv_maxclients->modified || sv_gametype->modified) {
         char mapname[MAX_QPATH];
-
-        Com_Printf("variable change -- restarting.\n");
+        Com_Printf("variable change -- restarting\n");
         // restart the map the slow way
         Q_strncpyz(mapname, Cvar_VariableString("mapname"), sizeof(mapname));
         SV_SpawnServer(mapname, qfalse);
@@ -1157,7 +1156,7 @@ static void SV_ConSay_f(void) {
 
     // make sure server is running
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Com_Printf("Server is not running\n");
         return;
     }
 
@@ -1180,7 +1179,7 @@ static void SV_ConSay_f(void) {
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_ConTell_f
-// Description : Send a provate message to a specific client
+// Description : Send a private message to a specific client
 /////////////////////////////////////////////////////////////////////
 static void SV_ConTell_f(void) {
 
@@ -1804,7 +1803,7 @@ static void SV_Auth_Ban_f(void) {
     char        *d, *h, *m;
 
     if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
+        Com_Printf("Server is not running\n");
         return;
     }
 
