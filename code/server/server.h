@@ -239,7 +239,9 @@ typedef struct {
     netadr_t        authorizeAddress;                   // for rcon return messages
     
     char            lastCycleMap[128];       // last mapcycle computed map
+    #ifdef USE_AUTH
     char            **rconuserlist;          // list of rcon users who do not have to type the rcon password
+    #endif
 } serverStatic_t;
 
 // The value below is how many extra characters we reserve for every instance of '$' in a
