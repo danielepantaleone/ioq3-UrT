@@ -33,9 +33,9 @@ versions of OSX, please refer to the original repository README*
 * added position save/load: fixed permanent position save/load not working in game module
 * added server-side ghosting feature: fix partial entity collision in jump mode
 * added custom mapcycle parsing utility
-* added `tell` command: send a private message to a specific client (works with partial client name)
+* added `tell` command: send a private message to a specific client
 * added flood protect fix: allow 2 reliable client commands every 1.5 seconds
-* added RCON `teleport` command: teleport a specific client to another one or to the given coordinates
+* added RCON `teleport` command: teleport a specific client to another location
 * added RCON `position` command: retrieve client world coordinates
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
 * added RCON `spoof` command: send a game client command as a specific client
@@ -47,6 +47,7 @@ versions of OSX, please refer to the original repository README*
 * fixed `stopserverdemo` command being executed on non-dedicated servers
 * replaced auth ban message with something understandable
 * unlocked `sv_fps` cvar from game module constraint
+* use of the new pure list system by default: removes compatibility qith Q3A clients
 
 ### *Client*
 
@@ -71,13 +72,13 @@ versions of OSX, please refer to the original repository README*
 * `sv_rconuserfile` - specifies the name of the file from which to read auth logins
 * `sv_hidechatcmds` - hide big brother bot commands to everyone but the who issued them
 * `sv_dropsuffix` -  a custom message in the disconnect box when a client gets disconnected
-* `sv_dropSignature` - a signature to be attached to the drop suffix message
+* `sv_dropsignature` - a signature to be attached to the drop suffix message
 * `sv_checkclientguid` - check guid validity upon client connection
 * `sv_noknife` - totally removes the knife from the server
 
 ### *Client*
 
-* `cl_drawHealth` - draw player health percentace in the HUD
+* `cl_drawhealth` - draw player health percentace in the HUD
 * `cl_demoblink` - make the demo recording string flashing when recording a demo
 
 ## Credits
