@@ -408,6 +408,21 @@ rescan:
         return qtrue;
     }
     
+    if (!strcmp(cmd, "scoresd")) {
+        if (atoi(Cmd_Argv(12)) == clc.clientNum) {
+            if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_RED || cl.snap.ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+                int victimNum = atoi(Cmd_Argv(1));
+                int victimTeam = atoi(Info_ValueForKey(cl.gameState.stringData + 
+                                                       cl.gameState.stringOffsets[544 + victimNum], "t"));
+
+                if (victimTeam == cl.snap.ps.persistant[PERS_TEAM]) {
+                    cl.spreeCount--;
+                }
+            }
+            cl.spreeCount++;
+        }
+    }
+    
     if (!cl_chatArrow->integer && (!strcmp(cmd, "tcchat") || !strcmp(cmd, "cchat"))) {
         
         team = atoi(Cmd_Argv(1));

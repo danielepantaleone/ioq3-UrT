@@ -2268,6 +2268,16 @@ void CL_Frame (int msec) {
 
     // decide on the serverTime to render
     CL_SetCGameTime();
+    
+    if (cls.state == CA_ACTIVE) {
+      
+        if (cl.snap.ps.persistant[PERS_SPAWN_COUNT] != cl.spawnCount) {
+            cl.spawnCount = cl.snap.ps.persistant[PERS_SPAWN_COUNT];
+            cl.spreeCount = 0;
+        }
+
+        static int lastMilli = 0;
+    }
 
     // update the screen
     SCR_UpdateScreen();

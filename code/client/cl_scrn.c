@@ -34,6 +34,7 @@ cvar_t    *cl_graphshift;
 cvar_t    *cl_drawclock;
 cvar_t    *cl_drawHealth;
 cvar_t    *cl_demoblink;
+cvar_t    *cl_drawSpree;
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawNamedPic
@@ -441,6 +442,40 @@ void SCR_DrawHealth(void) {
 
 }
 
+/*
+=================
+SCR_DrawKills
+=================
+*/
+void SCR_DrawKills(void) {
+    
+    if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cl.snap.ps.pm_type > 4 || 
+        cl_paused->value || !cl_drawSpree->integer ||  cl.snap.ps.clientNum != clc.clientNum || 
+        !Cvar_VariableIntegerValue("cg_draw2d")) {
+            return;
+    }
+
+    int x;
+    int y = 450;
+    int spacing = 2;
+    int size = 20;
+    int width;
+    int max = 12;
+    int num;
+    int i;
+    
+    num = (int)Com_Clamp(0, max, cl.spreeCount);
+    width = size * cl.spreeCount + spacing * (cl.spreeCount - 1);
+    x = 320 - width / 2;
+    
+    for (i = 0; i < cl.spreeCount; i++) {
+        SCR_DrawNamedPic(x, y, size, size, "skull.tga");
+        x += spacing + size;
+    }
+
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //  DEBUG GRAPH                                                               //
@@ -511,6 +546,7 @@ void SCR_Init(void) {
     cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
     cl_drawHealth = Cvar_Get("cl_drawHealth", "1", CVAR_ARCHIVE);
     cl_demoblink = Cvar_Get("cl_demoblink", "1", CVAR_ARCHIVE);
+    cl_drawSpree = Cvar_Get("cl_drawSpree", "1", CVAR_ARCHIVE);
     scr_initialized = qtrue;
 }
 
@@ -576,9 +612,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame) {
             SCR_DrawDemoRecording();
             SCR_DrawClock();
             SCR_DrawHealth();
-            #if 0
-            SCR_DrawWallJump();
-            #endif
+            SCR_DrawKills();
             break;
         }
     }
