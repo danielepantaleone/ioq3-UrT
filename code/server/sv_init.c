@@ -767,8 +767,14 @@ static void SV_ReadRconUserList(void) {
     
     // open the rcon user file
     size = FS_FOpenFileByMode(sv_rconusersfile->string, &file, FS_READ);
-    if (!file) {
+    if (size == -1) {
         Com_Printf("WARNING: could not open file '%s'\n", sv_rconusersfile->string);
+        return;
+    }
+    
+    // if empty
+    if (!size) {
+        Com_Printf("WARNING: %s file is empty!\n", sv_rconusersfile->string);
         return;
     }
     
@@ -776,12 +782,6 @@ static void SV_ReadRconUserList(void) {
     buffer = Z_Malloc(size);
     len = FS_Read(buffer, size , file);
     FS_FCloseFile(file);
-    
-    // if empty
-    if (!len) {
-        Com_Printf("WARNING: %s file is empty!\n", sv_rconusersfile->string);
-        return;
-    }
     
     // if somehow not all bytes were read
     if (len != size) {
