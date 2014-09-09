@@ -530,7 +530,7 @@ void    SCR_DrawBigString( int x, int y, const char *s, float alpha );          
 void    SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color );    // ignores embedded color control characters
 void    SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor );
 void    SCR_DrawSmallChar( int x, int y, int ch );
-
+void    SCR_DrawStringExt(int x, int y, float size, const char *string, float *setColor, qboolean forceColor);
 
 //
 // cl_cin.c

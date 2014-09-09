@@ -312,13 +312,13 @@ FILE*        missingFiles = NULL;
 
 typedef struct {
     char           *path;
-    long int        size;
+    long int       *size;
     unsigned char  *contents;
 } asset_t;
 
 asset_t asset_replacements[] = {
-    { "skull.tga", skull_tga_size, &skull_tga },
-    { "gfx/2d/bigchars.tga", bigchars_tga_size, &bigchars_tga },
+    { "skull.tga", &skull_tga_size, &skull_tga },
+    { "gfx/2d/bigchars.tga", &bigchars_tga_size, &bigchars_tga },
     { NULL, NULL, NULL }
 };
 
