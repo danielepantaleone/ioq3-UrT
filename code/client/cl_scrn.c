@@ -356,7 +356,7 @@ void SCR_DrawDemoRecording(void) {
                 S_COLOR_WHITE, S_COLOR_YELLOW, pos / 1024, S_COLOR_WHITE);
     
     // draw the demo notification on screen
-    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 2, SMALLCHAR_WIDTH, 
+    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 4, SMALLCHAR_WIDTH, 
                       string, g_color_table[7], qfalse);
 }
 
@@ -386,7 +386,7 @@ void SCR_DrawClock(void) {
     
     Com_RealTime(&now);
     Com_sprintf(string, sizeof(string), "%02i:%02i:%02i", now.tm_hour, now.tm_min, now.tm_sec);
-    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 12, SMALLCHAR_WIDTH, string, g_color_table[7], qtrue);
+    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 15, SMALLCHAR_WIDTH, string, g_color_table[7], qtrue);
 }
 
 /////////////////////////////////////////////////////////////////////
