@@ -1673,6 +1673,20 @@ void CL_DownloadMenu(int key) {
 }
 
 /**
+ * Check whether a client is downloading
+ * 
+ * @author Clearskies
+ * @return qtrue is the client is downloading, qfalse otherwise
+ */
+qboolean CL_IsDownloading(void) {
+    #ifdef USE_CURL
+    return clc.cURLUsed;
+    #else
+    return qfalse;
+    #endif
+}
+
+/**
  * CL_CheckForResend
  * 
  * @description Resend a connect message if the last one has timed out
