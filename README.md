@@ -56,7 +56,7 @@ versions of OSX, please refer to the original repository README*
 * fixed clipboard data paste crashing the client engine on unix systems
 * fixed linux/mac copy&paste considering only the first six characters of a string
 * fixed linux SDL gamma bug using XF86
-* improved in-game console readability
+* improved in-game console
 * improved windows dedicated console readability
 * unlock `snaps` cvar from game module constraint
 
@@ -80,7 +80,8 @@ versions of OSX, please refer to the original repository README*
 
 * `cl_drawhealth` - draw player health percentace in the HUD
 * `cl_demoblink` - make the demo recording string flashing when recording a demo
-* `cl_chatarrow` - remove the **>** prefix from every chat message
+* `cl_chatarrow` - remove the **>** prefix from every chat message if set to zero
+* `cl_drawspree` - draw the current spree in the hud
 
 ## Credits
 

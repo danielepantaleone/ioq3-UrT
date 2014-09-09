@@ -606,10 +606,10 @@ void Con_DrawNotify (void) {
     // draw the chat line
     if (cls.keyCatchers & KEYCATCH_MESSAGE) {
         if (chat_team) {
-            SCR_DrawBigString (8, v, "say_team:", 1.0f);
+            SCR_DrawBigString (7, v, "say_team:", 1.0f);
             skip = 10;
         } else {
-            SCR_DrawBigString (8, v, "say:", 1.0f);
+            SCR_DrawBigString (7, v, "say:", 1.0f);
             skip = 5;
         }
 
