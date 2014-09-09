@@ -47,7 +47,7 @@ versions of OSX, please refer to the original repository README*
 * fixed `stopserverdemo` command being executed on non-dedicated servers
 * replaced auth ban message with something understandable
 * unlocked `sv_fps` cvar from game module constraint
-* use of the new pure list system by default: removes compatibility qith Q3A clients
+* use of the new pure list system by default: removes compatibility with Q3A clients
 
 ### *Client*
 
@@ -80,6 +80,7 @@ versions of OSX, please refer to the original repository README*
 
 * `cl_drawhealth` - draw player health percentace in the HUD
 * `cl_demoblink` - make the demo recording string flashing when recording a demo
+* `cl_chatarrow` - remove the **>** prefix from every chat message
 
 ## Credits
 

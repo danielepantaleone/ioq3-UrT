@@ -81,6 +81,7 @@ cvar_t  *cl_mouseAccelOffset;
 cvar_t  *cl_mouseAccelStyle;
 
 cvar_t  *cl_lastServerAddress;
+cvar_t  *cl_chatArrow;
 
 //@Barbatos
 #ifdef USE_AUTH
@@ -2632,6 +2633,7 @@ void CL_Init(void) {
     cl_showMouseRate = Cvar_Get("cl_showmouserate", "0", 0);
     
     cl_lastServerAddress = Cvar_Get("cl_lastServerAddress", "", CVAR_ROM | CVAR_ARCHIVE);
+    cl_chatArrow = Cvar_Get("cl_chatArrow", "0", CVAR_ARCHIVE);
     
     cl_autoDownload = Cvar_Get("cl_autoDownload", "1", CVAR_ARCHIVE);
     #if USE_CURL

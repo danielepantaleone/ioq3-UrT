@@ -386,6 +386,7 @@ extern    cvar_t    *cl_lanForcePackets;
 extern    cvar_t    *cl_autoRecordDemo;
 
 extern    cvar_t    *cl_altTab;
+extern    cvar_t    *cl_chatArrow;
 
 #ifdef USE_AUTH
 extern  cvar_t  *cl_auth_engine;
