@@ -42,6 +42,7 @@ versions of OSX, please refer to the original repository README*
 * added RCON `forcecvar` command: force a client USERINFO cvar to a specific value
 * added RCON `captain` command: switch the captain flag for a the given client
 * added RCON `forcesub` command: force a client to be substitute for his team
+* added RCON `follow` command: execute the QVM follow command but introduces pattern matching
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * fixed map searching algorithm: no more unpredictability
 * fixed `stopserverdemo` command being executed on non-dedicated servers

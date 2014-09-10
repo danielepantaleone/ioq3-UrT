@@ -868,8 +868,7 @@ static void SV_Spoof_f(void) {
  */
 static void SV_Captain_f(void) {
     
-    int i;
-    client_t  *cl1, *cl2;
+    client_t *cl;
     
     // make sure server is running
     if (!com_sv_running->integer) {
@@ -889,16 +888,13 @@ static void SV_Captain_f(void) {
     }
     
     // search the client
-    cl1 = SV_GetPlayerByHandle();
-    if (!cl1) {
+    cl = SV_GetPlayerByHandle();
+    if (!cl) {
         return;
     }
     
-    // tokenize the command 
     Cmd_TokenizeString("captain");
-    
-    // send the command
-    VM_Call(gvm, GAME_CLIENT_COMMAND, cl1 - svs.clients);
+    VM_Call(gvm, GAME_CLIENT_COMMAND, cl - svs.clients);
     
 }
 
@@ -935,10 +931,47 @@ static void SV_ForceSub_f(void) {
         return;
     }
     
-    // send the command
     Cmd_TokenizeString("sub");
     VM_Call(gvm, GAME_CLIENT_COMMAND, cl - svs.clients);
 
+}
+
+/**
+ * SV_Follow_f
+ * 
+ * @author Fenix
+ * @description Execute the QVM follow command but introduce partial name pattern matching
+ */
+static void SV_Follow_f(void) {
+    
+    client_t  *cl;
+    
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running\n");
+        return;
+    }
+    
+    // if we are not in match mode
+    if (!(SV_GetMatchState() & MATCH_ON)) {
+        return;
+    }
+    
+    // check for correct parameters
+    if (Cmd_Argc() < 2) {
+        Com_Printf("Usage: follow <client>\n");
+        return;
+    }
+    
+    // search the client
+    cl = SV_GetPlayerByHandle();
+    if (!cl) {
+        return;
+    }
+    
+    Cmd_TokenizeString(va("follow %d", (int)(cl - svs.clients)));
+    VM_Call(gvm, GAME_CLIENT_COMMAND, (int)(cl - svs.clients));
+    
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1845,6 +1878,7 @@ void SV_AddOperatorCommands(void) {
     Cmd_AddCommand("spoof", SV_Spoof_f);
     Cmd_AddCommand("captain", SV_Captain_f);
     Cmd_AddCommand("forcesub", SV_ForceSub_f);
+    Cmd_AddCommand("follow", SV_Follow_f);
     #ifndef PRE_RELEASE_DEMO
     Cmd_AddCommand("devmap", SV_Map_f);
     Cmd_AddCommand("spmap", SV_Map_f);
