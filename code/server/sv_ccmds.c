@@ -861,12 +861,12 @@ static void SV_Spoof_f(void) {
 }
 
 /**
- * SV_ForceCaptain_f
+ * SV_Captain_f
  * 
  * @author Fenix
  * @description Switch the captain flag for the given client
  */
-static void SV_ForceCaptain_f(void) {
+static void SV_Captain_f(void) {
     
     int i;
     client_t  *cl1, *cl2;
@@ -884,7 +884,7 @@ static void SV_ForceCaptain_f(void) {
     
     // check for correct parameters
     if (Cmd_Argc() < 2) {
-        Com_Printf("Usage: forcecaptain <client>\n");
+        Com_Printf("Usage: captain <client>\n");
         return;
     }
     
@@ -897,32 +897,9 @@ static void SV_ForceCaptain_f(void) {
     // tokenize the command 
     Cmd_TokenizeString("captain");
     
-    // remove the captain flag from everyone in the 
-    // same team of the client we just found
-    for (i = 0, cl2 = svs.clients; i < sv_maxclients->integer; i++, cl2++) {
-
-        // if the client is not active
-        if (cl2->state != CS_ACTIVE) {
-            continue;
-        }
-
-        // if they are on different teams
-        if (SV_GetClientTeam(cl1 - svs.clients) != SV_GetClientTeam(cl2 - svs.clients)) {
-            continue;
-        }
-        
-        // if this dude is the captain
-        // remove the captain flag from him
-        if (cl2->captain) {
-            // the captain flag for cl2 will be reset by parsing the 
-            // ccprint in sv_game.c so there is no need to set it here
-            VM_Call(gvm, GAME_CLIENT_COMMAND, cl2 - svs.clients);
-        }
-    }
-    
     // send the command
     VM_Call(gvm, GAME_CLIENT_COMMAND, cl1 - svs.clients);
-
+    
 }
 
 /**
@@ -1866,7 +1843,7 @@ void SV_AddOperatorCommands(void) {
     Cmd_AddCommand("sendclientcommand", SV_SendClientCommand_f);
     Cmd_AddCommand("forcecvar", SV_ForceCvar_f);
     Cmd_AddCommand("spoof", SV_Spoof_f);
-    Cmd_AddCommand("forcecaptain", SV_ForceCaptain_f);
+    Cmd_AddCommand("captain", SV_Captain_f);
     Cmd_AddCommand("forcesub", SV_ForceSub_f);
     #ifndef PRE_RELEASE_DEMO
     Cmd_AddCommand("devmap", SV_Map_f);

@@ -40,7 +40,7 @@ versions of OSX, please refer to the original repository README*
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
 * added RCON `spoof` command: send a game client command as a specific client
 * added RCON `forcecvar` command: force a client USERINFO cvar to a specific value
-* added RCON `forcecaptain` command: force a client to be the captain of his team
+* added RCON `captain` command: switch the captain flag for a the given client
 * added RCON `forcesub` command: force a client to be substitute for his team
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * fixed map searching algorithm: no more unpredictability
