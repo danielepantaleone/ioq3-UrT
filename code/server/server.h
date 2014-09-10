@@ -265,7 +265,9 @@ typedef struct {
     netadr_t        authorizeAddress;                   // for rcon return messages
     
     char            lastCycleMap[128];       // last mapcycle computed map
+    #ifdef USE_AUTH
     char            **rconuserlist;          // list of rcon users who do not have to type the rcon password
+    #endif
 } serverStatic_t;
 
 // The value below is how many extra characters we reserve for every instance of '$' in a
@@ -340,7 +342,6 @@ extern    cvar_t    *sv_minPing;
 extern    cvar_t    *sv_maxPing;
 extern    cvar_t    *sv_gametype;
 extern    cvar_t    *sv_pure;
-extern    cvar_t    *sv_newpurelist;
 extern    cvar_t    *sv_floodProtect;
 extern    cvar_t    *sv_lanForceRate;
 extern    cvar_t    *sv_strictAuth;

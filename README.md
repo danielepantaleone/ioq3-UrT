@@ -33,20 +33,22 @@ versions of OSX, please refer to the original repository README*
 * added position save/load: fixed permanent position save/load not working in game module
 * added server-side ghosting feature: fix partial entity collision in jump mode
 * added custom mapcycle parsing utility
-* added `tell` command: send a private message to a specific client (works with partial client name)
+* added `tell` command: send a private message to a specific client
 * added flood protect fix: allow 2 reliable client commands every 1.5 seconds
-* added RCON `teleport` command: teleport a specific client to another one or to the given coordinates
+* added RCON `teleport` command: teleport a specific client to another location
 * added RCON `position` command: retrieve client world coordinates
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
 * added RCON `spoof` command: send a game client command as a specific client
 * added RCON `forcecvar` command: force a client USERINFO cvar to a specific value
-* added RCON `forcecaptain` command: force a client to be the captain of his team
+* added RCON `captain` command: switch the captain flag for a the given client
 * added RCON `forcesub` command: force a client to be substitute for his team
+* added RCON `follow` command: execute the QVM follow command but introduces pattern matching
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * fixed map searching algorithm: no more unpredictability
 * fixed `stopserverdemo` command being executed on non-dedicated servers
 * replaced auth ban message with something understandable
 * unlocked `sv_fps` cvar from game module constraint
+* use of the new pure list system by default: removes compatibility with Q3A clients
 
 ### *Client*
 
@@ -55,7 +57,7 @@ versions of OSX, please refer to the original repository README*
 * fixed clipboard data paste crashing the client engine on unix systems
 * fixed linux/mac copy&paste considering only the first six characters of a string
 * fixed linux SDL gamma bug using XF86
-* improved in-game console readability
+* improved in-game console
 * improved windows dedicated console readability
 * unlock `snaps` cvar from game module constraint
 
@@ -71,14 +73,16 @@ versions of OSX, please refer to the original repository README*
 * `sv_rconuserfile` - specifies the name of the file from which to read auth logins
 * `sv_hidechatcmds` - hide big brother bot commands to everyone but the who issued them
 * `sv_dropsuffix` -  a custom message in the disconnect box when a client gets disconnected
-* `sv_dropSignature` - a signature to be attached to the drop suffix message
+* `sv_dropsignature` - a signature to be attached to the drop suffix message
 * `sv_checkclientguid` - check guid validity upon client connection
 * `sv_noknife` - totally removes the knife from the server
 
 ### *Client*
 
-* `cl_drawHealth` - draw player health percentace in the HUD
+* `cl_drawhealth` - draw player health percentace in the HUD
 * `cl_demoblink` - make the demo recording string flashing when recording a demo
+* `cl_chatarrow` - remove the **>** prefix from every chat message if set to zero
+* `cl_drawspree` - draw the current spree in the hud
 
 ## Credits
 

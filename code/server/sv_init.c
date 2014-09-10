@@ -767,8 +767,14 @@ void SV_InitRconUserList(void) {
     
     // open the rcon user file
     size = FS_FOpenFileByMode(sv_rconusersfile->string, &file, FS_READ);
-    if (!file) {
+    if (size == -1) {
         Com_Printf("WARNING: could not open file '%s'\n", sv_rconusersfile->string);
+        return;
+    }
+    
+    // if empty
+    if (!size) {
+        Com_Printf("WARNING: %s file is empty!\n", sv_rconusersfile->string);
         return;
     }
     
@@ -776,12 +782,6 @@ void SV_InitRconUserList(void) {
     buffer = Z_Malloc(size);
     len = FS_Read(buffer, size , file);
     FS_FCloseFile(file);
-    
-    // if empty
-    if (!len) {
-        Com_Printf("WARNING: %s file is empty!\n", sv_rconusersfile->string);
-        return;
-    }
     
     // if somehow not all bytes were read
     if (len != size) {
@@ -1069,40 +1069,26 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     if (sv_pure->integer) {
         // the server sends these to the clients so they will only
         // load pk3s also loaded at the server
-        if (sv_newpurelist->integer) {
-            
-            if (SV_MakeCompressedPureList()) {
+        if (SV_MakeCompressedPureList()) {
                 
-                int i;
-                // Do cleanup
-                for(i = 0; i < PURE_COMPRESS_NUMCS; i++) {
-                    SV_SetConfigstring(MAX_CONFIGSTRINGS - PURE_COMPRESS_NUMCS + i,"");
-                }
-                
-                // No clients will be able to connect...
-                Cvar_Set("sv_paks", "TooManyFiles");
-                Cvar_Set("sv_pakNames", "TooManyFiles");
-                // ... so use RCON to fix it
-                Com_Printf("-------------------------------------------------\n"
-                           "TOO MANY PK3 FILES TO FIT INTO THE PURE FILE LIST\n"
-                           "      REMOVE SOME PK3s AND RELOAD THE SERVER     \n"
-                           "-------------------------------------------------\n");
-            
-            } else {
-                Cvar_Set("sv_paks", "*");
-                Cvar_Set("sv_pakNames", "*");
+            int i;
+            // Do cleanup
+            for(i = 0; i < PURE_COMPRESS_NUMCS; i++) {
+                SV_SetConfigstring(MAX_CONFIGSTRINGS - PURE_COMPRESS_NUMCS + i,"");
             }
-            
+
+            // No clients will be able to connect...
+            Cvar_Set("sv_paks", "TooManyFiles");
+            Cvar_Set("sv_pakNames", "TooManyFiles");
+            // ... so use RCON to fix it
+            Com_Printf("-------------------------------------------------\n"
+                       "TOO MANY PK3 FILES TO FIT INTO THE PURE FILE LIST\n"
+                       "      REMOVE SOME PK3s AND RELOAD THE SERVER     \n"
+                       "-------------------------------------------------\n");
+
         } else {
-            
-            p = FS_LoadedPakChecksums();
-            Cvar_Set("sv_paks", p);
-            if (!p[0]) {
-                Com_Printf("WARNING: CVAR sv_pure set but no pk3 files loaded!\n");
-            }
-            p = FS_LoadedPakNames();
-            Cvar_Set("sv_pakNames", p);
-        
+            Cvar_Set("sv_paks", "*");
+            Cvar_Set("sv_pakNames", "*");
         }
 
         // if a dedicated pure server we need to touch the cgame because it could be in a
@@ -1209,7 +1195,6 @@ void SV_Init(void) {
     sv_minPing = Cvar_Get("sv_minPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
     sv_maxPing = Cvar_Get("sv_maxPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
     sv_floodProtect = Cvar_Get("sv_floodProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
-    sv_newpurelist = Cvar_Get("sv_newpurelist", "1", CVAR_ROM);
 
     // systeminfo
     Cvar_Get("sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM);

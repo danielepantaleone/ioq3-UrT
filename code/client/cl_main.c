@@ -81,6 +81,7 @@ cvar_t  *cl_mouseAccelOffset;
 cvar_t  *cl_mouseAccelStyle;
 
 cvar_t  *cl_lastServerAddress;
+cvar_t  *cl_chatArrow;
 
 //@Barbatos
 #ifdef USE_AUTH
@@ -1672,6 +1673,20 @@ void CL_DownloadMenu(int key) {
 }
 
 /**
+ * Check whether a client is downloading
+ * 
+ * @author Clearskies
+ * @return qtrue is the client is downloading, qfalse otherwise
+ */
+qboolean CL_IsDownloading(void) {
+    #ifdef USE_CURL
+    return clc.cURLUsed;
+    #else
+    return qfalse;
+    #endif
+}
+
+/**
  * CL_CheckForResend
  * 
  * @description Resend a connect message if the last one has timed out
@@ -2267,6 +2282,16 @@ void CL_Frame (int msec) {
 
     // decide on the serverTime to render
     CL_SetCGameTime();
+    
+    if (cls.state == CA_ACTIVE) {
+      
+        if (cl.snap.ps.persistant[PERS_SPAWN_COUNT] != cl.spawnCount) {
+            cl.spawnCount = cl.snap.ps.persistant[PERS_SPAWN_COUNT];
+            cl.spreeCount = 0;
+        }
+
+        static int lastMilli = 0;
+    }
 
     // update the screen
     SCR_UpdateScreen();
@@ -2632,6 +2657,7 @@ void CL_Init(void) {
     cl_showMouseRate = Cvar_Get("cl_showmouserate", "0", 0);
     
     cl_lastServerAddress = Cvar_Get("cl_lastServerAddress", "", CVAR_ROM | CVAR_ARCHIVE);
+    cl_chatArrow = Cvar_Get("cl_chatArrow", "0", CVAR_ARCHIVE);
     
     cl_autoDownload = Cvar_Get("cl_autoDownload", "1", CVAR_ARCHIVE);
     #if USE_CURL
