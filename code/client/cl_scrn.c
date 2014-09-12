@@ -447,7 +447,7 @@ void SCR_DrawHealth(void) {
 SCR_DrawKills
 =================
 */
-void SCR_DrawKills(void) {
+void SCR_DrawSpree(void) {
     
     if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cl.snap.ps.pm_type > 4 || 
         cl_paused->value || !cl_drawSpree->integer ||  cl.snap.ps.clientNum != clc.clientNum || 
@@ -612,7 +612,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame) {
             SCR_DrawDemoRecording();
             SCR_DrawClock();
             SCR_DrawHealth();
-            SCR_DrawKills();
+            SCR_DrawSpree();
             break;
         }
     }
