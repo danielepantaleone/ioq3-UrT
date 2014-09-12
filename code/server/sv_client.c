@@ -1699,7 +1699,7 @@ static ucmd_t ucmds[] = {
     {"load", SV_LoadPosition_f},
     {"loadpos", SV_LoadPosition_f},
     {"tell", SV_Tell_f},
-    {"follow", SV_Follow_f,
+    {"follow", SV_Follow_f},
     {NULL, NULL}
 };
 
