@@ -1633,7 +1633,6 @@ static void SV_Tell_f(client_t *cl) {
     // get the target client
     target = SV_GetPlayerByParam(Cmd_Argv(1));
     if (!target) {
-        SV_BroadcastMessageToClient(cl, "No client found matching %s", Cmd_Argv(1));
         return;
     }
     
@@ -1647,6 +1646,38 @@ static void SV_Tell_f(client_t *cl) {
     SV_SendServerCommand(target, "chat \"%s\n\"", text);
     SV_SendServerCommand(cl, "chat \"%s\n\"", text);
 
+}
+
+/////////////////////////////////////////////////////////////////////
+// Name        : SV_Follow_f
+// Description : Execute the QVM follow command but introduce partial 
+//               name pattern matching
+// Author      : Fenix
+/////////////////////////////////////////////////////////////////////
+static void SV_Follow_f(client_t *cl) {
+    
+    client_t *target;
+    
+    // check for correct parameters
+    if (Cmd_Argc() < 2) {
+        Com_Printf("Usage: follow <client>\n");
+        return;
+    }
+    
+    // if we are not in match mode
+    if (!(SV_GetMatchState() & MATCH_ON)) {
+        return;
+    }
+    
+    // get the target client
+    target = SV_GetPlayerByParam(Cmd_Argv(1));
+    if (!target) {
+        return;
+    }
+    
+    Cmd_TokenizeString(va("follow %d", (int)(target - svs.clients)));
+    VM_Call(gvm, GAME_CLIENT_COMMAND, cl - svs.clients);
+    
 }
 
 typedef struct {
@@ -1668,6 +1699,7 @@ static ucmd_t ucmds[] = {
     {"load", SV_LoadPosition_f},
     {"loadpos", SV_LoadPosition_f},
     {"tell", SV_Tell_f},
+    {"follow", SV_Follow_f,
     {NULL, NULL}
 };
 
