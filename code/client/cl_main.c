@@ -244,48 +244,27 @@ void CL_DemoFilename(char *dname, char *fname) {
     
     const char  *info;
     const char  *mapname;
-    const char  *gametype;
+    const char  *gametype = "NA";
     char        name[MAX_QPATH];
     int         index = 1;
+    gametype_t  num;
+    gamename_t  *p;
     qtime_t     now;
     
     // get server information
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
     
     // get the current gametype
-    switch (atoi(Info_ValueForKey(info, "g_gametype"))) {
-        case GT_FFA:
-            gametype = "FFA"; 
-            break;
-        case GT_LMS: 
-            gametype = "LMS"; 
-            break;
-        case GT_TEAM: 
-            gametype = "TDM"; 
-            break;
-        case GT_SURVIVOR: 
-            gametype = "TS"; 
-            break;
-        case GT_FTL: 
-            gametype = "FTL"; 
-            break;
-        case GT_CAH: 
-            gametype = "CAH"; 
-            break;
-        case GT_CTF: 
-            gametype = "CTF"; 
-            break;
-        case GT_BOMB: 
-            gametype = "BOMB"; 
-            break;
-        case GT_JUMP: 
-            gametype = "JUMP"; 
-            break;
-        default: 
-            gametype = "NA"; 
-            break;
-    }
+    num = atoi(Info_ValueForKey(info, "g_gametype"));
     
+    // look for the gametype name
+    for (p = gamenames; p->name; p++) {
+        if (p->num == num) {
+            gametype = p->name;
+            break;
+        }
+    }
+
     // get the current mapname
     mapname = Info_ValueForKey(info, "mapname");
     

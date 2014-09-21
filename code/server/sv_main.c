@@ -365,7 +365,7 @@ qboolean SV_CheckCallvoteArgs(void) {
     // additional checks for g_gametype callvotes
     else if (!Q_stricmp(Cmd_Argv(1), "g_gametype")) {
         val = atoi(Cmd_Argv(2));
-        if ((val < GT_FFA) || (val == GT_SINGLE_PLAYER) || (val > GT_JUMP)) {
+        if ((val < GT_FFA) || (val == GT_SINGLE_PLAYER) || (val > GT_FREEZE)) {
             return qfalse;
         }
     }
@@ -1426,7 +1426,8 @@ void SV_CheckDemoRecording(void) {
     }
     
     // match mode works only in team game modes
-    if (sv_gametype->integer < GT_TEAM || sv_gametype->integer == GT_JUMP) { 
+    if ((sv_gametype->integer < GT_TEAM && sv_gametype->integer != GT_FREEZE) || 
+         sv_gametype->integer == GT_JUMP) { 
         return;
     }
     
