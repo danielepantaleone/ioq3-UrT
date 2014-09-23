@@ -7,6 +7,8 @@ This is a custom fork of the official ioquake3 engine supported by the Frozen Sa
 videogame Urban Terror 4.x serie (http://www.urbanterror.info). This specific engine version is compatible with 
 both **4.1** version and **4.2** version, although it's highly optimized to work with Urban Terror 4.2.x.
 
+*NOTE: this project is not maintained anymore: for a similar version of customized engine please click [here](https://github.com/clearskies)*
+
 ## How to compile
 
 ### *Linux*
@@ -19,11 +21,6 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * install `mingw32` libraries on your linux box
 * change to the directory containing this readme
 * run `cross-make-mingw.sh`
-
-### *Mac OS*
-
-*I still have to find a 'human comprehensible way' to compile this engine under OSX Mavericks: for older 
-versions of OSX, please refer to the original repository README*
 
 ## Addons & Improvements
 
@@ -93,6 +90,3 @@ I took ideas from:
 * [Rambetter](https://github.com/Rambetter)
 * [clearskies](https://github.com/clearskies)
 * [mickael9](https://bitbucket.org/mickael9)
-* [SudoKing](https://github.com/sudoking)
-
-For the original README please check: https://github.com/Barbatos/ioq3-for-UrbanTerror-4
