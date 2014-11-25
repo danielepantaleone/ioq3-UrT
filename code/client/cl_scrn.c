@@ -32,7 +32,6 @@ cvar_t    *cl_graphheight;
 cvar_t    *cl_graphscale;
 cvar_t    *cl_graphshift;
 cvar_t    *cl_drawclock;
-cvar_t    *cl_drawHealth;
 cvar_t    *cl_demoblink;
 cvar_t    *cl_drawSpree;
 
@@ -389,62 +388,9 @@ void SCR_DrawClock(void) {
     SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 15, SMALLCHAR_WIDTH, string, g_color_table[7], qtrue);
 }
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SCR_DrawHealth
-// Author      : Clearskies (revised by Fenix)
-// Description : Draw the player health in the hud
-/////////////////////////////////////////////////////////////////////
-void SCR_DrawHealth(void) {
-    
-    int health;
-    float xx = 54.0f;
-    float yy = 449.0f;
-    char health_str[32];
-    char *health_col = S_COLOR_WHITE;
-    
-    // if we are not supposed to draw
-    if (!Cvar_VariableValue("cl_drawHealth")) {
-        return;
-    }
-    
-    // if 2D drawing is disabled
-    if (!Cvar_VariableValue("cg_draw2D")) {
-        return;
-    }
-    
-    // if we are paused
-    if (Cvar_VariableValue("cl_paused")) {
-        return;
-    }
-    
-    // if we are dead or we are in spectators team
-    health = cl.snap.ps.stats[0];
-    if (!health || cl.snap.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cl.snap.ps.pm_type > 4) {
-        return;
-    }
-    
-    if (health >= 66) {
-        health_col = S_COLOR_GREEN;
-    } else if (health < 66 && health >= 33) {
-        health_col = S_COLOR_YELLOW;
-    } else {
-        health_col = S_COLOR_RED;
-    }
-    
-    // adjust so it doesn't overlap the location string
-    if (Cvar_VariableValue("cg_crosshairNamesType") == 0) {
-        yy = 439.0f;
-    }
-    
-    // draw the health
-    Com_sprintf(health_str, sizeof(health_str), "H:%s%d%%", health_col, health);
-    SCR_DrawStringExt(xx, yy, SMALLCHAR_WIDTH, health_str, g_color_table[7], qfalse);
-
-}
-
 /*
 =================
-SCR_DrawKills
+SCR_DrawSpree
 =================
 */
 void SCR_DrawSpree(void) {
@@ -544,7 +490,6 @@ void SCR_Init(void) {
     cl_graphscale = Cvar_Get("graphscale", "1", CVAR_CHEAT);
     cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
     cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
-    cl_drawHealth = Cvar_Get("cl_drawHealth", "1", CVAR_ARCHIVE);
     cl_demoblink = Cvar_Get("cl_demoblink", "1", CVAR_ARCHIVE);
     cl_drawSpree = Cvar_Get("cl_drawSpree", "1", CVAR_ARCHIVE);
     scr_initialized = qtrue;
