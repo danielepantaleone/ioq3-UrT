@@ -38,6 +38,7 @@ cvar_t  *cl_timeout;
 cvar_t  *cl_maxpackets;
 cvar_t  *cl_packetdup;
 cvar_t  *cl_master;
+cvar_t  *cl_masterport;
 cvar_t  *cl_timeNudge;
 cvar_t  *cl_showTimeDelta;
 cvar_t  *cl_freezeDemo;
@@ -2597,6 +2598,8 @@ void CL_Init(void) {
     cl_motd = Cvar_Get("cl_motd", "1", 0);
     cl_timeout = Cvar_Get("cl_timeout", "200", 0);
     cl_master = Cvar_Get("cl_master", MASTER_SERVER_NAME, CVAR_ARCHIVE);
+    cl_masterport = Cvar_Get("cl_masterport", PORT_MASTER, CVAR_ARCHIVE);
+
     cl_timeNudge = Cvar_Get("cl_timeNudge", "0", CVAR_TEMP);
     cl_shownet = Cvar_Get("cl_shownet", "0", CVAR_TEMP);
     cl_showSend = Cvar_Get("cl_showSend", "0", CVAR_TEMP);
@@ -3234,7 +3237,7 @@ void CL_GlobalServers_f(void) {
     }
     
     to.type = NA_IP;
-    to.port = BigShort(PORT_MASTER);
+    to.port = BigShort(cl_masterport->integer);
 
     sprintf(command, "getservers %s", Cmd_Argv(2));
 
