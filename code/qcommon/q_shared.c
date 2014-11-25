@@ -59,14 +59,16 @@ COM_GetExtension
 ============
 */
 const char *COM_GetExtension(const char *name) {
-	if (!name || !*name)
-		return "";
-	else {
-		size_t i = strlen(name) - 1;
-		while (i > 0 && name[i] != '.' && name[i] != '/')
-			--i;
-		return (name[i] == '.' ? &name[i + 1] : "");
-	}
+    size_t i;
+    
+    if (!name || !*name)
+        return "";
+    
+    i = strlen(name) - 1;
+    while (i > 0 && name[i] != '.' && name[i] != '/')
+        --i;
+    
+    return (name[i] == '.' ? &name[i + 1] : "");
 }
 
 
@@ -858,10 +860,14 @@ int Q_strncmp (const char *s1, const char *s2, int n) {
 	return 0;		// strings are equal
 }
 
-int Q_stricmp (const char *s1, const char *s2) {
-	return (s1 && s2) ? Q_stricmpn (s1, s2, 99999) : -1;
+int Q_stricmp(const char *s1, const char *s2) {
+    int c1, c2;
+    do {
+        c1 = tolower(*s1++);
+        c2 = tolower(*s2++);
+    } while (c1 && (c1 == c2));
+    return ((c1 == c2) ? 0 : ((c1 < c2) ? -1 : 1));
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 // Name         : Q_strsub
@@ -1087,6 +1093,10 @@ void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 }
 
 
+qboolean Q_strempty(const char *s) {
+    return ( ( !s[0] ) ? qtrue : qfalse );
+}
+
 /*
 ============
 va
@@ -1141,64 +1151,127 @@ void Com_TruncateLongString( char *buffer, const char *s )
 =====================================================================
 */
 
+static const char *SInfo_FindKey(const char *infostr, const char *key) {
+    
+    const char *k, *p, *q;
+
+    k = infostr;
+    if (*k == '\\')
+        ++k;
+
+    while (*k) {
+        // save start position of key
+        q = k;
+
+        // match the key against the sequence starting at k
+        for (p = key; *p && *p == *k; ++p, ++k)
+            ;
+        
+        // if matching key
+        if ((*p == '\0') && (*k == '\\')) {
+            return q;
+        }
+        
+        // skip the key
+        while (*k && *k != '\\') ++k;
+        if (*k)
+            ++k;
+
+        // skip the value
+        while (*k && *k != '\\') ++k;
+        if (*k)
+            ++k;
+    }
+    // return pointer to the NUL-terminator
+    return k;
+}
+
+static char *SInfo_ValueForKey(const char *infostr, const char *key, char *valuebuf) {
+    
+    const char *k;
+    char       *o;
+
+    if (!infostr || !key || !valuebuf) {
+        return NULL;
+    }
+    
+    // obtain pointer to start of the key
+    k = SInfo_FindKey(infostr, key);
+
+    // skip the key
+    while (*k && *k != '\\') ++k;
+    if (*k)
+        ++k;
+
+    // copy value to output buffer
+    for (o = valuebuf; *k && *k != '\\';)
+        *o++ = *k++;
+    *o = 0;
+
+    return valuebuf;
+}
+
+static void SInfo_RemoveKey(char *infostr, const char *key) {
+    
+    const char *p;
+    char       *k;
+
+    if (!infostr || !key || !infostr[0] || !key[0]) {
+        return;
+    }
+    
+    // obtain pointer to start of the key
+    p = k = (char *) SInfo_FindKey(infostr, key);
+    
+    // if key not found, then nothing to remove
+    if (*p == '\0') {
+        return;
+    }
+
+    // skip the key
+    while (*p && *p != '\\') ++p;
+    if (*p)
+        ++p;
+
+    // skip the value
+    while (*p && *p != '\\') ++p;
+
+    // back up to backslash preceding key, if present
+    if (k > infostr)
+        --k;
+
+    // left shift remaining part of the info string
+    while ((*k++ = *p++))
+        ;
+}
+
 /*
 ===============
 Info_ValueForKey
 
 Searches the string for the given
 key and returns the associated value, or an empty string.
-FIXME: overflow check?
 ===============
 */
-char *Info_ValueForKey( const char *s, const char *key ) {
-	char	pkey[BIG_INFO_KEY];
-	static	char value[2][BIG_INFO_VALUE];	// use two buffers so compares
-											// work without stomping on each other
-	static	int	valueindex = 0;
-	char	*o;
-	
-	if ( !s || !key ) {
-		return "";
-	}
+char *Info_ValueForKey(const char *infostr, const char *key) {
+    
+    static char valuebuf[2][BIG_INFO_VALUE];
+    static unsigned char valueindex = 0;
+    
+    if (!infostr || !key) {
+        return "";
+    }
 
-	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
-	}
-
-	valueindex ^= 1;
-	if (*s == '\\')
-		s++;
-	while (1)
-	{
-		o = pkey;
-		while (*s != '\\')
-		{
-			if (!*s)
-				return "";
-			*o++ = *s++;
-		}
-		*o = 0;
-		s++;
-
-		o = value[valueindex];
-
-		while (*s != '\\' && *s)
-		{
-			*o++ = *s++;
-		}
-		*o = 0;
-
-		if (!Q_stricmp (key, pkey) )
-			return value[valueindex];
-
-		if (!*s)
-			break;
-		s++;
-	}
-
-	return "";
+    if (strlen(infostr) >= BIG_INFO_STRING) {
+        Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
+    }
+    
+    // Alternate between value buffers to guarantee that a returned
+    // value is retained for a period of two Info_ValueForKey calls.
+    // This is needed so that compares between two successive retrieved
+    // values work correctly.
+    return SInfo_ValueForKey(infostr, key, &valuebuf[valueindex ^= 1]);
 }
-
 
 /*
 ===================
@@ -1246,114 +1319,29 @@ void Info_NextPair( const char **head, char *key, char *value ) {
 Info_RemoveKey
 ===================
 */
-void Info_RemoveKey( char *s, const char *key ) {
-	char	*start;
-	char	pkey[MAX_INFO_KEY];
-	char	value[MAX_INFO_VALUE];
-	char	*o;
+void Info_RemoveKey(char *infostr, const char *key) {
 
-	if ( strlen( s ) >= MAX_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" );
-	}
-
-	if (strchr (key, '\\')) {
-		return;
-	}
-
-	while (1)
-	{
-		start = s;
-		if (*s == '\\')
-			s++;
-		o = pkey;
-		while (*s != '\\')
-		{
-			if (!*s)
-				return;
-			*o++ = *s++;
-		}
-		*o = 0;
-		s++;
-
-		o = value;
-		while (*s != '\\' && *s)
-		{
-			if (!*s)
-				return;
-			*o++ = *s++;
-		}
-		*o = 0;
-
-		if (!strcmp (key, pkey) )
-		{
-			//strcpy is not safe for overlapping copies, use memmove
-			memmove(start, s, strlen(s) + 1);
-			return;
-		}
-
-		if (!*s)
-			return;
-	}
-
+    if (strlen(infostr) >= MAX_INFO_STRING) {
+        Com_Error(ERR_DROP, "Info_RemoveKey: oversize infostring");
+    }
+    
+    SInfo_RemoveKey(infostr, key);
 }
+
 
 /*
 ===================
 Info_RemoveKey_Big
 ===================
 */
-void Info_RemoveKey_Big( char *s, const char *key ) {
-	char	*start;
-	char	pkey[BIG_INFO_KEY];
-	char	value[BIG_INFO_VALUE];
-	char	*o;
+void Info_RemoveKey_Big(char *infostr, const char *key) {
 
-	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring" );
-	}
-
-	if (strchr (key, '\\')) {
-		return;
-	}
-
-	while (1)
-	{
-		start = s;
-		if (*s == '\\')
-			s++;
-		o = pkey;
-		while (*s != '\\')
-		{
-			if (!*s)
-				return;
-			*o++ = *s++;
-		}
-		*o = 0;
-		s++;
-
-		o = value;
-		while (*s != '\\' && *s)
-		{
-			if (!*s)
-				return;
-			*o++ = *s++;
-		}
-		*o = 0;
-
-		if (!strcmp (key, pkey) )
-		{
-			//strcpy is not safe for overlapping copies, use memmove
-			memmove(start, s, strlen(s) + 1);
-			return;
-		}
-
-		if (!*s)
-			return;
-	}
-
+    if (strlen(infostr) >= BIG_INFO_STRING) {
+        Com_Error(ERR_DROP, "Info_RemoveKey_Big: oversize infostring");
+    }
+    
+    SInfo_RemoveKey(infostr, key);
 }
-
-
 
 
 /*
@@ -1364,26 +1352,37 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-qboolean Info_Validate( const char *s ) {
-	
-	char *tmp_s, old_s = '\0';
-	int nb = 0;
-	
-	for ( tmp_s = (char *)s ; *tmp_s != '\0' || ( s - tmp_s > MAX_INFO_STRING )  ; tmp_s ++ ) {
-		if ( *tmp_s < 32 || *tmp_s > 126 || *tmp_s == ';' || ( old_s == '\\' && *tmp_s == '"' ) )
-			return qfalse;
-		if ( *tmp_s == '\\' )
-			nb = 1 - nb;
-		old_s = *tmp_s;
-	}
-	
-	if ( s - tmp_s > MAX_INFO_STRING  )
-		return qfalse;
-	
-	if ( nb != 0 )
-		return qfalse;
-		
-	return qtrue;
+qboolean Info_Validate(const char *s) {
+    
+    const char *p;
+    char last;
+    int nb;
+    
+    last = nb = 0;
+
+    for ( p = s ; (p - s < MAX_INFO_STRING) ; p++ ) {
+        // < 32 also takes care of NUL-terminator
+        if (*p < 32 || *p > 126 || *p == ';') {
+            break;
+        }
+        if (last == '\\' && *p == '"') {
+            break;
+        }
+        if (*p == '\\') {
+            // The value of nb alternates between 0 and 1:
+            // nb will be 0 if the number of backslashes seen
+            // so far is either zero or an even amount.
+            // nb will be 1 if the number of backslashes seen
+            // so far is an odd amount.
+            nb = 1 - nb;
+        }
+        last = *p;
+    }
+
+    // If (up to this point) end of string hasn't been reached
+    // or there's an odd number of backslashes in the string,
+    // then it is an invalid info string.
+    return ( (*p != 0 || nb != 0) ? qfalse : qtrue );
 }
 
 /////////////////////////////////////////////////////////////////////
