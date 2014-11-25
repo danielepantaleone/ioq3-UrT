@@ -94,8 +94,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 typedef enum {
-    GT_FFA,                // free for all
-    GT_LMS,                // last man standing
+    GT_FFA,              // free for all
+    GT_LMS,              // last man standing
     GT_SINGLE_PLAYER,    // quake 3 single player
 
     //-- team games go after this --
@@ -107,10 +107,35 @@ typedef enum {
     GT_CTF,             // capture the flag
     GT_BOMB,            // bomb mode
     GT_JUMP,            // jump mode
+    GT_FREEZE,          // freeze tag
     GT_MAX_GAME_TYPE        
 } gametype_t;
 
-typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
+typedef struct {
+    gametype_t  num;
+    char       *name;
+} gamename_t;
+
+
+gamename_t gamenames[] = {
+    { GT_FFA,           "FFA"    },
+    { GT_LMS,           "LMS"    },
+    { GT_TEAM,          "TDM"    },
+    { GT_SURVIVOR,      "TS"     },
+    { GT_FTL,           "FTL"    },
+    { GT_CAH,           "CAH"    },
+    { GT_CTF,           "CTF"    },
+    { GT_BOMB,          "BOMB"   },
+    { GT_JUMP           "JUMP"   },
+    { GT_FREEZE,        "FREEZE" },
+    { GT_MAX_GAME_TYPE, NULL     },
+};
+
+typedef enum { 
+    GENDER_MALE, 
+    GENDER_FEMALE, 
+    GENDER_NEUTER 
+} gender_t;
 
 /*
 ===================================================================================

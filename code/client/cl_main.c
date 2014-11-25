@@ -38,6 +38,7 @@ cvar_t  *cl_timeout;
 cvar_t  *cl_maxpackets;
 cvar_t  *cl_packetdup;
 cvar_t  *cl_master;
+cvar_t  *cl_masterport;
 cvar_t  *cl_timeNudge;
 cvar_t  *cl_showTimeDelta;
 cvar_t  *cl_freezeDemo;
@@ -244,48 +245,27 @@ void CL_DemoFilename(char *dname, char *fname) {
     
     const char  *info;
     const char  *mapname;
-    const char  *gametype;
+    const char  *gametype = "NA";
     char        name[MAX_QPATH];
     int         index = 1;
+    gametype_t  num;
+    gamename_t  *p;
     qtime_t     now;
     
     // get server information
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
     
     // get the current gametype
-    switch (atoi(Info_ValueForKey(info, "g_gametype"))) {
-        case GT_FFA:
-            gametype = "FFA"; 
-            break;
-        case GT_LMS: 
-            gametype = "LMS"; 
-            break;
-        case GT_TEAM: 
-            gametype = "TDM"; 
-            break;
-        case GT_SURVIVOR: 
-            gametype = "TS"; 
-            break;
-        case GT_FTL: 
-            gametype = "FTL"; 
-            break;
-        case GT_CAH: 
-            gametype = "CAH"; 
-            break;
-        case GT_CTF: 
-            gametype = "CTF"; 
-            break;
-        case GT_BOMB: 
-            gametype = "BOMB"; 
-            break;
-        case GT_JUMP: 
-            gametype = "JUMP"; 
-            break;
-        default: 
-            gametype = "NA"; 
-            break;
-    }
+    num = atoi(Info_ValueForKey(info, "g_gametype"));
     
+    // look for the gametype name
+    for (p = gamenames; p->name; p++) {
+        if (p->num == num) {
+            gametype = p->name;
+            break;
+        }
+    }
+
     // get the current mapname
     mapname = Info_ValueForKey(info, "mapname");
     
@@ -2618,6 +2598,8 @@ void CL_Init(void) {
     cl_motd = Cvar_Get("cl_motd", "1", 0);
     cl_timeout = Cvar_Get("cl_timeout", "200", 0);
     cl_master = Cvar_Get("cl_master", MASTER_SERVER_NAME, CVAR_ARCHIVE);
+    cl_masterport = Cvar_Get("cl_masterport", PORT_MASTER, CVAR_ARCHIVE);
+
     cl_timeNudge = Cvar_Get("cl_timeNudge", "0", CVAR_TEMP);
     cl_shownet = Cvar_Get("cl_shownet", "0", CVAR_TEMP);
     cl_showSend = Cvar_Get("cl_showSend", "0", CVAR_TEMP);
@@ -3255,7 +3237,7 @@ void CL_GlobalServers_f(void) {
     }
     
     to.type = NA_IP;
-    to.port = BigShort(PORT_MASTER);
+    to.port = BigShort(cl_masterport->integer);
 
     sprintf(command, "getservers %s", Cmd_Argv(2));
 

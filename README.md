@@ -20,11 +20,6 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * change to the directory containing this readme
 * run `cross-make-mingw.sh`
 
-### *Mac OS*
-
-*I still have to find a 'human comprehensible way' to compile this engine under OSX Mavericks: for older 
-versions of OSX, please refer to the original repository README*
-
 ## Addons & Improvements
 
 ### *Server*
@@ -83,16 +78,14 @@ versions of OSX, please refer to the original repository README*
 * `cl_demoblink` - make the demo recording string flashing when recording a demo
 * `cl_chatarrow` - remove the **>** prefix from every chat message if set to zero
 * `cl_drawspree` - draw the current spree in the hud
+* `cl_masterport` - change the master server port to a custom one
 
 ## Credits
 
-Even though most of the code has been written by me and / or revised by me, some ideas have been taken from 
+Even though most of the code has been written and / or revised by me, some ideas have been taken from 
 other versions of ioquake3: because of that I would like to give the necessary credits to the people
 I took ideas from:
 
 * [Rambetter](https://github.com/Rambetter)
 * [clearskies](https://github.com/clearskies)
 * [mickael9](https://bitbucket.org/mickael9)
-* [SudoKing](https://github.com/sudoking)
-
-For the original README please check: https://github.com/Barbatos/ioq3-for-UrbanTerror-4
