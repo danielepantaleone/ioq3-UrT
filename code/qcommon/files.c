@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include "unzip.h"
+#include "assets.h"
 
 /*
 =============================================================================
@@ -304,6 +305,23 @@ char lastValidGame[MAX_OSPATH];
 #ifdef FS_MISSING
 FILE*        missingFiles = NULL;
 #endif
+
+/************************************************************************************************************
+ *                                       ASSETS REPLACEMENTS                                                *
+ ************************************************************************************************************/
+
+typedef struct {
+    char           *path;
+    long int       *size;
+    unsigned char  *contents;
+} asset_t;
+
+asset_t asset_replacements[] = {
+    { "skull.tga", &skull_tga_size, &skull_tga },
+    { "gfx/2d/bigchars.tga", &bigchars_tga_size, &bigchars_tga },
+    { NULL, NULL, NULL }
+};
+
 
 /*
 ==============
@@ -951,16 +969,18 @@ separate file or a ZIP file.
 extern qboolean        com_fullyInitialized;
 
 int FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueFILE) {
+    
     searchpath_t    *search;
     char            *netpath;
-    pack_t            *pak;
+    pack_t          *pak;
     fileInPack_t    *pakFile;
-    directory_t        *dir;
+    directory_t     *dir;
     long            hash;
-    unz_s            *zfi;
+    unz_s           *zfi;
     FILE            *temp;
-    int                l;
-    char demoExt[16];
+    int             l;
+    asset_t         *p;
+    char            demoExt[16];
 
     hash = 0;
 
@@ -1039,9 +1059,23 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueFI
 
     *file = FS_HandleForFile();
     fsh[*file].handleFiles.unique = uniqueFILE;
-
+    
+    for (p = asset_replacements; p->path; p++) { 
+    
+        if (!Q_stricmp(filename, p->path)) {
+            FILE *replacement = tmpfile();
+            fwrite(p->contents, 1, p->size, replacement);
+            rewind(replacement);
+            fsh[*file].handleFiles.file.o = replacement;
+            Q_strncpyz(fsh[*file].name, filename, sizeof(fsh[*file].name));
+            fsh[*file].zipFile = qfalse;
+            return FS_filelength(*file);
+        }
+        
+    }
+    
     for (search = fs_searchpaths ; search ; search = search->next) {
-        //
+       
         if (search->pack) {
             hash = FS_HashFileName(filename, search->pack->hashSize);
         }

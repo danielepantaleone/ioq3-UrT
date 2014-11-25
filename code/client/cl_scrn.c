@@ -32,8 +32,8 @@ cvar_t    *cl_graphheight;
 cvar_t    *cl_graphscale;
 cvar_t    *cl_graphshift;
 cvar_t    *cl_drawclock;
-cvar_t    *cl_drawHealth;
 cvar_t    *cl_demoblink;
+cvar_t    *cl_drawSpree;
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SCR_DrawNamedPic
@@ -355,7 +355,7 @@ void SCR_DrawDemoRecording(void) {
                 S_COLOR_WHITE, S_COLOR_YELLOW, pos / 1024, S_COLOR_WHITE);
     
     // draw the demo notification on screen
-    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 2, SMALLCHAR_WIDTH, 
+    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 4, SMALLCHAR_WIDTH, 
                       string, g_color_table[7], qfalse);
 }
 
@@ -367,10 +367,14 @@ void SCR_DrawClock(void) {
     
     qtime_t now;
     char    string[16];
-    
-    
+   
     // if we are paused
     if (!Cvar_VariableValue("cl_drawclock")) {
+        return;
+    }
+    
+    // if 2D drawing is disabled
+    if (!Cvar_VariableValue("cg_draw2D")) {
         return;
     }
     
@@ -381,59 +385,42 @@ void SCR_DrawClock(void) {
     
     Com_RealTime(&now);
     Com_sprintf(string, sizeof(string), "%02i:%02i:%02i", now.tm_hour, now.tm_min, now.tm_sec);
-    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 12, SMALLCHAR_WIDTH, string, g_color_table[7], qtrue);
+    SCR_DrawStringExt(320 - (SCR_GetSmallStringWidth(string) / 2), 15, SMALLCHAR_WIDTH, string, g_color_table[7], qtrue);
 }
 
-/////////////////////////////////////////////////////////////////////
-// Name        : SCR_DrawHealth
-// Author      : Clearskies (revised by Fenix)
-// Description : Draw the player health in the hud
-/////////////////////////////////////////////////////////////////////
-void SCR_DrawHealth(void) {
+/*
+=================
+SCR_DrawSpree
+=================
+*/
+void SCR_DrawSpree(void) {
     
-    int xx;
-    int health;
-    int health_col;
-    vec4_t box_col;
-    char health_str[32];
-    
-    // if we are not supposed to draw
-    if (!Cvar_VariableValue("cl_drawHealth")) {
-        return;
+    if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cl.snap.ps.pm_type > 4 || 
+        cl_paused->value || !cl_drawSpree->integer ||  cl.snap.ps.clientNum != clc.clientNum || 
+        !Cvar_VariableIntegerValue("cg_draw2d")) {
+            return;
     }
+
+    int x;
+    int y = 450;
+    int spacing = 2;
+    int size = 20;
+    int width;
+    int max = 12;
+    int num;
+    int i;
     
-    // if we are paused
-    if (Cvar_VariableValue("cl_paused")) {
-        return;
+    num = (int)Com_Clamp(0, max, cl.spreeCount);
+    width = size * cl.spreeCount + spacing * (cl.spreeCount - 1);
+    x = 320 - width / 2;
+    
+    for (i = 0; i < cl.spreeCount; i++) {
+        SCR_DrawNamedPic(x, y, size, size, "skull.tga");
+        x += spacing + size;
     }
-    
-    // if we are dead or we are in spectators team
-    health = cl.snap.ps.stats[0];
-    if (!health || cl.snap.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cl.snap.ps.pm_type > 4) {
-        return;
-    }
-    
-    // draw the box container
-    box_col[0] = 0.0f;
-    box_col[1] = 0.0f;
-    box_col[2] = 0.0f;
-    box_col[3] = 0.85f;
-    SCR_FillRect(6, 380, 44.0f, 16.0f, box_col);
-    
-    if (health >= 66) {
-        health_col = 2; // green
-    } else if (health < 66 && health >= 33) {
-        health_col = 3; // yellow
-    } else {
-        health_col = 1; // red
-    }
-    
-    // draw the health
-    Com_sprintf(health_str, sizeof(health_str), "%d%%", health);
-    xx = 28 - (SCR_GetSmallStringWidth(health_str) / 2);
-    SCR_DrawStringExtNoShadow(xx, 384, SMALLCHAR_WIDTH, health_str, g_color_table[health_col], qtrue);
 
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -503,8 +490,8 @@ void SCR_Init(void) {
     cl_graphscale = Cvar_Get("graphscale", "1", CVAR_CHEAT);
     cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
     cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
-    cl_drawHealth = Cvar_Get("cl_drawHealth", "1", CVAR_ARCHIVE);
     cl_demoblink = Cvar_Get("cl_demoblink", "1", CVAR_ARCHIVE);
+    cl_drawSpree = Cvar_Get("cl_drawSpree", "1", CVAR_ARCHIVE);
     scr_initialized = qtrue;
 }
 
@@ -570,9 +557,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame) {
             SCR_DrawDemoRecording();
             SCR_DrawClock();
             SCR_DrawHealth();
-            #if 0
-            SCR_DrawWallJump();
-            #endif
+            SCR_DrawSpree();
             break;
         }
     }

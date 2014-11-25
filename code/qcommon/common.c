@@ -2739,7 +2739,11 @@ void Com_Frame( void ) {
 	}
 
 	// we may want to spin here if things are going too fast
-	if ( !com_dedicated->integer && com_maxfps->integer > 0 && !com_timedemo->integer ) {
+        #ifdef USE_CURL
+        if (!com_dedicated->integer && com_maxfps->integer > 0 && !com_timedemo->integer && !CL_IsDownloading()) {
+        #else
+	if (!com_dedicated->integer && com_maxfps->integer > 0 && !com_timedemo->integer ) {
+        #endif
 		minMsec = 1000 / com_maxfps->integer;
 	} else {
 		minMsec = 1;

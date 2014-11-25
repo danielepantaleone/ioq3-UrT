@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #define    PERS_SCORE          0    // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
+#define    STAT_STAMINA        9
 #define    MAX_ENT_CLUSTERS    16
 
 typedef struct svEntity_s {
@@ -238,7 +239,9 @@ typedef struct {
     netadr_t        authorizeAddress;                   // for rcon return messages
     
     char            lastCycleMap[128];       // last mapcycle computed map
+    #ifdef USE_AUTH
     char            **rconuserlist;          // list of rcon users who do not have to type the rcon password
+    #endif
 } serverStatic_t;
 
 // The value below is how many extra characters we reserve for every instance of '$' in a
@@ -309,7 +312,6 @@ extern    cvar_t    *sv_minPing;
 extern    cvar_t    *sv_maxPing;
 extern    cvar_t    *sv_gametype;
 extern    cvar_t    *sv_pure;
-extern    cvar_t    *sv_newpurelist;
 extern    cvar_t    *sv_floodProtect;
 extern    cvar_t    *sv_lanForceRate;
 extern    cvar_t    *sv_strictAuth;
@@ -327,10 +329,15 @@ extern    cvar_t    *sv_rconusersfile;
 #endif
 
 extern    cvar_t    *sv_disableradio;
-extern    cvar_t    *sv_failedvotetime;
+extern    cvar_t    *sv_callvoteWaitTime;
 extern    cvar_t    *sv_ghostradius;
 extern    cvar_t    *sv_hidechatcmds;
 extern    cvar_t    *sv_autodemo;
+extern    cvar_t    *sv_noStamina;
+extern    cvar_t    *sv_noKnife;
+extern    cvar_t    *sv_dropSuffix;
+extern    cvar_t    *sv_dropSignature;
+extern    cvar_t    *sv_checkClientGuid;
 
 //
 // sv_main.c

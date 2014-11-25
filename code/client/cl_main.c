@@ -38,6 +38,7 @@ cvar_t  *cl_timeout;
 cvar_t  *cl_maxpackets;
 cvar_t  *cl_packetdup;
 cvar_t  *cl_master;
+cvar_t  *cl_masterport;
 cvar_t  *cl_timeNudge;
 cvar_t  *cl_showTimeDelta;
 cvar_t  *cl_freezeDemo;
@@ -79,6 +80,9 @@ cvar_t  *cl_altTab;
 
 cvar_t  *cl_mouseAccelOffset;
 cvar_t  *cl_mouseAccelStyle;
+
+cvar_t  *cl_lastServerAddress;
+cvar_t  *cl_chatArrow;
 
 //@Barbatos
 #ifdef USE_AUTH
@@ -241,55 +245,33 @@ void CL_DemoFilename(char *dname, char *fname) {
     
     const char  *info;
     const char  *mapname;
-    const char  *gametype;
+    const char  *gametype = "NA";
     char        name[MAX_QPATH];
     int         index = 1;
+    gametype_t  num;
+    gamename_t  *p;
     qtime_t     now;
     
     // get server information
     info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
     
     // get the current gametype
-    switch (atoi(Info_ValueForKey(info, "g_gametype"))) {
-        case GT_FFA:
-            gametype = "FFA"; 
-            break;
-        case GT_LMS: 
-            gametype = "LMS"; 
-            break;
-        case GT_TEAM: 
-            gametype = "TDM"; 
-            break;
-        case GT_SURVIVOR: 
-            gametype = "TS"; 
-            break;
-        case GT_FTL: 
-            gametype = "FTL"; 
-            break;
-        case GT_CAH: 
-            gametype = "CAH"; 
-            break;
-        case GT_CTF: 
-            gametype = "CTF"; 
-            break;
-        case GT_BOMB: 
-            gametype = "BOMB"; 
-            break;
-        case GT_JUMP: 
-            gametype = "JUMP"; 
-            break;
-        default: 
-            gametype = "NA"; 
-            break;
-    }
+    num = atoi(Info_ValueForKey(info, "g_gametype"));
     
+    // look for the gametype name
+    for (p = gamenames; p->name; p++) {
+        if (p->num == num) {
+            gametype = p->name;
+            break;
+        }
+    }
+
     // get the current mapname
     mapname = Info_ValueForKey(info, "mapname");
     
     // get the client name and escape invalid chars
     Cvar_VariableStringBuffer("name", name, sizeof(name));
     Q_CleanStr(name);
-    Q_CleanDemoStr(dname);
     
     // get the current time
     Com_RealTime(&now);
@@ -298,6 +280,11 @@ void CL_DemoFilename(char *dname, char *fname) {
     Com_sprintf(dname, MAX_OSPATH, "%04d_%02d_%02d_%s_%s_%s", now.tm_year + 1900, 
                                                               now.tm_mon + 1, 
                                                               now.tm_mday, name, mapname, gametype);
+    
+    // remove invalid characters 
+    // from the demo name
+    Q_CleanDemoStr(dname);
+    
     #ifdef USE_DEMO_FORMAT_42
     Com_sprintf(fname, MAX_OSPATH, "demos/%s.urtdemo", dname);
     #else
@@ -1098,12 +1085,12 @@ void CL_Disconnect_f(void) {
  * @description Reconnect to the last server
  */
 void CL_Reconnect_f(void) {
-    if (!strlen(cls.servername) || !strcmp(cls.servername, "localhost")) {
+    if (!strlen(cl_lastServerAddress->string) || !strcmp(cl_lastServerAddress->string, "localhost")) {
         Com_Printf("Can't reconnect to localhost\n");
         return;
     }
     Cvar_Set("ui_singlePlayerActive", "0");
-    Cbuf_AddText(va("connect %s\n", cls.servername));
+    Cbuf_AddText(va("connect %s\n", cl_lastServerAddress->string));
 }
 
 /**
@@ -1172,6 +1159,8 @@ void CL_Connect_f(void) {
     } else {
         cls.state = CA_CONNECTING;
     }
+    
+    Cvar_Set("cl_lastServerAddress", serverString);
 
     cls.keyCatchers = 0;
     clc.connectTime = -99999;
@@ -1661,6 +1650,20 @@ void CL_DownloadMenu(int key) {
         CL_NextDownload();
     }
 
+}
+
+/**
+ * Check whether a client is downloading
+ * 
+ * @author Clearskies
+ * @return qtrue is the client is downloading, qfalse otherwise
+ */
+qboolean CL_IsDownloading(void) {
+    #ifdef USE_CURL
+    return clc.cURLUsed;
+    #else
+    return qfalse;
+    #endif
 }
 
 /**
@@ -2259,6 +2262,16 @@ void CL_Frame (int msec) {
 
     // decide on the serverTime to render
     CL_SetCGameTime();
+    
+    if (cls.state == CA_ACTIVE) {
+      
+        if (cl.snap.ps.persistant[PERS_SPAWN_COUNT] != cl.spawnCount) {
+            cl.spawnCount = cl.snap.ps.persistant[PERS_SPAWN_COUNT];
+            cl.spreeCount = 0;
+        }
+
+        static int lastMilli = 0;
+    }
 
     // update the screen
     SCR_UpdateScreen();
@@ -2585,6 +2598,8 @@ void CL_Init(void) {
     cl_motd = Cvar_Get("cl_motd", "1", 0);
     cl_timeout = Cvar_Get("cl_timeout", "200", 0);
     cl_master = Cvar_Get("cl_master", MASTER_SERVER_NAME, CVAR_ARCHIVE);
+    cl_masterport = Cvar_Get("cl_masterport", PORT_MASTER, CVAR_ARCHIVE);
+
     cl_timeNudge = Cvar_Get("cl_timeNudge", "0", CVAR_TEMP);
     cl_shownet = Cvar_Get("cl_shownet", "0", CVAR_TEMP);
     cl_showSend = Cvar_Get("cl_showSend", "0", CVAR_TEMP);
@@ -2622,6 +2637,9 @@ void CL_Init(void) {
     // this should be set to the max rate value
     cl_mouseAccelOffset = Cvar_Get("cl_mouseAccelOffset", "5", CVAR_ARCHIVE);
     cl_showMouseRate = Cvar_Get("cl_showmouserate", "0", 0);
+    
+    cl_lastServerAddress = Cvar_Get("cl_lastServerAddress", "", CVAR_ROM | CVAR_ARCHIVE);
+    cl_chatArrow = Cvar_Get("cl_chatArrow", "0", CVAR_ARCHIVE);
     
     cl_autoDownload = Cvar_Get("cl_autoDownload", "1", CVAR_ARCHIVE);
     #if USE_CURL
@@ -3219,7 +3237,7 @@ void CL_GlobalServers_f(void) {
     }
     
     to.type = NA_IP;
-    to.port = BigShort(PORT_MASTER);
+    to.port = BigShort(cl_masterport->integer);
 
     sprintf(command, "getservers %s", Cmd_Argv(2));
 
