@@ -394,14 +394,17 @@ extern    cvar_t    *cl_altTab;
 extern    cvar_t    *cl_chatArrow;
 
 #ifdef USE_AUTH
-extern  cvar_t  *cl_auth_engine;
-extern  cvar_t  *cl_auth;
-extern  cvar_t  *authc;
-extern  cvar_t  *authl; // auth login
+extern    cvar_t    *cl_auth_engine;
+extern    cvar_t    *cl_auth;
+extern    cvar_t    *authc;
+extern    cvar_t    *authl; // auth login
 #endif
 
-extern  cvar_t  *cl_mouseAccelOffset;
-extern  cvar_t  *cl_mouseAccelStyle;
+extern  cvar_t      *cl_mouseAccelOffset;
+extern  cvar_t      *cl_mouseAccelStyle;
+
+#define CL_MAX_MASTER_SERVERS 4
+extern	cvar_t      *cl_masters[CL_MAX_MASTER_SERVERS];
 
 //=================================================
 
