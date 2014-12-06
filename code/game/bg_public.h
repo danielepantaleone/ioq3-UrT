@@ -126,7 +126,7 @@ gamename_t gamenames[] = {
     { GT_CAH,           "CAH"    },
     { GT_CTF,           "CTF"    },
     { GT_BOMB,          "BOMB"   },
-    { GT_JUMP           "JUMP"   },
+    { GT_JUMP,          "JUMP"   },
     { GT_FREEZE,        "FREEZE" },
     { GT_MAX_GAME_TYPE, NULL     },
 };
