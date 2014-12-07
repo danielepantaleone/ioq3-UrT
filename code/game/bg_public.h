@@ -111,26 +111,6 @@ typedef enum {
     GT_MAX_GAME_TYPE        
 } gametype_t;
 
-typedef struct {
-    gametype_t  num;
-    char       *name;
-} gamename_t;
-
-
-gamename_t gamenames[] = {
-    { GT_FFA,           "FFA"    },
-    { GT_LMS,           "LMS"    },
-    { GT_TEAM,          "TDM"    },
-    { GT_SURVIVOR,      "TS"     },
-    { GT_FTL,           "FTL"    },
-    { GT_CAH,           "CAH"    },
-    { GT_CTF,           "CTF"    },
-    { GT_BOMB,          "BOMB"   },
-    { GT_JUMP,          "JUMP"   },
-    { GT_FREEZE,        "FREEZE" },
-    { GT_MAX_GAME_TYPE, NULL     },
-};
-
 typedef enum { 
     GENDER_MALE, 
     GENDER_FEMALE, 
