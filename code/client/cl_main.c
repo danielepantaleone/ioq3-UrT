@@ -3248,7 +3248,7 @@ void CL_GlobalServers_f(void) {
         }
         
         Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", cl_masters[i]->string, adr[i].ip[0], adr[i].ip[1], 
-                                                       adr[i].ip[2], adr[i].ip[3], BigShort(adr[adrNum].port));
+                                                       adr[i].ip[2], adr[i].ip[3], BigShort(adr[i].port));
         break;
         
     }
