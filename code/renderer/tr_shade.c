@@ -1130,7 +1130,10 @@ void RB_StageIteratorGeneric( void )
 	//
 	// set face culling appropriately
 	//
-	GL_Cull( input->shader->cullType );
+	if ((backEnd.currentEntity->e.renderfx & RF_SWAPCULL) && (input->shader->cullType < CT_TWO_SIDED))
+		GL_Cull(!input->shader->cullType);
+	else
+		GL_Cull(input->shader->cullType);
 
 	// set polygon offset if necessary
 	if ( input->shader->polygonOffset )
@@ -1250,7 +1253,10 @@ void RB_StageIteratorVertexLitTexture( void )
 	//
 	// set face culling appropriately
 	//
-	GL_Cull( input->shader->cullType );
+	if ((backEnd.currentEntity->e.renderfx & RF_SWAPCULL) && (input->shader->cullType < CT_TWO_SIDED))
+		GL_Cull(!input->shader->cullType);
+	else
+		GL_Cull(input->shader->cullType);
 
 	//
 	// set arrays and lock
@@ -1318,7 +1324,10 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	// set face culling appropriately
 	//
-	GL_Cull( input->shader->cullType );
+	if ((backEnd.currentEntity->e.renderfx & RF_SWAPCULL) && (input->shader->cullType < CT_TWO_SIDED))
+		GL_Cull(!input->shader->cullType);
+	else
+		GL_Cull(input->shader->cullType);
 
 	//
 	// set color, pointers, and lock

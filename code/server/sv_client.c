@@ -210,13 +210,15 @@ void SV_DirectConnect(netadr_t from) {
     client_t        temp;
     client_t        *cl, *newcl;
     sharedEntity_t  *ent;
-    int             i;
+    int             i, j;
     int             clientNum;
     int             version;
     int             qport;
     int             challenge;
     int             startIndex;
     int             count;
+    int             ping;
+    int             numIpClients = 0;
 
     Com_DPrintf("SV_DirectConnect()\n");
 
@@ -252,9 +254,7 @@ void SV_DirectConnect(netadr_t from) {
     }
 
     // see if the challenge is valid (LAN clients don't need to challenge)
-    if (!NET_IsLocalAddress (from)) {
-
-        int ping;
+    if (!NET_IsLocalAddress(from)) {
 
         for (i = 0 ; i < MAX_CHALLENGES; i++) {
             if (NET_CompareAdr(from, svs.challenges[i].adr)) {
@@ -291,6 +291,22 @@ void SV_DirectConnect(netadr_t from) {
         // never reject a LAN client based on ping
         if (!Sys_IsLANAddress(from)) {
             
+            for (j = 0, cl = svs.clients ; j < sv_maxclients->integer ; j++, cl++) {
+                if (cl->state == CS_FREE) {
+                    continue;
+                }   
+                if (NET_CompareBaseAdr(from, cl->netchan.remoteAddress) && 
+                    !(cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port)) {
+                    numIpClients++; 
+                }   
+            }
+
+            if (sv_clientsPerIp->integer && numIpClients >= sv_clientsPerIp->integer) {
+                NET_OutOfBandPrint(NS_SERVER, from, "print\nToo many connections from the same IP\n");
+                Com_DPrintf("Client %i rejected due to too many connections from the same IP\n", i);
+                return;
+            }
+
             // check for valid guid
             if (!SV_ApproveGuid(Info_ValueForKey(userinfo, "cl_guid"))) {
                 NET_OutOfBandPrint(NS_SERVER, from, "print\nInvalid GUID detected: get legit bro!\n");

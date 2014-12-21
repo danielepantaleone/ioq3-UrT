@@ -57,7 +57,7 @@ cvar_t    *sv_pure;
 cvar_t    *sv_floodProtect;
 cvar_t    *sv_lanForceRate;                 // dedicated 1 (LAN) server forces local client rates to 99999
 cvar_t    *sv_strictAuth;
-
+cvar_t    *sv_clientsPerIp;
 cvar_t    *sv_demonotice;                   // notice to print to a client being recorded server-side
 cvar_t    *sv_tellprefix;
 cvar_t    *sv_sayprefix;

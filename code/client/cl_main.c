@@ -147,7 +147,24 @@ void CL_CDDialog(void) {
  */
 void CL_AddReliableCommand(const char *cmd) {
     
-    int index;
+    int    index, i;
+	char   realCommand[MAX_STRING_CHARS];
+
+	Cmd_TokenizeString(cmd);
+	Q_strncpyz(realCommand, cmd, sizeof(realCommand));
+
+	if (!Q_stricmp(Cmd_Argv(0), "say") ||
+		!Q_stricmp(Cmd_Argv(0), "say_team") ||
+		!Q_stricmp(Cmd_Argv(0), "ut_radio") ||
+		!Q_stricmp(Cmd_Argv(0), "tell") ||
+		!Q_stricmp(Cmd_Argv(0), "tell_target") ||
+		!Q_stricmp(Cmd_Argv(0), "tell_attacker")) {
+		for (i = 0; i < strlen(realCommand); i++) {
+			if (realCommand[i] == '%') {
+				realCommand[i] = 31;
+			}
+		}
+	}
 
     // if we would be losing an old command that hasn't been acknowledged,
     // we must drop the connection
@@ -157,7 +174,7 @@ void CL_AddReliableCommand(const char *cmd) {
     
     clc.reliableSequence++;
     index = clc.reliableSequence & (MAX_RELIABLE_COMMANDS - 1);
-    Q_strncpyz(clc.reliableCommands[index], cmd, sizeof(clc.reliableCommands[index]));
+    Q_strncpyz(clc.reliableCommands[index], realCommand, sizeof(clc.reliableCommands[index]));
 }
 
 /**
@@ -1134,7 +1151,8 @@ void CL_Connect_f(void) {
     clc.serverMessage[0] = 0;
 
     server = Cmd_Argv (1);
-
+    Q_strncpyz(cls.servername, server, sizeof(cls.servername));
+    
     if (com_sv_running->integer && !strcmp(server, "localhost")) {
         // if running a local server, kill it
         SV_Shutdown("Server quit");
@@ -1146,8 +1164,6 @@ void CL_Connect_f(void) {
 
     CL_Disconnect(qtrue);
     Con_Close();
-
-    Q_strncpyz(cls.servername, server, sizeof(cls.servername));
 
     if (!NET_StringToAdr(cls.servername, &clc.serverAddress)) {
         Com_Printf("%sWARNING%s: bad server address\n", S_COLOR_YELLOW, S_COLOR_WHITE);

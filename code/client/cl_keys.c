@@ -644,7 +644,7 @@ void Console_Key (int key) {
 
 	// command history (ctrl-p ctrl-n for unix style)
 
-	if ( (key == K_MWHEELUP && keys[K_SHIFT].down) || ( key == K_UPARROW ) || ( key == K_KP_UPARROW ) ||
+	if ( (key == K_MWHEELUP && keys[K_SHIFT].down) || ( key == K_UPARROW ) || ( key == K_KP_UPARROW && !keys[K_KP_NUMLOCK].down ) ||
 		 ( ( tolower(key) == 'p' ) && keys[K_CTRL].down ) ) {
 		if ( nextHistoryLine - historyLine < COMMAND_HISTORY 
 			&& historyLine > 0 ) {
@@ -654,7 +654,7 @@ void Console_Key (int key) {
 		return;
 	}
 
-	if ( (key == K_MWHEELDOWN && keys[K_SHIFT].down) || ( key == K_DOWNARROW ) || ( key == K_KP_DOWNARROW ) ||
+	if ( (key == K_MWHEELDOWN && keys[K_SHIFT].down) || ( key == K_DOWNARROW ) || ( key == K_KP_DOWNARROW && !keys[K_KP_NUMLOCK].down ) ||
 		 ( ( tolower(key) == 'n' ) && keys[K_CTRL].down ) ) {
 		historyLine++;
 		if (historyLine >= nextHistoryLine) {
@@ -1235,7 +1235,11 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 			VM_Call (cgvm, CG_EVENT_HANDLING, CGAME_EVENT_NONE);
 			return;
 		}
-
+        
+        if (cls.keyCatchers & KEYCATCH_RADIO) {
+			cls.keyCatchers &= ~KEYCATCH_RADIO;
+		}
+        
 		if ( !( cls.keyCatchers & KEYCATCH_UI ) ) {
 			if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
 				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
@@ -1271,7 +1275,12 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 
 		return;
 	}
-
+    
+    if ((cls.keyCatchers & KEYCATCH_RADIO) && !(cls.keyCatchers & KEYCATCH_CONSOLE)) {
+		if (key >= '0' && key <= '9') {
+			return;
+		}
+	}
 
 	// distribute the key down event to the apropriate handler
 	if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {

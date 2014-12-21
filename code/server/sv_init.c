@@ -1169,6 +1169,7 @@ void SV_Init(void) {
     sv_lanForceRate = Cvar_Get("sv_lanForceRate", "1", CVAR_ARCHIVE);
     sv_strictAuth = Cvar_Get("sv_strictAuth", "1", CVAR_ARCHIVE);
     sv_demonotice = Cvar_Get("sv_demonotice", "", CVAR_ARCHIVE);
+    sv_clientsPerIp = Cvar_Get ("sv_clientsPerIp", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
     
     sv_sayprefix = Cvar_Get("sv_sayprefix", "console: ", CVAR_ARCHIVE);    
     sv_tellprefix = Cvar_Get("sv_tellprefix", "console_tell: ", CVAR_ARCHIVE);
