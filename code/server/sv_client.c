@@ -1680,11 +1680,6 @@ static void SV_Follow_f(client_t *cl) {
         return;
     }
     
-    // if we are not in match mode
-    if (!(SV_GetMatchState() & MATCH_ON)) {
-        return;
-    }
-    
     // get the target client
     target = SV_GetPlayerByParam(Cmd_Argv(1));
     if (!target) {
