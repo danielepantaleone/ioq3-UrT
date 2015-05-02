@@ -722,90 +722,6 @@ static void SV_DoMapcycleRoutine(void) {
     
 }
 
-#ifdef USE_AUTH
-/**
- * SV_ClearRconUserList
- * 
- * @author Fenix
- * @description Clear the RCON user list
- */
-static void SV_ClearRconUserList(void) {
-    int i;
-    if (svs.rconuserlist != NULL) {
-        for (i = 0; (i < MAX_RCON_USERS) && (svs.rconuserlist[i]); i++) {
-            Z_Free(svs.rconuserlist[i]);
-        }
-        Z_Free(svs.rconuserlist);
-    }
-}
-
-/**
- * SV_ReadRconUserList
- * 
- * @author Fenix
- * @description Read the rcon.cfg file from q3ut4 parsing the auth
- *              of clients who will be allowed to use RCON commands
- *              without having to insert the rcon password
- */
-static void SV_ReadRconUserList(void) {
-    
-    int            i, size, len;
-    char           *buffer;
-    char           *token;
-    fileHandle_t   file;
-    
-    // if the feature is disabled
-    if (!(sv_rconusers->integer > 0)) {
-        return;
-    }
-    
-    // if the cvar is empty
-    if (!sv_rconusersfile->string) {
-        Com_Printf("WARNING: sv_rconusers is enabled but sv_rconusersfile is empty\n");
-        return;
-    }
-    
-    // open the rcon user file
-    size = FS_FOpenFileByMode(sv_rconusersfile->string, &file, FS_READ);
-    if (size == -1) {
-        Com_Printf("WARNING: could not open file '%s'\n", sv_rconusersfile->string);
-        return;
-    }
-    
-    // if empty
-    if (!size) {
-        Com_Printf("WARNING: %s file is empty!\n", sv_rconusersfile->string);
-        return;
-    }
-    
-    // read the whole file
-    buffer = Z_Malloc(size);
-    len = FS_Read(buffer, size , file);
-    FS_FCloseFile(file);
-    
-    // if somehow not all bytes were read
-    if (len != size) {
-        Com_Printf("WARNING: %s file not all bytes were read!\n", sv_rconusersfile->string);
-        return;
-    }
-    
-    // clear previous list
-    SV_ClearRconUserList();
-    
-    svs.rconuserlist = Z_Malloc(MAX_RCON_USERS * sizeof(char *));
-    for (i = 0; (i < MAX_RCON_USERS) && (token = COM_Parse(&buffer)) && (token[0]); i++) {
-        // skip minimum auth length
-        if (strlen(token) < 3) {
-            continue;
-        }
-        // allocate space and save the auth login
-        svs.rconuserlist[i] = Z_Malloc(MAX_NAME_LENGTH);
-        Q_strncpyz(svs.rconuserlist[i], token, MAX_NAME_LENGTH);
-    }
-    
-}
-#endif
-
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_SpawnServer
 // Description : Change the server to a new map, taking all connected
@@ -1089,11 +1005,6 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // to all clients
     sv.state = SS_GAME;
     
-    #ifdef USE_AUTH
-    // reload the list of rcon users
-    SV_ReadRconUserList();
-    #endif
-    
     // compute the nextmap
     SV_DoMapcycleRoutine();
     
@@ -1178,8 +1089,6 @@ void SV_Init(void) {
     #ifdef USE_AUTH
     sv_authServerIP = Cvar_Get("sv_authServerIP", "", CVAR_TEMP | CVAR_ROM);
     sv_auth_engine = Cvar_Get("sv_auth_engine", "1", CVAR_ROM);
-    sv_rconusers = Cvar_Get("sv_rconusers", "1", CVAR_ARCHIVE);
-    sv_rconusersfile = Cvar_Get("sv_rconusersfile", "rcon.cfg", CVAR_ARCHIVE);
     #endif
     
     sv_disableradio = Cvar_Get("sv_disableradio", "0", CVAR_ARCHIVE);
@@ -1273,12 +1182,7 @@ void SV_Shutdown(char *finalmsg) {
     if (svs.clients) {
         Z_Free(svs.clients);
     }
-    
-    #ifdef USE_AUTH
-    // clear rcon list
-    SV_ClearRconUserList();
-    #endif
-    
+
     Com_Memset(&svs, 0, sizeof(svs));
 
     Cvar_Set("sv_running", "0");

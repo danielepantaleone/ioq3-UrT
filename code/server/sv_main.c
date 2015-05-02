@@ -66,8 +66,6 @@ cvar_t    *sv_demofolder;
 #ifdef USE_AUTH
 cvar_t    *sv_authServerIP;
 cvar_t    *sv_auth_engine;
-cvar_t    *sv_rconusers;
-cvar_t    *sv_rconusersfile;
 #endif
 
 cvar_t    *sv_disableradio;
@@ -904,7 +902,6 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     
     int          i;
     qboolean     valid;
-    qboolean     allowed = qfalse;
     char         remaining[1024];
     netadr_t     allowedSpamIPAdress;
     unsigned int time;
@@ -918,28 +915,12 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
 
     // TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=534
     time = Com_Milliseconds();
-    
-    #ifdef USE_AUTH
-    // check whether this command has been sent by a rcon user
-    for (i = 0 ; i < sv_maxclients->integer; i++) {
-        // if not ingame
-        if (svs.clients[i].state != CS_ACTIVE) {
-            continue;
-        }
-        // if we got an ip:port match
-        if (NET_CompareAdr(from, svs.clients[i].netchan.remoteAddress)) {
-            allowed = svs.clients[i].rconuser;
-            break;
-        }
-    }
-    #endif
-    
+
     NET_StringToAdr(sv_rconAllowedSpamIP->string , &allowedSpamIPAdress);
     
     // if there is no rconpassword set or the rconpassword given
     // is not valid and the guy sending the command is not a RCON user
-    if ((!strlen(sv_rconPassword->string) || 
-         strcmp(Cmd_Argv(1), sv_rconPassword->string)) && (!allowed)) {
+    if ((!strlen(sv_rconPassword->string) || strcmp(Cmd_Argv(1), sv_rconPassword->string))) {
         
         // let's the sv_rconAllowedSpamIP do spam rcon
         if ((!strlen(sv_rconAllowedSpamIP->string) || 
@@ -994,24 +975,14 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
         while(cmd_aux[0] == ' ') {                    // spaces
             cmd_aux++;
         }
-        
-        #ifdef USE_AUTH
-        // the rcon password at this point is not a must anymore
-        // since the new rcon user code allow clients to issue
-        // rcon commands without specifying it, thus we need to remove
-        // it only if it can be seen in the command string.
-        if (!Q_stricmp(Cmd_Argv(1), sv_rconPassword->string)) {
-        #endif
-            while(cmd_aux[0] && cmd_aux[0] != ' ') {  
-                cmd_aux++;  // password
-            }
-            while(cmd_aux[0] == ' ') {                
-                cmd_aux++;  // spaces
-            }
-        #ifdef USE_AUTH
+
+        while(cmd_aux[0] && cmd_aux[0] != ' ') {
+            cmd_aux++;  // password
         }
-        #endif
-  
+        while(cmd_aux[0] == ' ') {
+            cmd_aux++;  // spaces
+        }
+
         Q_strcat(remaining, sizeof(remaining), cmd_aux);
         
         // additional parse for game module commands
@@ -1426,7 +1397,7 @@ void SV_CheckDemoRecording(void) {
     client_t   *cl;
     
     // if the feature is disabled
-    if (!(sv_autodemo->integer > 0)) {
+    if (sv_autodemo->integer <= 0) {
         return;
     }
     

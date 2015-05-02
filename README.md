@@ -62,8 +62,6 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * `sv_autodemo` - auto record serverside demos of everyone when in matchmode
 * `sv_disableradio` - totally disable radio calls in jump mode
 * `sv_ghostradius` - specify the radius of the ghosting bounding box
-* `sv_rconusers` - allow clients to use rcon commands without having to type the password
-* `sv_rconuserfile` - specifies the name of the file from which to read auth logins
 * `sv_hidechatcmds` - hide big brother bot commands to everyone but the who issued them
 * `sv_dropsuffix` -  a custom message in the disconnect box when a client gets disconnected
 * `sv_dropsignature` - a signature to be attached to the drop suffix message
