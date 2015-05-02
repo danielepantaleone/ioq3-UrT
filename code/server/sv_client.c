@@ -1528,11 +1528,8 @@ static void SV_SavePosition_f(client_t *cl) {
     VectorCopy(ps->viewangles, cl->savedPositionAngle);
     
     // log command execution
-    SV_LogPrintf("ClientSavePosition: %d - %f - %f - %f\n", 
-                                      cid,
-                                      cl->savedPosition[0],
-                                      cl->savedPosition[1],
-                                      cl->savedPosition[2]);
+    SV_LogPrintf("ClientSavePosition: %d - %f - %f - %f\n",  cid, cl->savedPosition[0],
+                                                             cl->savedPosition[1], cl->savedPosition[2]);
     
     SV_BroadcastMessageToClient(cl, "Your position has been saved");
     
@@ -1620,11 +1617,8 @@ static void SV_LoadPosition_f(client_t *cl) {
     }
     
     // log command execution
-    SV_LogPrintf("ClientLoadPosition: %d - %f - %f - %f\n",
-                                      cid,
-                                      cl->savedPosition[0],
-                                      cl->savedPosition[1],
-                                      cl->savedPosition[2]);
+    SV_LogPrintf("ClientLoadPosition: %d - %f - %f - %f\n", cid, cl->savedPosition[0],
+                                                            cl->savedPosition[1], cl->savedPosition[2]);
     
     SV_BroadcastMessageToClient(cl, "Your position has been loaded");
     
@@ -2061,7 +2055,7 @@ void SV_GhostThink(client_t *cl) {
 // Name        : SV_ClientThink
 // Description : Run the game client think function
 /////////////////////////////////////////////////////////////////////
-void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
+void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
     
     playerState_t *ps;
     

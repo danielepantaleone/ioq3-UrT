@@ -178,14 +178,12 @@ void SV_LoadPositionFromFile(client_t *cl, char *mapname) {
         (Cvar_VariableIntegerValue("g_persistentPositions") <= 0)) {
         return;
     }
-    
-    // get the client guid from the userinfo string
+
     guid = Info_ValueForKey(cl->userinfo, "cl_guid");
     if (!guid || !guid[0]) { 
         return;
     }
-    
-    // open the position file
+
     qpath = va("positions/%s/%s.pos", mapname, guid);
     FS_FOpenFileByMode(qpath, &file, FS_READ);
     
@@ -193,20 +191,14 @@ void SV_LoadPositionFromFile(client_t *cl, char *mapname) {
     if (!file) {
         return;
     }
-    
-    // read the file in the buffer
+
     len = FS_Read(buffer, sizeof(buffer), file);
     if (len > 0) {
-        // copy back saved position
-        sscanf(buffer, "%f,%f,%f,%f,%f,%f", &cl->savedPosition[0], 
-                                            &cl->savedPosition[1], 
-                                            &cl->savedPosition[2],
-                                            &cl->savedPositionAngle[0],
-                                            &cl->savedPositionAngle[1],
+        sscanf(buffer, "%f,%f,%f,%f,%f,%f", &cl->savedPosition[0], &cl->savedPosition[1], &cl->savedPosition[2],
+                                            &cl->savedPositionAngle[0], &cl->savedPositionAngle[1],
                                             &cl->savedPositionAngle[2]);
     }   
-    
-    // close the file handle
+
     FS_FCloseFile(file);  
     
 }
@@ -239,25 +231,18 @@ void SV_SavePositionToFile(client_t *cl, char *mapname) {
     if (!guid || !guid[0] || (!cl->savedPosition[0] && !cl->savedPosition[1] && !cl->savedPosition[2])) { 
         return;
     }
-    
-    // open the position file
+
     qpath = va("positions/%s/%s.pos", mapname, guid);
     FS_FOpenFileByMode(qpath, &file, FS_WRITE);
-    
-    // if not valid
+
     if (!file) {
         return;
     }
-    
-    // compute the text to be stored in the .pos file
-    Com_sprintf(buffer, sizeof(buffer), "%f,%f,%f,%f,%f,%f", cl->savedPosition[0], 
-                                                             cl->savedPosition[1], 
-                                                             cl->savedPosition[2],
-                                                             cl->savedPositionAngle[0],
-                                                             cl->savedPositionAngle[1],
-                                                             cl->savedPositionAngle[2]);
-    
-    // write the client position and close
+
+    Com_sprintf(buffer, sizeof(buffer), "%f,%f,%f,%f,%f,%f", cl->savedPosition[0], cl->savedPosition[1],
+                                                             cl->savedPosition[2], cl->savedPositionAngle[0],
+                                                             cl->savedPositionAngle[1], cl->savedPositionAngle[2]);
+
     FS_Write(buffer, strlen(buffer), file);
     FS_FCloseFile(file);  
     
@@ -620,10 +605,8 @@ void SV_MasterHeartbeat(void) {
                 adr[i].port = BigShort(PORT_MASTER);
             }
             
-            Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
-                                                          adr[i].ip[0], adr[i].ip[1], 
-                                                          adr[i].ip[2], adr[i].ip[3],
-                                                          BigShort(adr[i].port));
+            Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string, adr[i].ip[0], adr[i].ip[1],
+                                                          adr[i].ip[2], adr[i].ip[3], BigShort(adr[i].port));
         }
 
         Com_Printf ("Sending heartbeat to %s\n", sv_master[i]->string);
