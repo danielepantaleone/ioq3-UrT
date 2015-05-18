@@ -28,8 +28,11 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * added position save/load: fixed permanent position save/load not working in game module
 * added server-side ghosting feature: fix partial entity collision in jump mode
 * added custom mapcycle parsing utility
-* added `tell` command: send a private message to a specific client
 * added flood protect fix: allow 2 reliable client commands every 1.5 seconds
+* added new algorithm for mapcycle parsing: attempt to fix the mapcycle routine which restarts 
+  map selection from the beginning of the mapcycle file when the nextmap is changed manually (using
+  RCON or after a callvote)
+* added `tell` command: send a private message to a specific client
 * added RCON `teleport` command: teleport a specific client to another location
 * added RCON `position` command: retrieve client world coordinates
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
@@ -67,6 +70,7 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * `sv_dropsignature` - a signature to be attached to the drop suffix message
 * `sv_checkclientguid` - check guid validity upon client connection
 * `sv_noknife` - totally removes the knife from the server
+* `sv_mapcyclefix` - fix mapcycle routine (need a mapcycle file with only map names)
 
 ### *Client*
 

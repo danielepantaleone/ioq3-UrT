@@ -650,7 +650,12 @@ static void SV_DoMapcycleRoutine(void) {
     char           *mapcycle;
     char           *buffer;
     char           *token;
-    
+
+    // feature disabled
+    if (sv_mapcyclefix->integer < 1) {
+        return;
+    }
+
     // if we computed already the map to be played from the mapcycle file and we are not currently 
     // playing such map (happen after a callvote or manual nextmap/map change), reuse it.
     if ((svs.lastCycleMap[0] != '\0') && (Q_stricmp(svs.lastCycleMap, sv_mapname->string) != 0)) {
@@ -671,15 +676,25 @@ static void SV_DoMapcycleRoutine(void) {
         SV_MapcycleSetNextmap(sv_mapname->string);
         return;
     }
-    
-    // read the mapcycle file
+
+    // allocate space for the mapcycle file
     buffer = Z_Malloc(size);
+    if (!buffer) {
+        Com_DPrintf("SV_DoMapcycleRoutine: Z_Malloc failed to allocate memory\n");
+        SV_MapcycleSetNextmap(sv_mapname->string);
+        return;
+    }
+
+    // read the mapcycle file
     len = FS_Read(buffer, size , file);
     FS_FCloseFile(file);
     
     // if empty
     if (!len) {
+        Com_DPrintf("SV_DoMapcycleRoutine: mapcycle file is empty\n");
         SV_MapcycleSetNextmap(sv_mapname->string);
+        if (buffer)
+            Z_Free(buffer);
         return;
     }
 
@@ -697,6 +712,8 @@ static void SV_DoMapcycleRoutine(void) {
             }
             // set the nextmap
             SV_MapcycleSetNextmap(token);
+            if (buffer)
+                Z_Free(buffer);
             return;
         }
         
@@ -719,6 +736,9 @@ static void SV_DoMapcycleRoutine(void) {
     } else {
         SV_MapcycleSetNextmap(beginning);
     }
+
+    if (buffer)
+        Z_Free(buffer);
     
 }
 
@@ -1101,7 +1121,8 @@ void SV_Init(void) {
     sv_dropSuffix = Cvar_Get("sv_dropSuffix", "", CVAR_ARCHIVE);
     sv_dropSignature = Cvar_Get("sv_dropSignature", "", CVAR_ARCHIVE);
     sv_checkClientGuid = Cvar_Get("sv_checkClientGuid", "1", CVAR_ARCHIVE);
-    
+    sv_mapcyclefix = Cvar_Get("sv_mapcyclefix", "1", CVAR_ARCHIVE);
+
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();
 

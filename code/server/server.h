@@ -334,6 +334,8 @@ extern    cvar_t    *sv_noKnife;
 extern    cvar_t    *sv_dropSuffix;
 extern    cvar_t    *sv_dropSignature;
 extern    cvar_t    *sv_checkClientGuid;
+extern    cvar_t    *sv_mapcyclefix;
+
 
 //
 // sv_main.c
