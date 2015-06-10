@@ -1,0 +1,12 @@
+language:
+  - c
+compiler:
+  - gcc
+install:
+  - sudo apt-get update
+  - sudo apt-get install libsdl1.2-dev libxxf86vm-dev
+  - sudo apt-get install mingw-w64 gcc-mingw-w64-base gcc-mingw-w64 binutils-mingw-w64
+script:
+  - make
+  - make ARCH=i386
+  - exec make PLATFORM=mingw32 CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld WINDRES=i686-w64-mingw32-windres $*
