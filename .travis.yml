@@ -9,7 +9,7 @@ install:
 script:
   - make -j 5
   - make -j 5 ARCH=i386
-  - chmod +x make-mingw.sh && ./make-mingw.sh -j 5
+  - exec make PLATFORM=mingw32 CC=i686-w64-mingw32-gcc LD=i686-w64-mingw32-ld WINDRES=i686-w64-mingw32-windres
 cache:
   - apt
 deploy:
