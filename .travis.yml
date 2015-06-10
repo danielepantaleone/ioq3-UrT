@@ -9,7 +9,7 @@ install:
 script:
   - make -j 5
   - make -j 5 ARCH=i386
-  - ./make-mingw.sh -j 5
+  - chmod +x make-mingw.sh && ./make-mingw.sh -j 5
 cache:
   - apt
 deploy:
