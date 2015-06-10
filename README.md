@@ -74,7 +74,6 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 
 ### *Client*
 
-* `cl_drawhealth` - draw player health percentace in the HUD
 * `cl_demoblink` - make the demo recording string flashing when recording a demo
 * `cl_chatarrow` - remove the **>** prefix from every chat message if set to zero
 * `cl_drawspree` - draw the current spree in the hud
