@@ -8,7 +8,7 @@ install:
   - sudo apt-get install mingw-w64 gcc-mingw-w64-base gcc-mingw-w64 binutils-mingw-w64
 script:
   - make -j 5
-  - make -j 5 ARCH=i386
+  - make -j 5 ARCH=i386 BUILD_CLIENT=0
   - exec make PLATFORM=mingw32 CC=i686-w64-mingw32-gcc LD=i686-w64-mingw32-ld WINDRES=i686-w64-mingw32-windres
 cache:
   - apt
@@ -20,7 +20,6 @@ deploy:
     - build/release-linux-x86_64/Quake3-UrT-Ded.x86_64
     - build/release-linux-x86_64/Quake3-UrT.x86_64
     - build/release-linux-i386/Quake3-UrT-Ded.i386
-    - build/release-linux-i386/Quake3-UrT.i386
     - build/release-mingw32-x86/Quake3-UrT-Ded.x86.exe
     - build/release-mingw32-x86/Quake3-UrT.x86.exe
   skip_cleanup: true
