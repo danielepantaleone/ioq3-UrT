@@ -1,7 +1,5 @@
-language:
-  - c
-compiler:
-  - gcc
+language: c
+compiler: gcc
 install:
   - sudo apt-get update
   - sudo apt-get install libsdl1.2-dev libxxf86vm-dev libc6-dev-i386
@@ -12,20 +10,34 @@ script:
   - exec make PLATFORM=mingw32 CC=i686-w64-mingw32-gcc LD=i686-w64-mingw32-ld WINDRES=i686-w64-mingw32-windres
 cache:
   - apt
+notifications:
+  irc:
+    channels:
+    - irc.quakenet.org#goreclan
+    template:
+    - "%{repository_slug}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
+    - 'Change view : %{compare_url}'
+    - 'Build details : %{build_url}'
+    use_notice: true
+    on_success: always
+    on_failure: always
+  email:
+    recipients:
+    - danielepantaleone@me.com
+    on_success: change
+    on_failure: always
 deploy:
   provider: releases
+  skip_cleanup: true
   api_key:
-    secure: A5IXnP3xlTGjtwNuzxTSMKSSXCyLhLezWJbFxS6cJ7TiJLme83bZJLfRXQi+BxzJRKZy2boetlrosinXbjrgwPQVEt3ugLoZM7S8g2Efux1wJ98JJ0P0OC9zqHUoj8Xu7rpoTALHWwC2xdPMO7eEF3Zhoanc3IgvHNpfnUxERyI=
+    secure: PgkBAsWzYE2FTCE86+AfmcAvBTf9Rgg8//iWAyFUM1bSwpEoY2a97ERHzMIGUI+Oo7TwZ4Mg3scuMvY2xA/UwKePmQudZ6Cf75piyeWQX2Wq9UIRKDyEe1FFmtFuSN93N2GjhGffOaJW9EgCdYjHu9FxhXMx/03zEDB1uCsNYFU=
   file:
     - build/release-linux-x86_64/Quake3-UrT-Ded.x86_64
     - build/release-linux-x86_64/Quake3-UrT.x86_64
     - build/release-linux-i386/Quake3-UrT-Ded.i386
     - build/release-mingw32-x86/Quake3-UrT-Ded.x86.exe
     - build/release-mingw32-x86/Quake3-UrT.x86.exe
-  skip_cleanup: true
   on:
-    tags: true
+    repo: danielepantaleone/ioq3-for-UrbanTerror-4
     all_branches: true
-notifications:
-  on_success: always
-  on_failure: always
+    tags: true
