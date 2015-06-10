@@ -10,3 +10,22 @@ script:
   - make
   - make ARCH=i386
   - exec make PLATFORM=mingw32 CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld WINDRES=i686-w64-mingw32-windres $*
+cache:
+  - apt
+deploy:
+  provider: releases
+  api_key:
+    secure: A5IXnP3xlTGjtwNuzxTSMKSSXCyLhLezWJbFxS6cJ7TiJLme83bZJLfRXQi+BxzJRKZy2boetlrosinXbjrgwPQVEt3ugLoZM7S8g2Efux1wJ98JJ0P0OC9zqHUoj8Xu7rpoTALHWwC2xdPMO7eEF3Zhoanc3IgvHNpfnUxERyI=
+  file:
+    - build/release-linux-x86_64/Quake3-UrT-Ded.x86_64
+    - build/release-linux-x86_64/Quake3-UrT.x86_64
+    - build/release-linux-i386/Quake3-UrT-Ded.i386
+    - build/release-linux-i386/Quake3-UrT.i386
+    - build/release-mingw32-x86/Quake3-UrT-Ded.x86.exe
+    - build/release-mingw32-x86/Quake3-UrT.x86.exe
+  skip_cleanup: true
+  on:
+    tags: true
+notifications:
+  on_success: always
+  on_failure: always
