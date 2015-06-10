@@ -1,6 +1,8 @@
 ioquake3 engine for urban terror 4.x
 ====================================
 
+[![Build Status](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4.svg?branch=1.1)](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4)
+
 ## Description
 
 This is a custom fork of the official ioquake3 engine supported by the Frozen Sand development team for the 
