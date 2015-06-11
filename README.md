@@ -1,7 +1,7 @@
 ioquake3 engine for urban terror 4.x
 ====================================
 
-[![Build Status](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4.svg?branch=1.1)](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4)
+**********
 
 ## Description
 
@@ -9,18 +9,23 @@ This is a custom fork of the official ioquake3 engine supported by the Frozen Sa
 videogame Urban Terror 4.x serie (http://www.urbanterror.info). This specific engine version is compatible with 
 both **4.1** version and **4.2** version, although it's highly optimized to work with Urban Terror 4.2.x.
 
+**********
+
 ## How to compile
 
 ### *Linux*
 
-* change to the directory containing this readme
+* open a terminal window and change to the directory containing this readme
+* install necessary libraries: `sudo apt-get install libsdl1.2-dev libxxf86vm-dev libc6-dev-i386`
 * run `make`
 
 ### *Windows (cross-compile)*
 
-* install `mingw32` libraries on your linux box
-* change to the directory containing this readme
-* run `cross-make-mingw.sh`
+* open a terminal window and change to the directory containing this readme
+* install necessary libraries:
+    - `sudo apt-get install libsdl1.2-dev libxxf86vm-dev libc6-dev-i386`
+    - `sudo apt-get install mingw-w64 gcc-mingw-w64-base gcc-mingw-w64 binutils-mingw-w64`
+* run `exec make PLATFORM=mingw32 CC=i686-w64-mingw32-gcc LD=i686-w64-mingw32-ld WINDRES=i686-w64-mingw32-windres`
 
 ## Addons & Improvements
 
@@ -29,18 +34,15 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * added logging capability: writes in the same log file as the game module
 * added position save/load: fixed permanent position save/load not working in game module
 * added server-side ghosting feature: fix partial entity collision in jump mode
-* added custom mapcycle parsing utility
+* added custom mapcycle parsing utility (works with plain mapcycle file)
 * added flood protect fix: allow 2 reliable client commands every 1.5 seconds
-* added new algorithm for mapcycle parsing: attempt to fix the mapcycle routine which restarts 
-  map selection from the beginning of the mapcycle file when the nextmap is changed manually (using
-  RCON or after a callvote)
 * added `tell` command: send a private message to a specific client
 * added RCON `teleport` command: teleport a specific client to another location
 * added RCON `position` command: retrieve client world coordinates
 * added RCON `sendclientcommand` command: send a reliable command as a specific client
 * added RCON `spoof` command: send a game client command as a specific client
 * added RCON `forcecvar` command: force a client USERINFO cvar to a specific value
-* added RCON `follow` command: execute the QVM follow command but introduces pattern matching
+* added RCON `follow` command: use QVM follow command but introduces pattern matching
 * allow client position load while being in a jump run (will reset running timer if it was running)
 * fixed map searching algorithm: no more unpredictability
 * fixed `stopserverdemo` command being executed on non-dedicated servers
@@ -58,6 +60,8 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * improved in-game console
 * improved windows dedicated console readability
 * unlock `snaps` cvar from game module constraint
+
+**********
 
 ## New CVARs
 
@@ -80,6 +84,8 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * `cl_chatarrow` - remove the **>** prefix from every chat message if set to zero
 * `cl_drawspree` - draw the current spree in the hud
 
+**********
+
 ## Credits
 
 Even though most of the code has been written by me and / or revised by me, some ideas have been taken from 
@@ -89,3 +95,5 @@ I took ideas from:
 * [Rambetter](https://github.com/Rambetter)
 * [clearskies](https://github.com/clearskies)
 * [mickael9](https://bitbucket.org/mickael9)
+
+[![Build Status](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4.svg?branch=1.1)](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4)

@@ -10,6 +10,20 @@ script:
   - exec make PLATFORM=mingw32 CC=i686-w64-mingw32-gcc LD=i686-w64-mingw32-ld WINDRES=i686-w64-mingw32-windres
 cache:
   - apt
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: PgkBAsWzYE2FTCE86+AfmcAvBTf9Rgg8//iWAyFUM1bSwpEoY2a97ERHzMIGUI+Oo7TwZ4Mg3scuMvY2xA/UwKePmQudZ6Cf75piyeWQX2Wq9UIRKDyEe1FFmtFuSN93N2GjhGffOaJW9EgCdYjHu9FxhXMx/03zEDB1uCsNYFU=
+  file:
+    - build/release-linux-x86_64/Quake3-UrT-Ded.x86_64
+    - build/release-linux-x86_64/Quake3-UrT.x86_64
+    - build/release-linux-i386/Quake3-UrT-Ded.i386
+    - build/release-mingw32-x86/Quake3-UrT-Ded.x86.exe
+    - build/release-mingw32-x86/Quake3-UrT.x86.exe
+  on:
+    repo: danielepantaleone/ioq3-for-UrbanTerror-4
+    tags: true
 notifications:
   irc:
     channels:
@@ -24,19 +38,4 @@ notifications:
     recipients:
     - danielepantaleone@me.com
     on_success: change
-    on_failure: always
-deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: PgkBAsWzYE2FTCE86+AfmcAvBTf9Rgg8//iWAyFUM1bSwpEoY2a97ERHzMIGUI+Oo7TwZ4Mg3scuMvY2xA/UwKePmQudZ6Cf75piyeWQX2Wq9UIRKDyEe1FFmtFuSN93N2GjhGffOaJW9EgCdYjHu9FxhXMx/03zEDB1uCsNYFU=
-  file:
-    - build/release-linux-x86_64/Quake3-UrT-Ded.x86_64
-    - build/release-linux-x86_64/Quake3-UrT.x86_64
-    - build/release-linux-i386/Quake3-UrT-Ded.i386
-    - build/release-mingw32-x86/Quake3-UrT-Ded.x86.exe
-    - build/release-mingw32-x86/Quake3-UrT.x86.exe
-  on:
-    repo: danielepantaleone/ioq3-for-UrbanTerror-4
-    all_branches: true
-    tags: true
+    on_failure: change
