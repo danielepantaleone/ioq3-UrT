@@ -1,15 +1,22 @@
 language: c
+
 compiler: gcc
+
+env:
+  matrix:
+    - BUILD=x86_64
+    - BUILD=x86
+    - BUILD=mingw32
+
 install:
-  - sudo apt-get update
-  - sudo apt-get install libsdl1.2-dev libxxf86vm-dev libc6-dev-i386
-  - sudo apt-get install mingw-w64 gcc-mingw-w64-base gcc-mingw-w64 binutils-mingw-w64
+  - ./scripts/install-deps-${BUILD}.sh
+
 script:
-  - make -j 5
-  - make -j 5 ARCH=i386 BUILD_CLIENT=0
-  - exec make PLATFORM=mingw32 CC=i686-w64-mingw32-gcc LD=i686-w64-mingw32-ld WINDRES=i686-w64-mingw32-windres
+  - ./scripts/make-${BUILD}.sh
+
 cache:
   - apt
+
 deploy:
   provider: releases
   skip_cleanup: true
@@ -24,6 +31,7 @@ deploy:
   on:
     repo: danielepantaleone/ioq3-for-UrbanTerror-4
     tags: true
+
 notifications:
   irc:
     channels:
