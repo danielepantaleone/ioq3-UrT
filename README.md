@@ -1,15 +1,11 @@
 ioquake3 engine for urban terror 4.x
 ====================================
 
-**********
-
 ## Description
 
 This is a custom fork of the official ioquake3 engine supported by the Frozen Sand development team for the 
 videogame Urban Terror 4.x serie (http://www.urbanterror.info). This specific engine version is compatible with 
 both **4.1** version and **4.2** version, although it's highly optimized to work with Urban Terror 4.2.x.
-
-**********
 
 ## How to compile
 
@@ -61,8 +57,6 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * improved windows dedicated console readability
 * unlock `snaps` cvar from game module constraint
 
-**********
-
 ## New CVARs
 
 ### *Server*
@@ -83,8 +77,6 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * `cl_demoblink` - make the demo recording string flashing when recording a demo
 * `cl_chatarrow` - remove the **>** prefix from every chat message if set to zero
 * `cl_drawspree` - draw the current spree in the hud
-
-**********
 
 ## Credits
 
