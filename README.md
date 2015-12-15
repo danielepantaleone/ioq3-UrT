@@ -93,7 +93,7 @@ other versions of ioquake3: because of that I would like to give the necessary c
 I took ideas from:
 
 * [Rambetter](https://github.com/Rambetter)
-* [clearskies](https://github.com/clearskies)
+* [clearskies](https://github.com/anthonynguyen)
 * [mickael9](https://bitbucket.org/mickael9)
 
 [![Build Status](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4.svg?branch=1.1)](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4)
