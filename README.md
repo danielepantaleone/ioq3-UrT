@@ -70,7 +70,6 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * `sv_dropsignature` - a signature to be attached to the drop suffix message
 * `sv_checkclientguid` - check guid validity upon client connection
 * `sv_noknife` - totally removes the knife from the server
-* `sv_mapcyclefix` - fix mapcycle routine (need a mapcycle file with only map names)
 
 ### *Client*
 

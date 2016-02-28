@@ -78,7 +78,6 @@ cvar_t    *sv_noKnife;
 cvar_t    *sv_dropSuffix;
 cvar_t    *sv_dropSignature;
 cvar_t    *sv_checkClientGuid;
-cvar_t    *sv_mapcyclefix;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //

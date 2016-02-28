@@ -1043,19 +1043,15 @@ void SV_WriteDownloadToClient(client_t *cl , msg_t *msg) {
     }
 
     // perform any reads that we need to
-    while (cl->downloadCurrentBlock - cl->downloadClientBlock < MAX_DOWNLOAD_WINDOW &&  
-           cl->downloadSize != cl->downloadCount) {
+    while (cl->downloadCurrentBlock - cl->downloadClientBlock < MAX_DOWNLOAD_WINDOW &&  cl->downloadSize != cl->downloadCount) {
 
         curindex = (cl->downloadCurrentBlock % MAX_DOWNLOAD_WINDOW);
 
         if (!cl->downloadBlocks[curindex]) {
             cl->downloadBlocks[curindex] = Z_Malloc(MAX_DOWNLOAD_BLKSIZE);
         }
-        
-        cl->downloadBlockSize[curindex] = FS_Read(cl->downloadBlocks[curindex], 
-                                                  MAX_DOWNLOAD_BLKSIZE, 
-                                                  cl->download);
 
+        cl->downloadBlockSize[curindex] = FS_Read(cl->downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE,  cl->download);
         if (cl->downloadBlockSize[curindex] < 0) {
             // EOF right now
             cl->downloadCount = cl->downloadSize;
@@ -1083,12 +1079,10 @@ void SV_WriteDownloadToClient(client_t *cl , msg_t *msg) {
     // normal rate / snapshotMsec calculation
     rate = cl->rate;
     if (sv_maxRate->integer) {
-        if (sv_maxRate->integer < 1000) {
+        if (sv_maxRate->integer < 1000)
             Cvar_Set("sv_MaxRate", "1000");
-        }
-        if (sv_maxRate->integer < rate) {
+        if (sv_maxRate->integer < rate)
             rate = sv_maxRate->integer;
-        }
     }
     
     if (sv_minRate->integer) {

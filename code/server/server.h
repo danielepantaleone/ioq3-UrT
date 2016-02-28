@@ -227,7 +227,6 @@ typedef struct {
     qboolean        initialized;             // sv_init has completed
     int             time;                    // will be strictly increasing across level changes
     int             snapFlagServerBit;       // ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
-
     client_t        *clients;                // [sv_maxclients->integer];
     int             numSnapshotEntities;     // sv_maxclients->integer * PACKET_BACKUP * MAX_PACKET_ENTITIES
     int             nextSnapshotEntities;    // next snapshotEntities to use
@@ -237,8 +236,6 @@ typedef struct {
     receipt_t       infoReceipts[MAX_INFO_RECEIPTS];
     netadr_t        redirectAddress;                    // for rcon return messages
     netadr_t        authorizeAddress;                   // for rcon return messages
-    
-    char            lastCycleMap[128];       // last mapcycle computed map
 } serverStatic_t;
 
 // The value below is how many extra characters we reserve for every instance of '$' in a
@@ -334,7 +331,6 @@ extern    cvar_t    *sv_noKnife;
 extern    cvar_t    *sv_dropSuffix;
 extern    cvar_t    *sv_dropSignature;
 extern    cvar_t    *sv_checkClientGuid;
-extern    cvar_t    *sv_mapcyclefix;
 
 
 //

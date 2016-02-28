@@ -622,127 +622,6 @@ static qboolean SV_MapExists(char *mapname) {
 }
 
 /////////////////////////////////////////////////////////////////////
-// Name        : SV_MapcycleSetNextmap
-// Description : Set the nextmap. Helper function called by
-//               SV_DoMapcycleRoutine. Must not be used elsewhere!!
-// Author      : Fenix
-/////////////////////////////////////////////////////////////////////
-static void SV_MapcycleSetNextmap(char *mapname) {
-    Com_DPrintf("SV_DoMapcycleRoutine: nextmap set to '%s'\n", mapname);
-    Q_strncpyz(svs.lastCycleMap, mapname, sizeof(svs.lastCycleMap));
-    Cvar_Set("g_nextmap", mapname);
-}
-
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_DoMapcycleRoutine
-// Description : Compute and set the nextmap on the server.
-//               NOTE: this routine will not work if the mapcycle
-//               file lists also game CVARs: a plain map list 
-//               must be used in order for this routine to work
-// Author      : Fenix
-/////////////////////////////////////////////////////////////////////
-static void SV_DoMapcycleRoutine(void) {
-    
-    fileHandle_t   file;
-    int            size, len;
-    qboolean       next = qfalse;
-    char           beginning[128];
-    char           *mapcycle;
-    char           *buffer;
-    char           *token;
-
-    // feature disabled
-    if (sv_mapcyclefix->integer < 1) {
-        return;
-    }
-
-    // if we computed already the map to be played from the mapcycle file and we are not currently 
-    // playing such map (happen after a callvote or manual nextmap/map change), reuse it.
-    if ((svs.lastCycleMap[0] != '\0') && (Q_stricmp(svs.lastCycleMap, sv_mapname->string) != 0)) {
-        SV_MapcycleSetNextmap(svs.lastCycleMap);
-        return;
-    }
-    
-    // get the mapcycle cvar value
-    mapcycle = Cvar_VariableString("g_mapcycle");
-    if (!mapcycle) {
-        SV_MapcycleSetNextmap(sv_mapname->string);
-        return;
-    }    
-    
-    // open the mapcycle file
-    size = FS_FOpenFileByMode(mapcycle, &file, FS_READ);
-    if (!file) {
-        SV_MapcycleSetNextmap(sv_mapname->string);
-        return;
-    }
-
-    // allocate space for the mapcycle file
-    buffer = Z_Malloc(size);
-    if (!buffer) {
-        Com_DPrintf("SV_DoMapcycleRoutine: Z_Malloc failed to allocate memory\n");
-        SV_MapcycleSetNextmap(sv_mapname->string);
-        return;
-    }
-
-    // read the mapcycle file
-    len = FS_Read(buffer, size , file);
-    FS_FCloseFile(file);
-    
-    // if empty
-    if (!len) {
-        Com_DPrintf("SV_DoMapcycleRoutine: mapcycle file is empty\n");
-        SV_MapcycleSetNextmap(sv_mapname->string);
-        if (buffer)
-            Z_Free(buffer);
-        return;
-    }
-
-    // save the first map of the mapcycle file because strtok
-    // moves the pointer and it won't be accessible later
-    token = COM_Parse(&buffer);
-    Q_strncpyz(beginning, token, sizeof(beginning));
-    
-    while (token[0]) {
-
-        if (next) {
-            if (!SV_MapExists(token)) {
-                token = COM_Parse(&buffer);
-                continue;
-            }
-            // set the nextmap
-            SV_MapcycleSetNextmap(token);
-            if (buffer)
-                Z_Free(buffer);
-            return;
-        }
-        
-        // if we found the current map, set the next flag to
-        // qtrue in order to set g_nextmap on the next iteration
-        if (!Q_stricmp(token, sv_mapname->string)) {
-            next = qtrue;
-        }
-        
-        // read another token
-        token = COM_Parse(&buffer);
-        
-    }
-    
-    // if we got here means that we reached
-    // the end of the file without being able to
-    // select a proper map for next cycle: use the 1st one
-    if (!SV_MapExists(beginning)) { 
-        SV_MapcycleSetNextmap(sv_mapname->string);
-    } else {
-        SV_MapcycleSetNextmap(beginning);
-    }
-
-    if (buffer)
-        Z_Free(buffer);
-    
-}
-
-/////////////////////////////////////////////////////////////////////
 // Name        : SV_SpawnServer
 // Description : Change the server to a new map, taking all connected
 //               clients along with it. 
@@ -1025,9 +904,6 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     // to all clients
     sv.state = SS_GAME;
     
-    // compute the nextmap
-    SV_DoMapcycleRoutine();
-    
     // mark last vote time
     sv.lastVoteTime = svs.time;
 
@@ -1121,7 +997,6 @@ void SV_Init(void) {
     sv_dropSuffix = Cvar_Get("sv_dropSuffix", "", CVAR_ARCHIVE);
     sv_dropSignature = Cvar_Get("sv_dropSignature", "", CVAR_ARCHIVE);
     sv_checkClientGuid = Cvar_Get("sv_checkClientGuid", "1", CVAR_ARCHIVE);
-    sv_mapcyclefix = Cvar_Get("sv_mapcyclefix", "1", CVAR_ARCHIVE);
 
     // initialize bot cvars so they are listed and can be set before loading the botlib
     SV_BotInitCvars();
