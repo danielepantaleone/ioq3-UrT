@@ -61,21 +61,21 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 
 ### *Server*
 
-* `sv_callvotewaittime` - defines the amount of seconds between callvotes
-* `sv_autodemo` - auto record serverside demos of everyone when in matchmode
-* `sv_disableradio` - totally disable radio calls in jump mode
-* `sv_ghostradius` - specify the radius of the ghosting bounding box
-* `sv_hidechatcmds` - hide big brother bot commands to everyone but the who issued them
-* `sv_dropsuffix` -  a custom message in the disconnect box when a client gets disconnected
-* `sv_dropsignature` - a signature to be attached to the drop suffix message
-* `sv_checkclientguid` - check guid validity upon client connection
-* `sv_noknife` - totally removes the knife from the server
+* `sv_callvoteWaitTime` - defines the amount of seconds between callvotes
+* `sv_autoDemo` - auto record serverside demos of everyone when in matchmode
+* `sv_disableRadio` - totally disable radio calls in jump mode
+* `sv_ghostRadius` - specify the radius of the ghosting bounding box
+* `sv_hideChatCmd` - hide big brother bot commands to everyone but the who issued them
+* `sv_dropSuffix` -  a custom message in the disconnect box when a client gets disconnected
+* `sv_dropSignature` - a signature to be attached to the drop suffix message
+* `sv_checkClientGuid` - check guid validity upon client connection
+* `sv_noKnife` - totally removes the knife from the server
 
 ### *Client*
 
-* `cl_demoblink` - make the demo recording string flashing when recording a demo
-* `cl_chatarrow` - remove the **>** prefix from every chat message if set to zero
-* `cl_drawspree` - draw the current spree in the hud
+* `cl_demoBlink` - make the demo recording string flashing when recording a demo
+* `cl_chatArrow` - remove the **>** prefix from every chat message if set to zero
+* `cl_drawSpree` - draw the current spree in the hud
 
 ## Credits
 

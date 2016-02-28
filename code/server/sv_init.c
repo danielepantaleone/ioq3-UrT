@@ -975,23 +975,23 @@ void SV_Init(void) {
     sv_mapChecksum = Cvar_Get("sv_mapChecksum", "", CVAR_ROM);
     sv_lanForceRate = Cvar_Get("sv_lanForceRate", "1", CVAR_ARCHIVE);
     sv_strictAuth = Cvar_Get("sv_strictAuth", "1", CVAR_ARCHIVE);
-    sv_demonotice = Cvar_Get("sv_demonotice", "", CVAR_ARCHIVE);
+    sv_demoNotice = Cvar_Get("sv_demoNotice", "", CVAR_ARCHIVE);
     sv_clientsPerIp = Cvar_Get ("sv_clientsPerIp", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
     
-    sv_sayprefix = Cvar_Get("sv_sayprefix", "console: ", CVAR_ARCHIVE);    
-    sv_tellprefix = Cvar_Get("sv_tellprefix", "console_tell: ", CVAR_ARCHIVE);
-    sv_demofolder = Cvar_Get("sv_demofolder", "serverdemos", CVAR_ARCHIVE);
+    sv_sayPrefix = Cvar_Get("sv_sayPrefix", "console: ", CVAR_ARCHIVE);
+    sv_tellPrefix = Cvar_Get("sv_tellPrefix", "console_tell: ", CVAR_ARCHIVE);
+    sv_demoFolder = Cvar_Get("sv_demoFolder", "serverdemos", CVAR_ARCHIVE);
     
     #ifdef USE_AUTH
     sv_authServerIP = Cvar_Get("sv_authServerIP", "", CVAR_TEMP | CVAR_ROM);
     sv_auth_engine = Cvar_Get("sv_auth_engine", "1", CVAR_ROM);
     #endif
     
-    sv_disableradio = Cvar_Get("sv_disableradio", "0", CVAR_ARCHIVE);
+    sv_disableRadio = Cvar_Get("sv_disableRadio", "0", CVAR_ARCHIVE);
     sv_callvoteWaitTime = Cvar_Get("sv_callvoteWaitTime", "300", CVAR_ARCHIVE);
-    sv_ghostradius = Cvar_Get("sv_ghostradius", "10.0", CVAR_ARCHIVE);
-    sv_hidechatcmds = Cvar_Get("sv_hidechatcmds", "1", CVAR_ARCHIVE);
-    sv_autodemo = Cvar_Get("sv_autodemo", "0", CVAR_ARCHIVE);
+    sv_ghostRadius = Cvar_Get("sv_ghostRadius", "10.0", CVAR_ARCHIVE);
+    sv_hideChatCmd = Cvar_Get("sv_hideChatCmd", "1", CVAR_ARCHIVE);
+    sv_autoDemo = Cvar_Get("sv_autoDemo", "0", CVAR_ARCHIVE);
     sv_noStamina = Cvar_Get("sv_noStamina", "0", CVAR_ARCHIVE);
     sv_noKnife = Cvar_Get("sv_noKnife", "0", CVAR_ARCHIVE);
     sv_dropSuffix = Cvar_Get("sv_dropSuffix", "", CVAR_ARCHIVE);
@@ -1003,9 +1003,9 @@ void SV_Init(void) {
 
     // init the botlib here because we need the pre-compiler in the UI
     SV_BotInitBotLib();
-    
-    // exclude some game module cvars
-    Cvar_Set("g_failedvotetime", "0");
+
+    if (sv_callvoteWaitTime->integer > 0)
+        Cvar_Set("g_failedvotetime", "0");
     
 }
 

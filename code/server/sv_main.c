@@ -58,21 +58,21 @@ cvar_t    *sv_floodProtect;
 cvar_t    *sv_lanForceRate;                 // dedicated 1 (LAN) server forces local client rates to 99999
 cvar_t    *sv_strictAuth;
 cvar_t    *sv_clientsPerIp;
-cvar_t    *sv_demonotice;                   // notice to print to a client being recorded server-side
-cvar_t    *sv_tellprefix;
-cvar_t    *sv_sayprefix;
-cvar_t    *sv_demofolder;
+cvar_t    *sv_demoNotice;                   // notice to print to a client being recorded server-side
+cvar_t    *sv_tellPrefix;
+cvar_t    *sv_sayPrefix;
+cvar_t    *sv_demoFolder;
 
 #ifdef USE_AUTH
 cvar_t    *sv_authServerIP;
 cvar_t    *sv_auth_engine;
 #endif
 
-cvar_t    *sv_disableradio;
+cvar_t    *sv_disableRadio;
 cvar_t    *sv_callvoteWaitTime;
-cvar_t    *sv_ghostradius;
-cvar_t    *sv_hidechatcmds;
-cvar_t    *sv_autodemo;
+cvar_t    *sv_ghostRadius;
+cvar_t    *sv_hideChatCmd;
+cvar_t    *sv_autoDemo;
 cvar_t    *sv_noStamina;
 cvar_t    *sv_noKnife;
 cvar_t    *sv_dropSuffix;
@@ -1380,7 +1380,7 @@ void SV_CheckDemoRecording(void) {
     client_t   *cl;
     
     // if the feature is disabled
-    if (sv_autodemo->integer <= 0) {
+    if (sv_autoDemo->integer <= 0) {
         return;
     }
     

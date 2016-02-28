@@ -309,23 +309,23 @@ extern    cvar_t    *sv_pure;
 extern    cvar_t    *sv_floodProtect;
 extern    cvar_t    *sv_lanForceRate;
 extern    cvar_t    *sv_strictAuth;
-extern    cvar_t    *sv_demonotice;
+extern    cvar_t    *sv_demoFolder;
+extern    cvar_t    *sv_demoNotice;
 extern    cvar_t    *sv_clientsPerIp;
+extern    cvar_t    *sv_sayPrefix;
+extern    cvar_t    *sv_tellPrefix;
 
-extern    cvar_t    *sv_sayprefix;
-extern    cvar_t    *sv_tellprefix;
-extern    cvar_t    *sv_demofolder;
 
 #ifdef USE_AUTH
 extern    cvar_t    *sv_authServerIP;
 extern    cvar_t    *sv_auth_engine;
 #endif
 
-extern    cvar_t    *sv_disableradio;
+extern    cvar_t    *sv_disableRadio;
 extern    cvar_t    *sv_callvoteWaitTime;
-extern    cvar_t    *sv_ghostradius;
-extern    cvar_t    *sv_hidechatcmds;
-extern    cvar_t    *sv_autodemo;
+extern    cvar_t    *sv_ghostRadius;
+extern    cvar_t    *sv_hideChatCmd;
+extern    cvar_t    *sv_autoDemo;
 extern    cvar_t    *sv_noStamina;
 extern    cvar_t    *sv_noKnife;
 extern    cvar_t    *sv_dropSuffix;

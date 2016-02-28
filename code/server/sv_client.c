@@ -1744,7 +1744,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             argsFromOneMaxlen = -1;
             if (Q_stricmp("say", Cmd_Argv(0)) == 0 || Q_stricmp("say_team", Cmd_Argv(0)) == 0) {
                 
-                if (sv_hidechatcmds->integer > 0) {
+                if (sv_hideChatCmd->integer > 0) {
                     
                     // check for a BOT (b3 or w/e) command to be issued
                     // if a match is found the text string is hidden to
@@ -1776,7 +1776,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
             } else if (Q_stricmp("ut_radio", Cmd_Argv(0)) == 0) {
                 
                 // if we are playing jump mode check if the radio is disabled
-                if (sv_gametype->integer == GT_JUMP && sv_disableradio->integer > 0) {
+                if (sv_gametype->integer == GT_JUMP && sv_disableRadio->integer > 0) {
                     return;
                 }
                 
@@ -2002,7 +2002,7 @@ void SV_GhostThink(client_t *cl) {
     
     // get the correspondent entity
     ent = SV_GentityNum((int)(cl - svs.clients));
-    rad = Com_Clamp(4.0, 1000.0, sv_ghostradius->value);
+    rad = Com_Clamp(4.0, 1000.0, sv_ghostRadius->value);
     
     // calculate the box
     for (i = 0; i < 3; i++) {

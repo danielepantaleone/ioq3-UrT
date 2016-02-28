@@ -1060,7 +1060,7 @@ static void SV_ConSay_f(void) {
         return;
     }
 
-    strcpy(text, sv_sayprefix->string);
+    strcpy(text, sv_sayPrefix->string);
     p = Cmd_Args();
 
     if (*p == '"') {
@@ -1100,7 +1100,7 @@ static void SV_ConTell_f(void) {
         return;
     }
 
-    strcpy (text, sv_tellprefix->string);
+    strcpy (text, sv_tellPrefix->string);
     p = Cmd_ArgsFrom(2);
 
     if (*p == '"') {
@@ -1394,15 +1394,15 @@ static void SV_NameServerDemo(char *filename, int length, const client_t *client
         Q_strncpyz(demoName, fn, sizeof(demoName));
 
         #ifdef USE_DEMO_FORMAT_42
-        Q_snprintf(filename, length - 1, "%s/%s.urtdemo", sv_demofolder->string, demoName);
+        Q_snprintf(filename, length - 1, "%s/%s.urtdemo", sv_demoFolder->string, demoName);
         if (FS_FileExists(filename)) {
             Q_snprintf(filename, length - 1, "%s/%s_%d.urtdemo", 
-                       sv_demofolder->string, demoName, Sys_Milliseconds());
+                       sv_demoFolder->string, demoName, Sys_Milliseconds());
         }
         #else
-        Q_snprintf(filename, length - 1, "%s/%s.dm_%d", sv_demofolder->string, demoName , PROTOCOL_VERSION);
+        Q_snprintf(filename, length - 1, "%s/%s.dm_%d", sv_demoFolder->string, demoName , PROTOCOL_VERSION);
         if (FS_FileExists(filename)) {
-            Q_snprintf(filename, length - 1, "%s/%s_%d.dm_%d", sv_demofolder->string, 
+            Q_snprintf(filename, length - 1, "%s/%s_%d.dm_%d", sv_demoFolder->string,
                        demoName, Sys_Milliseconds(), PROTOCOL_VERSION);
         }
         #endif
@@ -1411,13 +1411,13 @@ static void SV_NameServerDemo(char *filename, int length, const client_t *client
         
         #ifdef USE_DEMO_FORMAT_42
         Q_snprintf(filename, length - 1, "%s/%.4d-%.2d-%.2d_%.2d-%.2d-%.2d_%s_%d.urtdemo",
-                                         sv_demofolder->string, time.tm_year+1900, time.tm_mon + 1, 
+                                         sv_demoFolder->string, time.tm_year+1900, time.tm_mon + 1,
                                          time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec,
                                          playername, Sys_Milliseconds()
         );
         #else
         Q_snprintf(filename, length - 1, "%s/%.4d-%.2d-%.2d_%.2d-%.2d-%.2d_%s_%d.dm_%d",
-                                         sv_demofolder->string, time.tm_year+1900, time.tm_mon + 1, 
+                                         sv_demoFolder->string, time.tm_year+1900, time.tm_mon + 1,
                                          time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec,
                                          playername, Sys_Milliseconds(), PROTOCOL_VERSION
         );
@@ -1460,8 +1460,8 @@ static void SV_StartRecordOne(client_t *client, char *filename) {
     SV_NameServerDemo(path, sizeof(path), client, filename);
     SVD_StartDemoFile(client, path);
 
-    if (sv_demonotice->string) {
-        SV_BroadcastMessageToClient(client, sv_demonotice->string);
+    if (sv_demoNotice->string) {
+        SV_BroadcastMessageToClient(client, sv_demoNotice->string);
     }
 
     Com_Printf("startserverdemo: recording %s to %s\n", client->name, path);

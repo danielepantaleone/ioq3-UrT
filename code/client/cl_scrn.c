@@ -32,7 +32,7 @@ cvar_t    *cl_graphheight;
 cvar_t    *cl_graphscale;
 cvar_t    *cl_graphshift;
 cvar_t    *cl_drawclock;
-cvar_t    *cl_demoblink;
+cvar_t    *cl_demoBlink;
 cvar_t    *cl_drawSpree;
 
 /////////////////////////////////////////////////////////////////////
@@ -351,7 +351,7 @@ void SCR_DrawDemoRecording(void) {
 
     pos = FS_FTell(clc.demofile);
     Com_sprintf(string, sizeof(string), "%s[%sRECORDING%s][%s%iKB%s]", S_COLOR_WHITE, 
-                (((int)(cls.realtime >> 10) & 1) || (!cl_demoblink->integer)) ? S_COLOR_RED : S_COLOR_WHITE, 
+                (((int)(cls.realtime >> 10) & 1) || (!cl_demoBlink->integer)) ? S_COLOR_RED : S_COLOR_WHITE,
                 S_COLOR_WHITE, S_COLOR_YELLOW, pos / 1024, S_COLOR_WHITE);
     
     // draw the demo notification on screen
@@ -490,7 +490,7 @@ void SCR_Init(void) {
     cl_graphscale = Cvar_Get("graphscale", "1", CVAR_CHEAT);
     cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
     cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
-    cl_demoblink = Cvar_Get("cl_demoblink", "1", CVAR_ARCHIVE);
+    cl_demoBlink = Cvar_Get("cl_demoBlink", "1", CVAR_ARCHIVE);
     cl_drawSpree = Cvar_Get("cl_drawSpree", "1", CVAR_ARCHIVE);
     scr_initialized = qtrue;
 }
