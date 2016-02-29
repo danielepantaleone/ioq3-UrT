@@ -315,16 +315,19 @@ static void SV_AddEntToSnapshot(svEntity_t *svEnt, sharedEntity_t *gEnt, snapsho
 // Name        : SV_AddEntitiesVisibleFromPoint
 // Description : Add an entity to a snapshot if visible from origin
 /////////////////////////////////////////////////////////////////////
-static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame, 
-                                           snapshotEntityNumbers_t *eNums, qboolean portal) {
+static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame, snapshotEntityNumbers_t *eNums, qboolean portal) {
                                                
     int                e, i, l;
     int                leafnum;
     int                clientarea, clientcluster;
     byte               *clientpvs;
     byte               *bitvector;
-    sharedEntity_t     *ent;
+    sharedEntity_t     *ent, *playerEnt;
     svEntity_t         *svEnt;
+
+#ifdef FEATURE_ANTICHEAT
+    sharedEntity_t     *client;
+#endif
 
     // during an error shutdown message we may need to transmit
     // the shutdown message after the server has shutdown, so
@@ -333,14 +336,19 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *fram
         return;
     }
 
-    leafnum = CM_PointLeafnum (origin);
-    clientarea = CM_LeafArea (leafnum);
+    leafnum = CM_PointLeafnum(origin);
+    clientarea = CM_LeafArea(leafnum);
     clientcluster = CM_LeafCluster (leafnum);
 
     // calculate the visible areas
     frame->areabytes = CM_WriteAreaBits(frame->areabits, clientarea);
 
     clientpvs = CM_ClusterPVS (clientcluster);
+
+    playerEnt = SV_GentityNum(frame->ps.clientNum);
+    if (playerEnt->r.svFlags & SVF_SELF_PORTAL)  {
+        SV_AddEntitiesVisibleFromPoint(playerEnt->s.origin2, frame, eNums, qtrue);
+    }
 
     for (e = 0 ; e < sv.num_entities ; e++) {
         
@@ -443,6 +451,30 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *fram
                 continue;
             }
         }
+
+#ifdef FEATURE_ANTICHEAT
+        if (sv_wh_active->integer > 0 && e < sv_maxclients->integer) {
+
+			// note: !r.linked is already exclused - see above
+			if (e == frame->ps.clientNum) {
+				continue;
+			}
+
+			client = SV_GentityNum(frame->ps.clientNum);
+
+			// exclude bots and free flying specs
+			if (!portal &&
+			    !(client->r.svFlags & SVF_BOT) &&
+			    (frame->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) &&
+			    !(frame->ps.pm_flags & PMF_FOLLOW)) {
+				if (!SV_CanSee(frame->ps.clientNum, e)) {
+					SV_RandomizePos(frame->ps.clientNum, e);
+					SV_AddEntToSnapshot(client, svEnt, ent, eNums);
+					continue;
+				}
+			}
+		}
+#endif
 
         // add it
         SV_AddEntToSnapshot(svEnt, ent, eNums);
@@ -550,6 +582,14 @@ static void SV_BuildClientSnapshot(client_t *client) {
         ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
         state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
         *state = ent->s;
+
+#ifdef FEATURE_ANTICHEAT
+        if (sv_wh_active->integer && entityNumbers.snapshotEntities[i] < sv_maxclients->integer) {
+			if (SV_PositionChanged(entityNumbers.snapshotEntities[i])) {
+				SV_RestorePos(entityNumbers.snapshotEntities[i]);
+			}
+		}
+#endif
         svs.nextSnapshotEntities++;
         // this should never hit, map should always be restarted first in SV_Frame
         if (svs.nextSnapshotEntities >= 0x7FFFFFFE) {

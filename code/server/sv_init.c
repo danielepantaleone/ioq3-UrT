@@ -951,6 +951,45 @@ void SV_Init(void) {
     Cvar_Get("sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM);
     Cvar_Get("sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM);
 
+#ifdef FEATURE_ANTICHEAT
+    // Note:
+	// we might add CVAR_LATCH flag to wh_active saving SV_InitWallhack() call when not needed
+	// but it may be helpfully (see sound issue) when wh_active isn't active all the time - we should give that a try
+	// just enable sv_wh_active by random intervals ... (would also save CPU usage too)
+	sv_wh_active = Cvar_Get("sv_wh_active", "0", CVAR_ARCHIVE);
+
+	// Note on bounding box dimensions:
+	// The default values are considerably larger than the normal values (36 and 72) used by ET.
+	// The reason for this is that it is better to predict a player as visible when he/she is not than the contrary.
+	// It may give a slight advantage to cheaters using wallhacks, but IMO it is not significant.
+	// You can change these Cvars, but if you set them to smaller values then it may happen that
+	// players do not become immediately visible when you go around corners.
+
+	// was 50 - now real player x bbox size(36) + offset
+	sv_wh_bbox_horz = Cvar_Get("sv_wh_bbox_horz", "60", CVAR_ARCHIVE);
+
+	if (sv_wh_bbox_horz->integer < 20) {
+		Cvar_Set("sv_wh_bbox_horz", "20");
+	}
+	if (sv_wh_bbox_horz->integer > 100) {
+		Cvar_Set("sv_wh_bbox_horz", "100");
+	}
+
+    // was 60 - now real player y bbox size(72) + offset
+	sv_wh_bbox_vert = Cvar_Get("sv_wh_bbox_vert", "100", CVAR_ARCHIVE);
+
+	if (sv_wh_bbox_vert->integer < 40) {
+		Cvar_Set("sv_wh_bbox_vert", "40");
+	}
+	if (sv_wh_bbox_vert->integer > 150) {
+		Cvar_Set("sv_wh_bbox_vert", "150");
+	}
+
+	sv_wh_check_fov = Cvar_Get("wh_check_fov", "0", CVAR_ARCHIVE);
+
+	SV_InitWallhack();
+#endif
+
     // server vars
     sv_rconPassword = Cvar_Get("rconPassword", "", CVAR_TEMP);
     sv_rconRecoveryPassword = Cvar_Get("rconRecoveryPassword", "", CVAR_INIT);
