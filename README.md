@@ -70,6 +70,8 @@ both **4.1** version and **4.2** version, although it's highly optimized to work
 * `sv_dropSignature` - a signature to be attached to the drop suffix message
 * `sv_checkClientGuid` - check guid validity upon client connection
 * `sv_noKnife` - totally removes the knife from the server
+* `sv_wh_active` - enable wallhack protection on the server
+* `sv_wh_check_fov` - enable wallhack protection only when players are in their respective FOV
 
 ### *Client*
 
