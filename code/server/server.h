@@ -332,7 +332,7 @@ extern    cvar_t    *sv_dropSuffix;
 extern    cvar_t    *sv_dropSignature;
 extern    cvar_t    *sv_checkClientGuid;
 
-#ifdef FEATURE_ANTICHEAT
+#ifdef erverUSE_ANTICHEAT
 extern    cvar_t    *sv_wh_active;
 extern    cvar_t    *sv_wh_bbox_horz;
 extern    cvar_t    *sv_wh_bbox_vert;
@@ -440,7 +440,7 @@ void    BotImport_DebugPolygonDelete(int id);
 //
 // sv_wallhack.c
 //
-#ifdef FEATURE_ANTICHEAT
+#ifdef USE_ANTICHEAT
 void    SV_RandomizePos(int player, int other);
 void    SV_InitWallhack(void);
 void    SV_RestorePos(int cli);

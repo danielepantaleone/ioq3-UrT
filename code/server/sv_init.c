@@ -951,7 +951,7 @@ void SV_Init(void) {
     Cvar_Get("sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM);
     Cvar_Get("sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM);
 
-#ifdef FEATURE_ANTICHEAT
+#ifdef USE_ANTICHEAT
     // Note:
 	// we might add CVAR_LATCH flag to wh_active saving SV_InitWallhack() call when not needed
 	// but it may be helpfully (see sound issue) when wh_active isn't active all the time - we should give that a try

@@ -325,7 +325,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *fram
     sharedEntity_t     *ent, *playerEnt;
     svEntity_t         *svEnt;
 
-#ifdef FEATURE_ANTICHEAT
+#ifdef USE_ANTICHEAT
     sharedEntity_t     *client;
 #endif
 
@@ -452,7 +452,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *fram
             }
         }
 
-#ifdef FEATURE_ANTICHEAT
+#ifdef USE_ANTICHEAT
         if (sv_wh_active->integer > 0 && e < sv_maxclients->integer) {
 
 			// note: !r.linked is already exclused - see above
@@ -583,7 +583,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
         state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
         *state = ent->s;
 
-#ifdef FEATURE_ANTICHEAT
+#ifdef USE_ANTICHEAT
         if (sv_wh_active->integer && entityNumbers.snapshotEntities[i] < sv_maxclients->integer) {
 			if (SV_PositionChanged(entityNumbers.snapshotEntities[i])) {
 				SV_RestorePos(entityNumbers.snapshotEntities[i]);
