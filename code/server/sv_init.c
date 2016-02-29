@@ -608,20 +608,6 @@ int SV_MakeCompressedPureList() {
 }
 
 /////////////////////////////////////////////////////////////////////
-// Name        : SV_MapExists
-// Description : Check whether a given map is available on the server
-// Author      : Fenix
-/////////////////////////////////////////////////////////////////////
-static qboolean SV_MapExists(char *mapname) {
-    char expanded[MAX_QPATH];
-    Com_sprintf(expanded, sizeof(expanded), "maps/%s.bsp", mapname);
-    if (FS_ReadFile(expanded, NULL) > 0) {
-        return qtrue;
-    }
-    return qfalse;     
-}
-
-/////////////////////////////////////////////////////////////////////
 // Name        : SV_SpawnServer
 // Description : Change the server to a new map, taking all connected
 //               clients along with it. 
