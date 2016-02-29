@@ -889,8 +889,7 @@ void SVC_RconRecoveryRemoteCommand(netadr_t from, msg_t *msg) {
 //               Redirect all printfs
 /////////////////////////////////////////////////////////////////////
 void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
-    
-    int          i;
+
     qboolean     valid;
     char         remaining[1024];
     netadr_t     allowedSpamIPAdress;
