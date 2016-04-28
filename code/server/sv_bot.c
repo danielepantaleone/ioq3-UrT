@@ -42,12 +42,13 @@ extern botlib_export_t    *botlib_export;
 // Description : Add a bot
 /////////////////////////////////////////////////////////////////////
 int SV_BotAllocateClient(void) {
-    
+
     int         i;
     client_t    *cl;
 
     // find a client slot
-    for (i=sv_privateClients->integer, cl=&svs.clients[sv_privateClients->integer]; i < sv_maxclients->integer; i++, cl++) {
+    // Barbatos - do not allocate a private client slot to a bot
+    for (i = sv_privateClients->integer, cl = &svs.clients[sv_privateClients->integer]; i < sv_maxclients->integer; i++, cl++) {
         if (cl->state == CS_FREE) {
             break;
         }
@@ -65,7 +66,7 @@ int SV_BotAllocateClient(void) {
     cl->rate = 16384;
 
     return i;
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -73,20 +74,20 @@ int SV_BotAllocateClient(void) {
 // Description : Remove a bot
 /////////////////////////////////////////////////////////////////////
 void SV_BotFreeClient(int clientNum) {
-    
+
     client_t *cl;
 
     if (clientNum < 0 || clientNum >= sv_maxclients->integer) {
         Com_Error(ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum);
     }
-    
+
     cl = &svs.clients[clientNum];
     cl->state = CS_FREE;
     cl->name[0] = 0;
     if (cl->gentity) {
         cl->gentity->r.svFlags &= ~SVF_BOT;
     }
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -94,7 +95,7 @@ void SV_BotFreeClient(int clientNum) {
 // Description : Draw bots debug polygons
 /////////////////////////////////////////////////////////////////////
 void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *points), int value) {
-    
+
     static cvar_t   *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea;
     bot_debugpoly_t *poly;
     int             i, parm0;
@@ -102,24 +103,24 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
     if (!debugpolygons) {
         return;
     }
-    
+
     //bot debugging
     if (!bot_debug) {
         bot_debug = Cvar_Get("bot_debug", "0", 0);
     }
 
     if (bot_enable && bot_debug->integer) {
-        
+
         //show reachabilities
         if (!bot_reachability) {
-            bot_reachability = Cvar_Get("bot_reachability", "0", 0); 
+            bot_reachability = Cvar_Get("bot_reachability", "0", 0);
         }
-        
+
         //show ground faces only
         if (!bot_groundonly) {
             bot_groundonly = Cvar_Get("bot_groundonly", "1", 0);
         }
-        
+
         //get the hightlight area
         if (!bot_highlightarea) {
             bot_highlightarea = Cvar_Get("bot_highlightarea", "0", 0);
@@ -130,24 +131,24 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
         if (bot_reachability->integer) parm0 |= 2;
         if (bot_groundonly->integer) parm0 |= 4;
         botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
-        botlib_export->Test(parm0, NULL, svs.clients[0].gentity->r.currentOrigin, 
+        botlib_export->Test(parm0, NULL, svs.clients[0].gentity->r.currentOrigin,
                             svs.clients[0].gentity->r.currentAngles);
     }
-    
+
     //draw all debug polys
     for (i = 0; i < bot_maxdebugpolys; i++) {
         poly = &debugpolygons[i];
         if (!poly->inuse) continue;
         drawPoly(poly->color, poly->numPoints, (float *) poly->points);
     }
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
 // Name : BotImport_Print
 /////////////////////////////////////////////////////////////////////
 void QDECL BotImport_Print(int type, char *fmt, ...) {
-    
+
     char      str[2048];
     va_list   ap;
 
@@ -156,50 +157,50 @@ void QDECL BotImport_Print(int type, char *fmt, ...) {
     va_end(ap);
 
     switch(type) {
-        
+
         case PRT_MESSAGE: {
             Com_Printf("%s", str);
             break;
         }
-        
+
         case PRT_WARNING: {
             Com_Printf("WARNING: %s", str);
             break;
         }
-        
+
         case PRT_ERROR: {
             Com_Printf("ERROR: %s", str);
             break;
         }
-        
+
         case PRT_FATAL: {
             Com_Printf("FATAL: %s", str);
             break;
         }
-        
+
         case PRT_EXIT: {
             Com_Error(ERR_DROP, "EXIT: %s", str);
             break;
         }
-        
+
         default: {
             Com_Printf("unknown print type\n");
             break;
         }
-        
+
     }
 }
 
 /////////////////////////////////////////////////////////////////////
 // Name : BotImport_Trace
 /////////////////////////////////////////////////////////////////////
-void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, 
+void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs,
                      vec3_t end, int passent, int contentmask) {
-                         
+
     trace_t trace;
 
     SV_Trace(&trace, start, mins, maxs, end, passent, contentmask, qfalse);
-    
+
     //copy the trace information
     bsptrace->allsolid = trace.allsolid;
     bsptrace->startsolid = trace.startsolid;
@@ -214,19 +215,19 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
     bsptrace->exp_dist = 0;
     bsptrace->sidenum = 0;
     bsptrace->contents = 0;
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
 // Name : BotImport_EntityTrace
 /////////////////////////////////////////////////////////////////////
-void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, 
+void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs,
                            vec3_t end, int entnum, int contentmask) {
-                               
+
     trace_t trace;
 
     SV_ClipToEntity(&trace, start, mins, maxs, end, entnum, contentmask, qfalse);
-    
+
     //copy the trace information
     bsptrace->allsolid = trace.allsolid;
     bsptrace->startsolid = trace.startsolid;
@@ -241,7 +242,7 @@ void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec
     bsptrace->exp_dist = 0;
     bsptrace->sidenum = 0;
     bsptrace->contents = 0;
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -267,9 +268,9 @@ char *BotImport_BSPEntityData(void) {
 /////////////////////////////////////////////////////////////////////
 // Name : BotImport_BSPModelMinsMaxsOrigin
 /////////////////////////////////////////////////////////////////////
-void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmins, 
+void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmins,
                                       vec3_t outmaxs, vec3_t origin) {
-                                          
+
     clipHandle_t    h;
     vec3_t          mins, maxs;
     float           max;
@@ -279,28 +280,28 @@ void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmin
     CM_ModelBounds(h, mins, maxs);
     //if the model is rotated
     if ((angles[0] || angles[1] || angles[2])) {
-        
+
         // expand for rotation
         max = RadiusFromBounds(mins, maxs);
         for (i = 0; i < 3; i++) {
             mins[i] = -max;
             maxs[i] = max;
         }
-        
+
     }
-    
+
     if (outmins) {
         VectorCopy(mins, outmins);
     }
-    
+
     if (outmaxs) {
         VectorCopy(maxs, outmaxs);
     }
-    
+
     if (origin) {
         VectorClear(origin);
     }
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -333,7 +334,7 @@ void *BotImport_HunkAlloc(int size) {
 // Name : BotImport_DebugPolygonCreate
 /////////////////////////////////////////////////////////////////////
 int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
-    
+
     bot_debugpoly_t *poly;
     int             i;
 
@@ -346,11 +347,11 @@ int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
             break;
         }
     }
-    
+
     if (i >= bot_maxdebugpolys) {
         return 0;
     }
-    
+
     poly = &debugpolygons[i];
     poly->inuse = qtrue;
     poly->color = color;
@@ -364,19 +365,19 @@ int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
 // Name : BotImport_DebugPolygonShow
 /////////////////////////////////////////////////////////////////////
 void BotImport_DebugPolygonShow(int id, int color, int numPoints, vec3_t *points) {
-    
+
     bot_debugpoly_t *poly;
-    
+
     if (!debugpolygons) {
         return;
     }
-    
+
     poly = &debugpolygons[id];
     poly->inuse = qtrue;
     poly->color = color;
     poly->numPoints = numPoints;
     Com_Memcpy(poly->points, points, numPoints * sizeof(vec3_t));
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -408,7 +409,7 @@ void BotImport_DebugLineDelete(int line) {
 // Name : BotImport_DebugLineShow
 /////////////////////////////////////////////////////////////////////
 void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
-    
+
     vec3_t points[4], dir, cross, up = {0, 0, 1};
     float dot;
 
@@ -432,7 +433,7 @@ void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
     VectorMA(points[3], 2, cross, points[3]);
 
     BotImport_DebugPolygonShow(line, color, 4, points);
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -450,10 +451,10 @@ void SV_BotFrame(int time) {
     if (!bot_enable) {
         return;
     }
-    
+
     //NOTE: maybe the game is already shutdown
     if (!gvm) {
-        return; 
+        return;
     }
 
     VM_Call(gvm, BOTAI_START_FRAME, time);
@@ -464,7 +465,7 @@ void SV_BotFrame(int time) {
 // Name : SV_BotLibSetup
 /////////////////////////////////////////////////////////////////////
 int SV_BotLibSetup(void) {
-    
+
     if (!bot_enable) {
         return 0;
     }
@@ -475,13 +476,13 @@ int SV_BotLibSetup(void) {
     }
 
     return botlib_export->BotLibSetup();
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_ShutdownBotLib
-// Description : Called when either the entire server is being 
-//               killed, or it is changing to a different game 
+// Description : Called when either the entire server is being
+//               killed, or it is changing to a different game
 //               directory.
 /////////////////////////////////////////////////////////////////////
 int SV_BotLibShutdown(void) {
@@ -534,7 +535,7 @@ void SV_BotInitCvars(void) {
 // Name: SV_BotInitBotLib
 /////////////////////////////////////////////////////////////////////
 void SV_BotInitBotLib(void) {
-    
+
     botlib_import_t botlib_import;
 
     if (debugpolygons) Z_Free(debugpolygons);
@@ -574,7 +575,7 @@ void SV_BotInitBotLib(void) {
 
     botlib_export = (botlib_export_t *)GetBotLibAPI(BOTLIB_API_VERSION, &botlib_import);
     assert(botlib_export);     // somehow we end up with a zero import.
-    
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -587,7 +588,7 @@ void SV_BotInitBotLib(void) {
 // Name: SV_BotGetConsoleMessage
 /////////////////////////////////////////////////////////////////////
 int SV_BotGetConsoleMessage(int client, char *buf, int size) {
-    
+
     client_t   *cl;
     int        index;
 
@@ -607,14 +608,14 @@ int SV_BotGetConsoleMessage(int client, char *buf, int size) {
 
     Q_strncpyz(buf, cl->reliableCommands[index], size);
     return qtrue;
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////
 // Name: SV_BotGetSnapshotEntity
 /////////////////////////////////////////////////////////////////////
 int SV_BotGetSnapshotEntity(int client, int sequence) {
-    
+
     client_t            *cl;
     clientSnapshot_t    *frame;
 
@@ -623,7 +624,7 @@ int SV_BotGetSnapshotEntity(int client, int sequence) {
     if (sequence < 0 || sequence >= frame->num_entities) {
         return -1;
     }
-    
+
     return svs.snapshotEntities[(frame->first_entity + sequence) % svs.numSnapshotEntities].number;
 
 }
