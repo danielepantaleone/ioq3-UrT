@@ -384,7 +384,7 @@ static int is_visible(vec3_t start, vec3_t end) {
 	trace_t trace;
 	CM_BoxTrace(&trace, start, end, NULL, NULL, 0, CONTENTS_SOLID, 0);
 
-	if (trace.contents & CONTENTS_SOLID) {
+	if ((trace.contents & CONTENTS_SOLID) && !(trace.contents & CONTENTS_TRANSLUCENT)) {
 		return 0;
 	}
 

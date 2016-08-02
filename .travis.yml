@@ -32,7 +32,7 @@ deploy:
     repo: danielepantaleone/ioq3-for-UrbanTerror-4
     tags: true
 
-notifications:ake
+notifications: ake
   email:
     recipients:
     - danielepantaleone@me.com
