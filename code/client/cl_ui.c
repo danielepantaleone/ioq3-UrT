@@ -1127,7 +1127,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return NET_StringToAdr( VMA(1), VMA(2));
 		
 	case UI_Q_VSNPRINTF:
-		return Q_vsnprintf( VMA(1), VMA(2), VMA(3), VMA(4));
+		return Q_vsnprintf( VMA(1), *((size_t *)VMA(2)), VMA(3), VMA(4));
 		
 	case UI_NET_SENDPACKET:
 		{
@@ -1140,7 +1140,8 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 		
 	case UI_COPYSTRING:
-		return CopyString(VMA(1));
+		CopyString(VMA(1));
+		return 0;
 
 	//case UI_SYS_STARTPROCESS:
 	//	Sys_StartProcess( VMA(1), VMA(2) );

@@ -2490,7 +2490,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
          *  We have reached the end of the IDAT chunks
          */
 
-        if(!(Type == PNG_ChunkType_IDAT))
+        if(Type != PNG_ChunkType_IDAT)
         {
             BufferedFileRewind(BF, PNG_ChunkHeader_Size); 
   
@@ -2560,7 +2560,7 @@ static uint32_t DecompressIDATs(struct BufferedFile *BF, uint8_t **Buffer)
          *  We have reached the end of the IDAT chunks
          */
 
-        if(!(Type == PNG_ChunkType_IDAT))
+        if(Type != PNG_ChunkType_IDAT)
         {
             BufferedFileRewind(BF, PNG_ChunkHeader_Size); 
   
@@ -3331,8 +3331,7 @@ static qboolean DecodeImageNonInterlaced(struct PNG_Chunk_IHDR *IHDR,
      *  Check if we have enough data for the whole image.
      */
 
-    if(!(DecompressedDataLength == ((BytesPerScanline + 1) * IHDR_Height)))
-    {
+    if ((DecompressedDataLength != ((BytesPerScanline + 1) * IHDR_Height))) {
         return(qfalse);
     }
 
@@ -3689,7 +3688,7 @@ static qboolean DecodeImageInterlaced(struct PNG_Chunk_IHDR *IHDR,
      *  Check if we have enough data for the whole image.
      */
 
-    if(!(DecompressedDataLength == TargetLength))
+    if((DecompressedDataLength != TargetLength))
     {
         return(qfalse);
     }
@@ -4023,7 +4022,7 @@ static void LoadPNG(const char *name, byte **pic, int *width, int *height)
          *  Check if the chunk is an PLTE.
          */
 
-        if(!(ChunkHeaderType == PNG_ChunkType_PLTE))
+        if(ChunkHeaderType != PNG_ChunkType_PLTE)
         {
             CloseBufferedFile(ThePNG);
    
@@ -4125,7 +4124,7 @@ static void LoadPNG(const char *name, byte **pic, int *width, int *height)
          *  Check if the chunk is an tRNS.
          */
 
-        if(!(ChunkHeaderType == PNG_ChunkType_tRNS))
+        if(ChunkHeaderType != PNG_ChunkType_tRNS)
         {
             CloseBufferedFile(ThePNG);
  
@@ -4164,7 +4163,7 @@ static void LoadPNG(const char *name, byte **pic, int *width, int *height)
         {
             case PNG_ColourType_Grey :
             {
-                if(!ChunkHeaderLength == 2)
+                if(ChunkHeaderLength != 2)
                 {
                     CloseBufferedFile(ThePNG);
   
@@ -4186,7 +4185,7 @@ static void LoadPNG(const char *name, byte **pic, int *width, int *height)
    
             case PNG_ColourType_True :
             {
-                if(!ChunkHeaderLength == 6)
+                if(ChunkHeaderLength != 6)
                 {
                     CloseBufferedFile(ThePNG);
   
