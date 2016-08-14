@@ -85,6 +85,7 @@ Even though most of the code has been written by me and / or revised by me, some
 other versions of ioquake3: because of that I would like to give the necessary credits to the people
 I took ideas from:
 
+* [FrozenSand](https://github.com/Barbatos/ioq3-for-UrbanTerror-4)
 * [Rambetter](https://github.com/Rambetter)
 * [clearskies](https://github.com/anthonynguyen)
 * [mickael9](https://bitbucket.org/mickael9)
