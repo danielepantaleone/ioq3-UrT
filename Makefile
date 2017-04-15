@@ -40,7 +40,6 @@ USE_CODEC_VORBIS=0
 USE_AUTH=1
 USE_DEMO_FORMAT_42=1
 USE_ALTGAMMA=1
-USE_ANTICHEAT=1
 
 ifeq ($(V),1)
 echo_cmd=@:
@@ -989,7 +988,6 @@ Q3OBJ = \
   $(B)/client/sv_net_chan.o \
   $(B)/client/sv_snapshot.o \
   $(B)/client/sv_world.o \
-  $(B)/client/sv_wallhack.o \
   \
   $(B)/client/q_math.o \
   $(B)/client/q_shared.o \
@@ -1191,7 +1189,6 @@ Q3DOBJ = \
   $(B)/ded/sv_net_chan.o \
   $(B)/ded/sv_snapshot.o \
   $(B)/ded/sv_world.o \
-  $(B)/ded/sv_wallhack.o \
   \
   $(B)/ded/cm_load.o \
   $(B)/ded/cm_patch.o \

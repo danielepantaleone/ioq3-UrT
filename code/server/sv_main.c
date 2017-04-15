@@ -79,13 +79,6 @@ cvar_t    *sv_dropSuffix;
 cvar_t    *sv_dropSignature;
 cvar_t    *sv_checkClientGuid;
 
-#ifdef USE_ANTICHEAT
-cvar_t    *sv_wh_active;
-cvar_t    *sv_wh_bbox_horz;
-cvar_t    *sv_wh_bbox_vert;
-cvar_t    *sv_wh_check_fov;
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                          //
 //  UTILITIES                                                                                               //
