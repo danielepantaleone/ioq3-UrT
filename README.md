@@ -89,4 +89,4 @@ I took ideas from:
 * [clearskies](https://github.com/anthonynguyen)
 * [mickael9](https://bitbucket.org/mickael9)
 
-[![Build Status](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4.svg?branch=1.1)](https://travis-ci.org/danielepantaleone/ioq3-for-UrbanTerror-4)
+[![Build Status](https://travis-ci.org/danielepantaleone/ioq3-UrT.svg?branch=master)](https://travis-ci.org/danielepantaleone/ioq3-UrT)
