@@ -1,9 +1,9 @@
-ioquake3 engine for urban terror 4.x
+ioQuake3 engine for urban terror 4.x
 ====================================
 
 ## Description
 
-This is a custom fork of the official ioquake3 engine supported by the Frozen Sand development team for the 
+Custom ioQuake3 fork of the official engine supported by the Frozen Sand development team for the 
 videogame Urban Terror 4.x serie (http://www.urbanterror.info).
 
 ## How to compile
@@ -31,7 +31,6 @@ videogame Urban Terror 4.x serie (http://www.urbanterror.info).
 * Added logging capability: writes in the same log file as the game module
 * Added position save/load: fixed permanent position save/load not working in game module
 * Added server-side ghosting feature: fix partial entity collision in jump mode
-* Added custom mapcycle parsing utility (works with plain mapcycle file)
 * Added flood protect fix: allow 2 reliable client commands every 1.5 seconds
 * Added `tell` command: send a private message to a specific client
 * Added RCON `teleport` command: teleport a specific client to another location
@@ -40,8 +39,8 @@ videogame Urban Terror 4.x serie (http://www.urbanterror.info).
 * Added RCON `spoof` command: send a game client command as a specific client
 * Added RCON `forcecvar` command: force a client USERINFO cvar to a specific value
 * Added RCON `follow` command: use QVM follow command but introduces pattern matching
-* Allow client position load while being in a jump run (will reset running timer if it was running)
-* Fixed map searching algorithm: no more unpredictability
+* Allow client position load while being in a jump run (reset running timer if necessary)
+* Improved map searching algorithm
 * Fixed `stopserverdemo` command being executed on non-dedicated servers
 * Replaced auth ban message with something understandable
 * Unlocked `sv_fps` cvar from game module constraint
@@ -50,9 +49,9 @@ videogame Urban Terror 4.x serie (http://www.urbanterror.info).
 ### *Client*
 
 * Correctly draw new game module color codes in console
-* Correctly hide clock when cg_draw2d is set to zero
+* Correctly hide clock when `cg_draw2d` is set to zero
 * Fixed clipboard data paste crashing the client engine on unix systems
-* Fixed linux/mac copy&paste considering only the first six characters of a string
+* Fixed linux/macOS copy&paste considering only the first six chars of a string
 * Fixed linux SDL gamma bug using XF86
 * Improved in-game console
 * Improved windows dedicated console readability
@@ -79,10 +78,6 @@ videogame Urban Terror 4.x serie (http://www.urbanterror.info).
 * `cl_drawSpree` - draw the current spree in the hud
 
 ## Credits
-
-Even though most of the code has been written by me and / or revised by me, some ideas have been taken from 
-other versions of ioquake3: because of that I would like to give the necessary credits to the people
-I took ideas from:
 
 * [FrozenSand](https://github.com/Barbatos/ioq3-for-UrbanTerror-4)
 * [Rambetter](https://github.com/Rambetter)
