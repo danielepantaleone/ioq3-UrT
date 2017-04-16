@@ -310,7 +310,7 @@ void SV_GetMapSoundingLike(char *dest, const char *s, int size) {
     search = maplist;
     for (i = 0; i < mapcount && count < MAX_MAPLIST_SIZE; i++, search += len + 1) {
 
-        len = strlen(search);
+        len = (int) strlen(search);
         COM_StripExtension(search, search);
 
         // check for substring match
@@ -332,7 +332,7 @@ void SV_GetMapSoundingLike(char *dest, const char *s, int size) {
         Com_Printf("Maps found matching %s%s%s:\n", S_COLOR_YELLOW, s, S_COLOR_WHITE);
 
         // Sort maps before displaying the short list
-        qsort(matches, count, sizeof(char *), SV_SortMaps);
+        qsort(matches, (size_t) count, sizeof(char *), SV_SortMaps);
 
         for (i = 0; i < count; i++) {
             // Printing a short map list so the user can retry with a more specific name
@@ -389,7 +389,6 @@ static void SV_Map_f(void) {
         Cvar_SetValue("g_doWarmup", 0);
         // may not set sv_maxclients directly, always set latched
         Cvar_SetLatched("sv_maxclients", "8");
-        cmd += 2;
         cheat = qfalse;
         killBots = qtrue;
     }
@@ -645,6 +644,8 @@ static void SV_Kick_f(void) {
 // Description : Teleport a player
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wuninitialized"
 static void SV_Teleport_f(void) {
     
     vec3_t          origin;
@@ -681,7 +682,7 @@ static void SV_Teleport_f(void) {
     }
     
     // get the client playerstate
-    ps1 = SV_GameClientNum(cl1 - svs.clients);
+    ps1 = SV_GameClientNum((int) (cl1 - svs.clients));
     
     if (Cmd_Argc() == 3) {
         
@@ -698,16 +699,16 @@ static void SV_Teleport_f(void) {
         }
         
         // get target client world coordinates
-        ps2 = SV_GameClientNum(cl2 - svs.clients);
+        ps2 = SV_GameClientNum((int) (cl2 - svs.clients));
         origin[0] = ps2->origin[0];
         origin[1] = ps2->origin[1];
         origin[2] = ps2->origin[2];
 
     } else {
         // copy given world coordinates
-        origin[0] = atof(Cmd_Argv(2));
-        origin[1] = atof(Cmd_Argv(3));
-        origin[2] = atof(Cmd_Argv(4));
+        origin[0] = (vec_t) atof(Cmd_Argv(2));
+        origin[1] = (vec_t) atof(Cmd_Argv(3));
+        origin[2] = (vec_t) atof(Cmd_Argv(4));
     }
     
     // teleport the player
@@ -722,6 +723,7 @@ static void SV_Teleport_f(void) {
     }
 
 }
+#pragma clang diagnostic pop
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_Position_f
@@ -769,7 +771,7 @@ static void SV_Position_f(void) {
         }
         
         // print the position
-        i = cl - svs.clients;
+        i = (int) (cl - svs.clients);
         ps = SV_GameClientNum(i);
         Com_Printf("%3i - %12f - %12f - %12f\n", i, ps->origin[0], ps->origin[1], ps->origin[2]);
         
@@ -1019,7 +1021,7 @@ static void SV_Status_f(void) {
         Com_Printf("%s", name);
         
         Com_Printf("^7");
-        l = 16 - strlen(name);
+        l = (int) (16 - strlen(name));
         for (j=0 ; j<l ; j++) {
             Com_Printf(" ");
         }
@@ -1027,7 +1029,7 @@ static void SV_Status_f(void) {
         Com_Printf("%7i ", svs.time - cl->lastPacketTime);
         s = NET_AdrToString(cl->netchan.remoteAddress);
         Com_Printf("%s", s);
-        l = 22 - strlen(s);
+        l = (int) (22 - strlen(s));
         for (j = 0; j < l; j++) {
             Com_Printf(" ");
         }
@@ -1252,7 +1254,7 @@ static void SVD_StartDemoFile(client_t *client, const char *path) {
     }
 
     MSG_WriteByte(&msg, svc_EOF);
-    MSG_WriteLong(&msg, client - svs.clients);
+    MSG_WriteLong(&msg, (int) (client - svs.clients));
     MSG_WriteLong(&msg, sv.checksumFeed);
     MSG_WriteByte(&msg, svc_EOF);                   // XXX server code doesn't do this, 
                                                     // SV_Netchan_Transmit adds it!

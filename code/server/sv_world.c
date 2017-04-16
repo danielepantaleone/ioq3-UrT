@@ -101,6 +101,8 @@ void SV_SectorList_f(void) {
 // Description : Builds a uniformly subdivided tree for the given 
 //               world size
 /////////////////////////////////////////////////////////////////////
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wuninitialized"
 worldSector_t *SV_CreateworldSector(int depth, vec3_t mins, vec3_t maxs) {
     
     worldSector_t   *anode;
@@ -123,7 +125,7 @@ worldSector_t *SV_CreateworldSector(int depth, vec3_t mins, vec3_t maxs) {
         anode->axis = 1;
     }
 
-    anode->dist = 0.5 * (maxs[anode->axis] + mins[anode->axis]);
+    anode->dist = (float) (0.5 * (maxs[anode->axis] + mins[anode->axis]));
     VectorCopy (mins, mins1);    
     VectorCopy (mins, mins2);    
     VectorCopy (maxs, maxs1);    
@@ -136,11 +138,14 @@ worldSector_t *SV_CreateworldSector(int depth, vec3_t mins, vec3_t maxs) {
 
     return anode;
 }
+#pragma clang diagnostic pop
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_ClearWorld
 // Description : Clear current world sectors
 /////////////////////////////////////////////////////////////////////
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wuninitialized"
 void SV_ClearWorld(void) {
     
     clipHandle_t  h;
@@ -155,6 +160,7 @@ void SV_ClearWorld(void) {
     SV_CreateworldSector(0, mins, maxs);
     
 }
+#pragma clang diagnostic pop
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_UnlinkEntity
@@ -249,12 +255,12 @@ void SV_LinkEntity(sharedEntity_t *gEnt) {
         
         // expand for rotation
         float  max;
-        int    i;
+        int    z;
 
         max = RadiusFromBounds(gEnt->r.mins, gEnt->r.maxs);
-        for (i = 0 ; i < 3 ; i++) {
-            gEnt->r.absmin[i] = origin[i] - max;
-            gEnt->r.absmax[i] = origin[i] + max;
+        for (z = 0 ; z < 3 ; z++) {
+            gEnt->r.absmin[z] = origin[z] - max;
+            gEnt->r.absmax[z] = origin[z] + max;
         }
         
     } else {
@@ -394,7 +400,7 @@ void SV_AreaEntities_r(worldSector_t *node, areaParms_t *ap) {
             return;
         }
 
-        ap->list[ap->count] = check - sv.svEntities;
+        ap->list[ap->count] = (int) (check - sv.svEntities);
         ap->count++;
     }
     

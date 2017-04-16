@@ -79,11 +79,7 @@ cvar_t    *sv_dropSuffix;
 cvar_t    *sv_dropSignature;
 cvar_t    *sv_checkClientGuid;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                          //
-//  UTILITIES                                                                                               //
-//                                                                                                          //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define SV_OUTPUTBUF_LENGTH (1024 - 16)
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_BroadcastMessageToClient
@@ -101,7 +97,6 @@ void SV_BroadcastMessageToClient(client_t *cl, const char *fmt, ...) {
     
     SV_SendServerCommand(cl, "print \"%s\n\"", str);
 }
-
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_LogPrintf
@@ -150,7 +145,7 @@ void QDECL SV_LogPrintf(const char *fmt, ...) {
     va_end(argptr);
     
     // write in the log file
-    FS_Write(buffer, strlen(buffer), file);
+    FS_Write(buffer, (int) strlen(buffer), file);
     FS_FCloseFile(file);
         
 }
@@ -243,7 +238,7 @@ void SV_SavePositionToFile(client_t *cl, char *mapname) {
                                                              cl->savedPosition[2], cl->savedPositionAngle[0],
                                                              cl->savedPositionAngle[1], cl->savedPositionAngle[2]);
 
-    FS_Write(buffer, strlen(buffer), file);
+    FS_Write(buffer, (int) strlen(buffer), file);
     FS_FCloseFile(file);  
     
 }
@@ -296,10 +291,8 @@ callvote_t callvotes[] = {
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
 qboolean SV_CallvoteEnabled(char *text) {
-    
     int val;
     callvote_t *p;
-    
     val = Cvar_VariableIntegerValue("g_allowvote");
     for (p = callvotes; p->name; p++) {
         if (!Q_stricmp(text, p->name)) {
@@ -431,32 +424,6 @@ char *SV_ExpandNewlines(char *in) {
     string[l] = 0;
     return string;
     
-}
-
-/////////////////////////////////////////////////////////////////////
-// Name        : SV_ReplacePendingServerCommands
-// Description : This is ugly ^_^
-/////////////////////////////////////////////////////////////////////
-int SV_ReplacePendingServerCommands(client_t *client, const char *cmd) {
-    
-    int i, index, csnum1, csnum2;
-
-    for (i = client->reliableSent + 1; i <= client->reliableSequence; i++) {
-        
-        index = i & (MAX_RELIABLE_COMMANDS - 1);
-        
-        if (!Q_strncmp(cmd, client->reliableCommands[ index ], strlen("cs"))) {
-            sscanf(cmd, "cs %i", &csnum1);
-            sscanf(client->reliableCommands[ index ], "cs %i", &csnum2);
-            if (csnum1 == csnum2) {
-                Q_strncpyz(client->reliableCommands[ index ], cmd, sizeof(client->reliableCommands[ index ]));
-                return qtrue;
-            }
-        }
-    }
-    
-    return qfalse;
-
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -602,7 +569,7 @@ void SV_MasterHeartbeat(void) {
             }
             
             if (!strchr(sv_master[i]->string, ':')) {
-                adr[i].port = BigShort(PORT_MASTER);
+                adr[i].port = (unsigned short) BigShort(PORT_MASTER);
             }
             
             Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string, adr[i].ip[0], adr[i].ip[1],
@@ -685,7 +652,7 @@ void SVC_Status(netadr_t from) {
             ps = SV_GameClientNum(i);
             Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n", ps->persistant[PERS_SCORE], 
                                                                    cl->ping, cl->name);
-            playerLength = strlen(player);
+            playerLength = (int) strlen(player);
             if (statusLength + playerLength >= sizeof(status)) {
                 break; // can't hold any more
             }
@@ -825,19 +792,17 @@ void SVC_RconRecoveryRemoteCommand(netadr_t from, msg_t *msg) {
     
     // TTimo - scaled down to accumulate, but not overflow anything 
     // network wise, print wise etc. (OOB messages are the bottleneck here)
-    #define SV_OUTPUTBUF_LENGTH (1024 - 16)
-    
     char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
     static unsigned int lasttime = 0;
 
     // TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=534
-    time = Com_Milliseconds();
+    time = (unsigned int) Com_Milliseconds();
     
     if (!strlen(sv_rconRecoveryPassword->string) || strcmp (Cmd_Argv(1), sv_rconRecoveryPassword->string)) {
         
         // MaJ - If the rconpassword is bad and one just 
         // happened recently, don't spam the log file, just die.
-        if ((unsigned)(time - lasttime) < 600u) {
+        if ((time - lasttime) < 600u) {
             return;
         }
         
@@ -848,7 +813,7 @@ void SVC_RconRecoveryRemoteCommand(netadr_t from, msg_t *msg) {
         
         // MaJ - If the rconpassword is good, 
         // allow it much sooner than a bad one
-        if ((unsigned)(time - lasttime) < 180u) {
+        if (time - lasttime < 180u) {
             return;
         }
         
@@ -890,13 +855,12 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
     
     // TTimo - scaled down to accumulate, but not overflow anything 
     // network wise, print wise etc. (OOB messages are the bottleneck here)
-    #define SV_OUTPUTBUF_LENGTH (1024 - 16)
     char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
     static unsigned int lasttime = 0;
     char *cmd_aux;
 
     // TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=534
-    time = Com_Milliseconds();
+    time = (unsigned int) Com_Milliseconds();
 
     NET_StringToAdr(sv_rconAllowedSpamIP->string , &allowedSpamIPAdress);
     
@@ -910,7 +874,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
              !NET_IsLocalAddress(from)){
             // MaJ - If the rconpassword is bad and one just happened recently, 
             // don't spam the log file, just die.
-            if ((unsigned)(time - lasttime) < 600u) {
+            if (time - lasttime < 600u) {
                 return;
             }   
         }
@@ -926,7 +890,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t *msg) {
              !NET_IsLocalAddress(from)){
             // MaJ - If the rconpassword is good, 
             // allow it much sooner than a bad one.
-            if ((unsigned)(time - lasttime) < 180u) {
+            if ((time - lasttime) < 180u) {
                 return;
             }
         }
@@ -1451,7 +1415,7 @@ void SV_Frame(int msec) {
         Cvar_Set("sv_fps", "10");
     }
 
-    frameMsec = 1000 / sv_fps->integer * com_timescale->value;
+    frameMsec = (int) (1000 / sv_fps->integer * com_timescale->value);
     // don't let it scale below 1ms
     if (frameMsec < 1) {
         Cvar_Set("timescale", va("%f", sv_fps->integer / 1000.0f));

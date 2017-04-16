@@ -75,7 +75,6 @@ void SV_GetChallenge(netadr_t from) {
         challenge->firstTime = svs.time;
         challenge->time = svs.time;
         challenge->connected = qfalse;
-        i = oldest;
 
     }
 
@@ -180,7 +179,7 @@ qboolean SV_ApproveGuid( const char *guid) {
     char   c;
     
     if (sv_checkClientGuid->integer > 0) {
-        length = strlen(guid); 
+        length = (int) strlen(guid);
         if (length != 32) { 
             return qfalse; 
         }
@@ -193,10 +192,6 @@ qboolean SV_ApproveGuid( const char *guid) {
     }
     return qtrue;
 }
-
-#define PB_MESSAGE "PunkBuster Anti-Cheat software must be installed " \
-                   "and Enabled in order to join this server. An updated game patch can be downloaded from " \
-                   "www.idsoftware.com"
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_DirectConnect
@@ -418,7 +413,7 @@ gotnewcl:
     // accept the new client
     // this is the only place a client_t is ever initialized
     *newcl = temp;
-    clientNum = newcl - svs.clients;
+    clientNum = (int) (newcl - svs.clients);
     ent = SV_GentityNum(clientNum);
     newcl->gentity = ent;
 
@@ -545,14 +540,14 @@ void SV_DropClient(client_t *drop, const char *reason) {
     SV_SendServerCommand(drop, "disconnect \"%s\"", bigreason);
 
     if (drop->netchan.remoteAddress.type == NA_BOT) {
-        SV_BotFreeClient(drop - svs.clients);
+        SV_BotFreeClient((int) (drop - svs.clients));
     }
     
     // save client position to a file
     SV_SavePositionToFile(drop, sv_mapname->string);
 
     // nuke user info
-    SV_SetUserinfo(drop - svs.clients, "");
+    SV_SetUserinfo((int) (drop - svs.clients), "");
     
     Com_DPrintf("Going to CS_ZOMBIE for %s\n", drop->name);
     drop->state = CS_ZOMBIE; // become free in a few seconds
@@ -751,7 +746,7 @@ void SV_SendClientGameState(client_t *client) {
     }
 
     MSG_WriteByte(&msg, svc_EOF);
-    MSG_WriteLong(&msg, client - svs.clients);
+    MSG_WriteLong(&msg, (int) (client - svs.clients));
 
     // write the checksum feed
     MSG_WriteLong(&msg, sv.checksumFeed);
@@ -778,7 +773,7 @@ void SV_ClientEnterWorld(client_t *client, usercmd_t *cmd) {
     SV_UpdateConfigstrings(client);
 
     // set up the entity for the client
-    clientNum = client - svs.clients;
+    clientNum = (int) (client - svs.clients);
     ent = SV_GentityNum(clientNum);
     ent->s.number = clientNum;
     client->gentity = ent;
@@ -1181,20 +1176,19 @@ static void SV_VerifyPaks_f(client_t *cl) {
     int nClientChkSum[1024];
     int nServerChkSum[1024];
     const char *pPaks, *pArg;
-    qboolean bGood = qtrue;
+    qboolean bGood;
 
     // if we are pure, we "expect" the client to load certain things from 
     // certain pk3 files, namely we want the client to have loaded the
     // ui and cgame that we think should be loaded based on the pure setting
     if (sv_pure->integer != 0) {
 
-        bGood = qtrue;
         nChkSum1 = nChkSum2 = 0;
         
         // we run the game, so determine which cgame and ui the client "should" be running
-        bGood = (FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
+        bGood = (qboolean) (FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
         if (bGood) {
-            bGood = (FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
+            bGood = (qboolean) (FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
         }
         
         nClientPaks = Cmd_Argc();
@@ -1416,9 +1410,9 @@ void SV_UserinfoChanged(client_t *cl) {
     
     val = Info_ValueForKey(cl->userinfo, "ip");
     if (val[0]) {
-        len = strlen(ip) - strlen(val) + strlen(cl->userinfo);
+        len = (int) (strlen(ip) - strlen(val) + strlen(cl->userinfo));
     } else {
-        len = strlen(ip) + 4 + strlen(cl->userinfo);
+        len = (int) (strlen(ip) + 4 + strlen(cl->userinfo));
     }
     
     if (len >= MAX_INFO_STRING) {
@@ -1478,7 +1472,7 @@ static void SV_SavePosition_f(client_t *cl) {
     }
     
     // get the client slot
-    cid = cl - svs.clients;
+    cid = (int) (cl - svs.clients);
     
     // if the guy is in spectator mode
     if (SV_GetClientTeam(cid) == TEAM_SPECTATOR) {
@@ -1552,7 +1546,7 @@ static void SV_LoadPosition_f(client_t *cl) {
         return;
     }
     
-    cid = cl - svs.clients;
+    cid = (int) (cl - svs.clients);
     run = cl->ready;
     
     // if the guy is in spectator mode
@@ -1819,7 +1813,7 @@ void SV_ExecuteClientCommand(client_t *cl, const char *s, qboolean clientOK) {
                             // extend spamming to all the players, not just one
                             wtime = sv_callvoteWaitTime->integer * 1000;
                             if (sv.lastVoteTime && (sv.lastVoteTime + wtime > svs.time)) {
-                                wtime = (int)(((sv.lastVoteTime + wtime) - svs.time) / 1000);
+                                wtime = ((sv.lastVoteTime + wtime) - svs.time) / 1000;
                                 if (wtime < 60) {
                                     // less than 60 seconds => display seconds
                                     text = wtime != 1 ? "seconds" : "second";
@@ -1975,6 +1969,8 @@ static qboolean SV_ClientCommand(client_t *cl, msg_t *msg) {
 //               is enabled clientside
 // Author      : Fenix
 /////////////////////////////////////////////////////////////////////
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wuninitialized"
 void SV_GhostThink(client_t *cl) {
     
     int               i;
@@ -2044,6 +2040,7 @@ void SV_GhostThink(client_t *cl) {
     ent->r.contents |= CONTENTS_BODY;
     
 }
+#pragma clang diagnostic pop
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_ClientThink
@@ -2061,7 +2058,7 @@ void SV_ClientThink(client_t *cl, usercmd_t *cmd) {
     }
     
     // get the playerstate of this client
-    ps = SV_GameClientNum(cl - svs.clients);
+    ps = SV_GameClientNum((int) (cl - svs.clients));
     
     SV_GhostThink(cl);
     

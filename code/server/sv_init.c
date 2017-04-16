@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static void SV_SendConfigstring(client_t *client, int index) {
     
     int maxChunkSize = MAX_STRING_CHARS - 24;
-    int len = strlen(sv.configstrings[index]);
+    int len = (int) strlen(sv.configstrings[index]);
 
     if (len >= maxChunkSize) {
         
@@ -405,7 +405,7 @@ int TextEncode6Bit(const char *nam, unsigned char *buf, int blen) {
 
     tmp[0]=' '; // add space at start to compress first name using " ut4_"
     while(*nam)  {
-        *(tp++) = tolower(*(nam++));
+        *(tp++) = (char) tolower(*(nam++));
     }
 
     tp = tmp;
@@ -436,7 +436,7 @@ int TextEncode6Bit(const char *nam, unsigned char *buf, int blen) {
             x = char2val['~']; // replace with ~ character to not break everythign else
         }
         
-        buf[ol++] = x;
+        buf[ol++] = (unsigned char) x;
         if (ol == blen) {
             Com_Printf("ERROR: TextEncode6Bit: target buffer overflow!\n");
             buf[ol - 1] = 0;
@@ -478,8 +478,8 @@ int SV_MakeCompressedPureList() {
 
     // Add number of files at start
     l = bl / 4; // num files
-    buf[0] = (l) & 0xFF;
-    buf[1] = (l >> 8) & 0xFF;
+    buf[0] = (unsigned char) ((l) & 0xFF);
+    buf[1] = (unsigned char) ((l >> 8) & 0xFF);
 
     // Get pak names
     nam = FS_LoadedPakNames();
@@ -522,7 +522,6 @@ int SV_MakeCompressedPureList() {
     // using @ char and original value + 1
     csnr = 0;
     sh = 0;
-    l = 0;
     shl = 0;
     ol = 0;
     for (i = 0; i < bl; i++) {
@@ -549,9 +548,9 @@ int SV_MakeCompressedPureList() {
                     csnr++;
                     ol = 0;
                 }
-                tmp[ol++] = v + 1;
+                tmp[ol++] = (char) (v + 1);
             } else {
-                tmp[ol++] = v;
+                tmp[ol++] = (char) v;
             }
             
             // Com_Printf("OUT:%02X\n",tmp[ol-1]);
@@ -584,9 +583,9 @@ int SV_MakeCompressedPureList() {
                 csnr++;
                 ol = 0;
             }
-            tmp[ol++] = v+1;
+            tmp[ol++] = (char) (v + 1);
         } else {
-            tmp[ol++] = v;
+            tmp[ol++] = (char) v;
         }
         
         // Com_Printf("OUT:%02X\n",tmp[ol-1]);
@@ -692,8 +691,8 @@ void SV_SpawnServer(char *server, qboolean killBots) {
     Cvar_Set("cl_paused", "0");
 
     // get a new checksum feed and restart the file system
-    srand(Com_Milliseconds());
-    sv.checksumFeed = (((int) rand() << 16) ^ rand()) ^ Com_Milliseconds();
+    srand((unsigned int) Com_Milliseconds());
+    sv.checksumFeed = ((rand() << 16) ^ rand()) ^ Com_Milliseconds();
     FS_Restart(sv.checksumFeed);
 
     CM_LoadMap(va("maps/%s.bsp", server), qfalse, &checksum);
@@ -814,10 +813,10 @@ void SV_SpawnServer(char *server, qboolean killBots) {
         // load pk3s also loaded at the server
         if (SV_MakeCompressedPureList()) {
                 
-            int i;
+            int k;
             // Do cleanup
-            for(i = 0; i < PURE_COMPRESS_NUMCS; i++) {
-                SV_SetConfigstring(MAX_CONFIGSTRINGS - PURE_COMPRESS_NUMCS + i,"");
+            for(k = 0; k < PURE_COMPRESS_NUMCS; k++) {
+                SV_SetConfigstring(MAX_CONFIGSTRINGS - PURE_COMPRESS_NUMCS + k,"");
             }
 
             // No clients will be able to connect...

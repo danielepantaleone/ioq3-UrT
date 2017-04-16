@@ -315,6 +315,8 @@ static void SV_AddEntToSnapshot(svEntity_t *svEnt, sharedEntity_t *gEnt, snapsho
 // Name        : SV_AddEntitiesVisibleFromPoint
 // Description : Add an entity to a snapshot if visible from origin
 /////////////////////////////////////////////////////////////////////
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wuninitialized"
 static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame,
                                            snapshotEntityNumbers_t *eNums, qboolean portal) {
                                                
@@ -464,6 +466,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *fram
 
     }
 }
+#pragma clang diagnostic pop
 
 /////////////////////////////////////////////////////////////////////
 // Name        : SV_BuildClientSnapshot
@@ -474,6 +477,8 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *fram
 //               For viewing through other player's eyes, clent can 
 //               be something other than client->gentity
 /////////////////////////////////////////////////////////////////////
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wuninitialized"
 static void SV_BuildClientSnapshot(client_t *client) {
     
     int                         i;
@@ -506,7 +511,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
     }
 
     // grab the current playerState_t
-    ps = SV_GameClientNum(client - svs.clients);
+    ps = SV_GameClientNum((int) (client - svs.clients));
     frame->ps = *ps;
 
     // never send client's own entity, because it can
@@ -531,8 +536,8 @@ static void SV_BuildClientSnapshot(client_t *client) {
     // in the list which will need to be resorted for the delta compression
     // to work correctly.  This also catches the error condition
     // of an entity being included twice.
-    qsort(entityNumbers.snapshotEntities, 
-          entityNumbers.numSnapshotEntities, 
+    qsort(entityNumbers.snapshotEntities,
+          (size_t) entityNumbers.numSnapshotEntities,
           sizeof(entityNumbers.snapshotEntities[0]), 
           SV_QsortEntityNumbers);
 
@@ -559,6 +564,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
         
     }
 }
+#pragma clang diagnostic pop
 
 #define HEADER_RATE_BYTES 48  // include our header, IP header, and some overhead
 
@@ -639,7 +645,7 @@ void SV_SendMessageToClient(msg_t *msg, client_t *client) {
 
     if (rateMsec < client->snapshotMsec * com_timescale->value) {
         // never send more packets than this, no matter what the rate is at
-        rateMsec = client->snapshotMsec * com_timescale->value;
+        rateMsec = (int) (client->snapshotMsec * com_timescale->value);
         client->rateDelayed = qfalse;
     } else {
         client->rateDelayed = qtrue;
@@ -654,7 +660,7 @@ void SV_SendMessageToClient(msg_t *msg, client_t *client) {
         // more than a second away, so don't shorten it
         // do shorten if client is downloading
         if (!*client->downloadName && client->nextSnapshotTime < svs.time + 1000 * com_timescale->value) {
-            client->nextSnapshotTime = svs.time + 1000 * com_timescale->value;
+            client->nextSnapshotTime = (int) (svs.time + 1000 * com_timescale->value);
         }
         
     }
