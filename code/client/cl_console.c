@@ -69,7 +69,7 @@ typedef struct {
 extern console_t con;
 console_t        con;
 
-cvar_t   *con_conspeed;
+cvar_t   *con_bgAlpha;
 cvar_t   *con_notifytime;
 
 #define  DEFAULT_CONSOLE_WIDTH  78
@@ -344,8 +344,8 @@ void Con_Init (void) {
     
     int i;
 
+    con_bgAlpha = Cvar_Get("con_bgAlpha", "96", CVAR_ARCHIVE);
     con_notifytime = Cvar_Get ("con_notifytime", "3", 0);
-    con_conspeed = Cvar_Get ("scr_conspeed", "3", 0);
 
     Field_Clear(&g_consoleField);
     g_consoleField.widthInChars = g_console_field_width;
@@ -407,7 +407,7 @@ void CL_ConsolePrint(char *txt) {
     int        color;
     qboolean   skipnotify = qfalse;        // NERVE - SMF
     int        prev;                       // NERVE - SMF
-    
+
     // TTimo - prefix for text that shows up in console but not in notify
     // backported from RTCW
     if (!Q_strncmp(txt, "[skipnotify]", 12)) {
@@ -466,7 +466,7 @@ void CL_ConsolePrint(char *txt) {
                 break;
             default:    // display character and advance
                 y = con.current % con.totallines;
-                con.text[y * con.linewidth + con.x] = (color << 8) | c;
+                con.text[y * con.linewidth + con.x] = (short) ((color << 8) | c);
                 con.x++;
                 if (con.x >= con.linewidth) {
                     Con_Linefeed(skipnotify);
@@ -520,7 +520,7 @@ void Con_DrawInput (void) {
     
     y = con.vislines - (SMALLCHAR_HEIGHT * 2) + 6;
     prompt = va("[%02i:%02i:%02i] ", now.tm_hour, now.tm_min, now.tm_sec);
-    length = strlen(prompt);
+    length = (int) strlen(prompt);
     
     col[0] = con.color[0];
     col[1] = con.color[1];
@@ -592,7 +592,7 @@ void Con_DrawNotify (void) {
                 re.SetColor(g_color_table[currentColor]);
             }
             
-            SCR_DrawSmallChar(cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff);
+            SCR_DrawSmallChar((int) (cl_conXOffset->integer + con.xadjust + (x + 1) * SMALLCHAR_WIDTH), v, text[x] & 0xff);
         }
 
         v += SMALLCHAR_HEIGHT;
@@ -629,14 +629,14 @@ void Con_DrawSolidConsole(float frac) {
     int             rows;
     int             row;
     int             lines;
-    int             con_height;
-    int             current_color;
-    vec4_t          border_color;
-    vec4_t          background_color;
+    int             conHeight;
+    int             curColor;
+    vec4_t          borderColor;
+    vec4_t          bgColor;
     short           *text;
     char            *version;
 
-    lines = cls.glconfig.vidHeight * frac;
+    lines = (int) (cls.glconfig.vidHeight * frac);
     if (lines <= 0) {
         return;
     }
@@ -649,40 +649,44 @@ void Con_DrawSolidConsole(float frac) {
     con.xadjust = 0;
     SCR_AdjustFrom640(&con.xadjust, NULL, NULL, NULL);
     
-    background_color[0] = 0.00f;
-    background_color[1] = 0.00f;
-    background_color[2] = 0.00f;
-    background_color[3] = 0.96f;
+    bgColor[0] = 0.00f;
+    bgColor[1] = 0.00f;
+    bgColor[2] = 0.00f;
 
-    // draw the background
-    y = frac * SCREEN_HEIGHT - 2;
-    if (y < 1) {
-        y = 0;
+    if (con_bgAlpha->integer >= 0 && con_bgAlpha->integer <= 100) {
+        bgColor[3] = (vec_t) (con_bgAlpha->integer / 100.0);
     } else {
-        SCR_AdjustedFillRect(CON_MARGIN, CON_MARGIN, con_width, y, background_color);
+        bgColor[3] = 0.96f;
     }
 
-    border_color[0] = 0.90f;
-    border_color[1] = 0.42f;
-    border_color[2] = 0.13f;
-    border_color[3] = 1.00f;
+    // draw the background
+    y = (int) (frac * SCREEN_HEIGHT - 2);
+    if (y >= 1) {
+        SCR_AdjustedFillRect(CON_MARGIN, CON_MARGIN, con_width, y, bgColor);
+    }
 
-    con_height = 240;
+    borderColor[0] = 0.90f;
+    borderColor[1] = 0.42f;
+    borderColor[2] = 0.13f;
+    borderColor[3] = 1.00f;
+
+    conHeight = 240;
     
     //--- DRAW THE CONSOLE BORDER ----------------------------------------------------
     
-    SCR_AdjustedFillRect(CON_MARGIN, CON_MARGIN, con_width, 1, border_color);
-    SCR_AdjustedFillRect(CON_MARGIN, CON_MARGIN, 1, con_height - 1, border_color);
-    SCR_AdjustedFillRect(CON_MARGIN + con_width - 1, CON_MARGIN, 1, con_height - 1, border_color);
-    SCR_AdjustedFillRect(CON_MARGIN, CON_MARGIN + con_height - 2, con_width, 1, border_color);
+    SCR_AdjustedFillRect(CON_MARGIN, CON_MARGIN, con_width, 1, borderColor);
+    SCR_AdjustedFillRect(CON_MARGIN, CON_MARGIN, 1, conHeight - 1, borderColor);
+    SCR_AdjustedFillRect(CON_MARGIN + con_width - 1, CON_MARGIN, 1, conHeight - 1, borderColor);
+    SCR_AdjustedFillRect(CON_MARGIN, CON_MARGIN + conHeight - 2, con_width, 1, borderColor);
     
     //--- DRAW THE VERSION NUMBER ----------------------------------------------------
     
-    border_color[3] = opacityMult;
-    Con_RE_SetColor(border_color);
+    borderColor[3] = opacityMult;
+    Con_RE_SetColor(borderColor);
     version = va("%s %s", SVN_VERSION, Cvar_VariableString("ui_modversion"));    
-    SCR_DrawSmallStringExt(cls.glconfig.vidWidth - con_marginX - con_paddingX - (SMALLCHAR_WIDTH * strlen(version)), 
-                           lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) + CON_MARGIN, version, border_color, qtrue);
+    SCR_DrawSmallStringExt(
+            (int) (cls.glconfig.vidWidth - con_marginX - con_paddingX - (SMALLCHAR_WIDTH * strlen(version))),
+            lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) + CON_MARGIN, version, borderColor, qtrue);
     
     //--- COMPUTE SOME VALUES FOR TEXT AND SCROLLBAR ----------------------------------
     
@@ -705,8 +709,8 @@ void Con_DrawSolidConsole(float frac) {
         int     visible = rows;
         vec4_t  bg_col = { 1.00f, 1.00f, 1.00f, 0.20f };
         
-        cursor_height = visible / (float)total_lines * 180;
-        cursor_pos = con.display / (float)total_lines * (180 - cursor_height);
+        cursor_height = (int) (visible / (float)total_lines * 180);
+        cursor_pos = (int) (con.display / (float)total_lines * (180 - cursor_height));
 
         SCR_AdjustedFillRect(628 - CON_MARGIN, CON_MARGIN + 30, 2, 180, bg_col);
         bg_col[3] = 0.8;
@@ -716,8 +720,8 @@ void Con_DrawSolidConsole(float frac) {
     
     //--- DRAW THE CONSOLE TEXT -------------------------------------------------------
 
-    current_color = 7;
-    Con_RE_SetColor(g_color_table[current_color]);
+    curColor = 7;
+    Con_RE_SetColor(g_color_table[curColor]);
     
     for (i = 0 ; i < rows ; i++, y -= SMALLCHAR_HEIGHT, row--) {
         
@@ -742,9 +746,9 @@ void Con_DrawSolidConsole(float frac) {
                 continue;
             }
 
-            if (((text[x] >> 8) & 7) != current_color) {
-                current_color = (text[x] >> 8) % 10;
-                Con_RE_SetColor(g_color_table[current_color]);
+            if (((text[x] >> 8) & 7) != curColor) {
+                curColor = (text[x] >> 8) % 10;
+                Con_RE_SetColor(g_color_table[curColor]);
             }
         
             SCR_DrawSmallChar(x * SMALLCHAR_WIDTH + con_marginX + con_paddingX, y + CON_MARGIN * 2, text[x] & 0xff);
@@ -790,10 +794,10 @@ void Con_DrawConsole(void) {
 void Con_RunConsole(void) {
     
     con_width    = SCREEN_WIDTH - CON_MARGIN * 2;
-    con_marginX  = CON_MARGIN  * (cls.glconfig.vidWidth  / 640.0);
-    con_marginY  = CON_MARGIN  * (cls.glconfig.vidHeight / 480.0);
-    con_paddingX = CON_PADDING * (cls.glconfig.vidWidth  / 640.0);
-    con_paddingY = CON_PADDING * (cls.glconfig.vidHeight / 480.0);
+    con_marginX  = (int) (CON_MARGIN * (cls.glconfig.vidWidth / 640.0));
+    con_marginY  = (int) (CON_MARGIN * (cls.glconfig.vidHeight / 480.0));
+    con_paddingX = (int) (CON_PADDING * (cls.glconfig.vidWidth / 640.0));
+    con_paddingY = (int) (CON_PADDING * (cls.glconfig.vidHeight / 480.0));
     
     // decide on the destination height of the console
     if (cls.keyCatchers & KEYCATCH_CONSOLE) {
@@ -804,7 +808,7 @@ void Con_RunConsole(void) {
         targetOpacityMult = 0;
     }
     
-    float moveDist = cls.realFrametime * 0.005;
+    float moveDist = (float) (cls.realFrametime * 0.005);
     if (targetOpacityMult < opacityMult) {
         opacityMult -= moveDist;
         if (opacityMult < targetOpacityMult) {
