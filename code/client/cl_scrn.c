@@ -31,7 +31,7 @@ cvar_t    *cl_debuggraph;
 cvar_t    *cl_graphheight;
 cvar_t    *cl_graphscale;
 cvar_t    *cl_graphshift;
-cvar_t    *cl_drawclock;
+cvar_t    *cl_drawClock;
 cvar_t    *cl_demoBlink;
 cvar_t    *cl_drawSpree;
 
@@ -55,8 +55,8 @@ void SCR_DrawNamedPic(float x, float y, float width, float height, const char *p
 /////////////////////////////////////////////////////////////////////
 void SCR_AdjustFrom640(float *x, float *y, float *w, float *h) {
     
-    float  xscale = cls.glconfig.vidWidth / 640.0;
-    float  yscale = cls.glconfig.vidHeight / 480.0;
+    float  xscale = (float) (cls.glconfig.vidWidth / 640.0);
+    float  yscale = (float) (cls.glconfig.vidHeight / 480.0);
     
     if (x) {
         *x *= xscale;
@@ -368,8 +368,8 @@ void SCR_DrawClock(void) {
     qtime_t now;
     char    string[16];
    
-    // if we are paused
-    if (!Cvar_VariableValue("cl_drawclock")) {
+    // if we are not supposed to draw the clock
+    if (!Cvar_VariableValue("cl_drawClock")) {
         return;
     }
     
@@ -449,7 +449,6 @@ void SCR_DebugGraph(float value, int color) {
 void SCR_DrawDebugGraph(void) {
     
     int      a, x, y, w, i, h;
-    int      color;
     float    v;
 
     //
@@ -465,7 +464,6 @@ void SCR_DrawDebugGraph(void) {
     for (a=0 ; a<w ; a++) {
         i = (current - 1 - a + 1024) & 1023;
         v = values[i].value;
-        color = values[i].color;
         v = v * cl_graphscale->integer + cl_graphshift->integer;
         
         if (v < 0) {
@@ -487,7 +485,7 @@ void SCR_Init(void) {
     cl_graphheight = Cvar_Get("graphheight", "32", CVAR_CHEAT);
     cl_graphscale = Cvar_Get("graphscale", "1", CVAR_CHEAT);
     cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
-    cl_drawclock = Cvar_Get("cl_drawclock", "0", CVAR_ARCHIVE);
+    cl_drawClock = Cvar_Get("cl_drawClock", "0", CVAR_ARCHIVE);
     cl_demoBlink = Cvar_Get("cl_demoBlink", "1", CVAR_ARCHIVE);
     cl_drawSpree = Cvar_Get("cl_drawSpree", "1", CVAR_ARCHIVE);
     scr_initialized = qtrue;
