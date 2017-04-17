@@ -396,7 +396,7 @@ SCR_DrawSpree
 void SCR_DrawSpree(void) {
     
     if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cl.snap.ps.pm_type > 4 || 
-        cl_paused->value || !cl_drawSpree->integer ||  cl.snap.ps.clientNum != clc.clientNum || 
+        cl_paused->value || !cl_drawSpree->integer || cl.snap.ps.clientNum != clc.clientNum ||
         !Cvar_VariableIntegerValue("cg_draw2d")) {
             return;
     }
@@ -407,14 +407,12 @@ void SCR_DrawSpree(void) {
     int size = 20;
     int width;
     int max = 12;
-    int num;
     int i;
-    
-    num = (int)Com_Clamp(0, max, cl.spreeCount);
+
     width = size * cl.spreeCount + spacing * (cl.spreeCount - 1);
     x = 320 - width / 2;
     
-    for (i = 0; i < cl.spreeCount; i++) {
+    for (i = 0; i < (int)Com_Clamp(0, max, cl.spreeCount); i++) {
         SCR_DrawNamedPic(x, y, size, size, "skull.tga");
         x += spacing + size;
     }
