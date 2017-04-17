@@ -407,19 +407,29 @@ rescan:
         Cbuf_AddText("wait ; wait ; wait ; wait ; screenshot levelshot\n");
         return qtrue;
     }
-    
-    if (!strcmp(cmd, "scoresd")) {
-        if (atoi(Cmd_Argv(12)) == clc.clientNum) {
-            if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_RED || cl.snap.ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-                int victimNum = atoi(Cmd_Argv(1));
-                int victimTeam = atoi(Info_ValueForKey(cl.gameState.stringData + 
-                                                       cl.gameState.stringOffsets[544 + victimNum], "t"));
 
+    // scoresd -> UrT 4.3.2         X                              X
+    // ----------------------------------------------------------------------------------------
+    // serverCommand: 274 : scoresd 3  0 -1 0 1  2 0 0 0 0 0 0 --- 0 1 50 0 0 0 0 0 0 0 0 0 ---
+    // serverCommand: 358 : scoresd 3  4 -1 2 1  8 0 0 0 0 2 0 --- 0 2 48 2 0 1 0 0 0 0 0 0 ---
+    // serverCommand: 486 : scoresd 1 20 -1 6 1 14 0 0 0 0 5 0 --- 0 3 48 6 0 2 0 0 0 0 0 0 ---
+    if (!strcmp(cmd, "scoresd") && cls.mod != MOD_41) {
+        int slotIndex = 1;
+        int slotIndexOffset = cls.mod == MOD_42 ? 11 : 12;
+        if (atoi(Cmd_Argv(slotIndex + slotIndexOffset)) == clc.clientNum) {
+            if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_RED || cl.snap.ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+                int victimNum = atoi(Cmd_Argv(slotIndex));
+                int victimTeam = atoi(Info_ValueForKey(cl.gameState.stringData + cl.gameState.stringOffsets[544 + victimNum], "t"));
                 if (victimTeam == cl.snap.ps.persistant[PERS_TEAM]) {
-                    cl.spreeCount--;
+                    cl.spreeCount--; // TK
+                } else {
+                    cl.spreeCount++; // KILL OPPONENT
                 }
+            } else {
+                cl.spreeCount++;     // KILL ENEMY
             }
-            cl.spreeCount++;
+            // clamp so we can begin right from 0 if we do to many tks
+            cl.spreeCount = (int) Com_Clamp(0, cl.spreeCount, cl.spreeCount);
         }
     }
     
@@ -428,16 +438,16 @@ rescan:
         team = atoi(Cmd_Argv(1));
         
         if (!strcmp(cmd, "tcchat")) {
-            colour = CL_SkinToChatColour(team, Cvar_VariableValue("cg_skinAlly"));
+            colour = CL_SkinToChatColour(team, (int) Cvar_VariableValue("cg_skinAlly"));
         } else {
             
             myTeam = atoi(Info_ValueForKey(cl.gameState.stringData + 
                                            cl.gameState.stringOffsets[544 + clc.clientNum], "t"));
 
             if (team == myTeam) {
-                colour = CL_SkinToChatColour(team, Cvar_VariableValue("cg_skinAlly"));
+                colour = CL_SkinToChatColour(team, (int) Cvar_VariableValue("cg_skinAlly"));
             } else {
-                colour = CL_SkinToChatColour(team, Cvar_VariableValue("cg_skinEnemy"));
+                colour = CL_SkinToChatColour(team, (int) Cvar_VariableValue("cg_skinEnemy"));
             }
             
             if (team == TEAM_SPECTATOR || team == TEAM_FREE) {
@@ -863,11 +873,24 @@ void CL_InitCGame(void) {
     if (!Sys_LowPhysicalMemory()) {
         Com_TouchMemory();
     }
-        
-        if ((cvar = Cvar_FindVar("snaps"))) {
-            Com_Printf("CL_InitCGame: removing CVAR_CHEAT flag from '%s' cvar\n", cvar->name);
-            cvar->flags &= ~CVAR_CHEAT;
+
+    // unlock snaps cvar so it can be tuned on our side.
+    if ((cvar = Cvar_FindVar("snaps"))) {
+        Com_Printf("CL_InitCGame: removing CVAR_CHEAT flag from '%s' cvar\n", cvar->name);
+        cvar->flags &= ~CVAR_CHEAT;
+    }
+
+    // read modversion so we can turn the engine for Urban Terror 4.2/4.3
+    char *modversion = Cvar_VariableString("ui_modversion");
+    if (modversion != NULL) {
+        if (Q_strsub(modversion, "4.2")) {
+            cls.mod = MOD_42;
+        } else if (Q_strsub(modversion, "4.3")) {
+            cls.mod = MOD_43;
+        } else {
+            cls.mod = MOD_41;
         }
+    }
 
     // clear anything that got printed
     Con_ClearNotify ();

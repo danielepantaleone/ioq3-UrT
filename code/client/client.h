@@ -280,6 +280,12 @@ typedef struct {
     unsigned short    port;
 } serverAddress_t;
 
+typedef enum {
+    MOD_41, // Urban Terror 4.1
+    MOD_42, // Urban Terror 4.2
+    MOD_43, // Urban Terror 4.3
+} mod_t;
+
 typedef struct {
     connstate_t    state;                // connection status
     int            keyCatchers;        // bit flags
@@ -332,6 +338,7 @@ typedef struct {
     qhandle_t    charSetShader;
     qhandle_t    whiteShader;
     qhandle_t    consoleShader;
+    mod_t        mod;
 } clientStatic_t;
 
 extern    clientStatic_t        cls;
