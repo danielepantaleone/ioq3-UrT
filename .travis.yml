@@ -9,10 +9,10 @@ env:
     - BUILD=mingw32
 
 install:
-  - ./scripts/install-deps-${BUILD}.sh
+  - ./install-deps-${BUILD}.sh
 
 script:
-  - ./scripts/make-${BUILD}.sh
+  - ./make-${BUILD}.sh
 
 cache:
   - apt
