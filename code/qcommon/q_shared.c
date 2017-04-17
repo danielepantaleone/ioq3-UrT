@@ -871,8 +871,15 @@ int Q_stricmp (const char *s1, const char *s2) {
 int Q_strsub (const char *s1, const char *s2) {
 
     int i, j, match = 0;
-    int len1 = strlen(s1);
-    int len2 = strlen(s2);
+	int len1;
+	int len2;
+
+	if (s1 == NULL || s2 == NULL) {
+		return 0;
+	}
+
+	len1 = (int) strlen(s1);
+	len2 = (int) strlen(s2);
 
     // Check for proper input value
     if ((!len2) || (!len1) || (len2 > len1)) {
@@ -909,13 +916,15 @@ int Q_strsub (const char *s1, const char *s2) {
 int Q_strisub (const char *s1, const char *s2) {
 
     int i, j, match = 0;
-    int len1 = strlen(s1);
-    int len2 = strlen(s2);
+	int len1;
+	int len2;
 
-    // Check for proper input value
-    if ((!len2) || (!len1) || (len2 > len1)) {
-        return 0;
-    }
+	if (s1 == NULL || s2 == NULL) {
+		return 0;
+	}
+
+	len1 = (int) strlen(s1);
+	len2 = (int) strlen(s2);
 
     for(i = 0; i <= len1 - len2; i++) {
 
