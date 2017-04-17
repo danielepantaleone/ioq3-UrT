@@ -40,10 +40,11 @@ cvar_t    *cl_drawSpree;
 // Description : Coordinates are 640*480 virtual values
 /////////////////////////////////////////////////////////////////////
 void SCR_DrawNamedPic(float x, float y, float width, float height, const char *picname) {
-    
-    qhandle_t    hShader;
-
-    assert(width != 0);
+    qhandle_t hShader;
+    if (width == 0 || height == 0) {
+        Com_DPrintf("SCR_DrawNamedPic: invalid picture size for '%s' (width=%f, height=%f)", picname, width, height);
+        return;
+    }
     hShader = re.RegisterShader(picname);
     SCR_AdjustFrom640(&x, &y, &width, &height);
     re.DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
