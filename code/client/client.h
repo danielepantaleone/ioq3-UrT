@@ -281,9 +281,10 @@ typedef struct {
 } serverAddress_t;
 
 typedef enum {
-    MOD_41, // Urban Terror 4.1
-    MOD_42, // Urban Terror 4.2
-    MOD_43, // Urban Terror 4.3
+    MOD_NONE,
+    MOD_41,   // Urban Terror 4.1
+    MOD_42,   // Urban Terror 4.2
+    MOD_43,   // Urban Terror 4.3
 } mod_t;
 
 typedef struct {

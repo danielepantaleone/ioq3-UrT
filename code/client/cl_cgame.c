@@ -413,23 +413,25 @@ rescan:
     // serverCommand: 274 : scoresd 3  0 -1 0 1  2 0 0 0 0 0 0 --- 0 1 50 0 0 0 0 0 0 0 0 0 ---
     // serverCommand: 358 : scoresd 3  4 -1 2 1  8 0 0 0 0 2 0 --- 0 2 48 2 0 1 0 0 0 0 0 0 ---
     // serverCommand: 486 : scoresd 1 20 -1 6 1 14 0 0 0 0 5 0 --- 0 3 48 6 0 2 0 0 0 0 0 0 ---
-    if (!strcmp(cmd, "scoresd") && cls.mod != MOD_41) {
-        int slotIndex = 1;
-        int slotIndexOffset = cls.mod == MOD_42 ? 11 : 12;
-        if (atoi(Cmd_Argv(slotIndex + slotIndexOffset)) == clc.clientNum) {
-            if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_RED || cl.snap.ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-                int victimNum = atoi(Cmd_Argv(slotIndex));
-                int victimTeam = atoi(Info_ValueForKey(cl.gameState.stringData + cl.gameState.stringOffsets[544 + victimNum], "t"));
-                if (victimTeam == cl.snap.ps.persistant[PERS_TEAM]) {
-                    cl.spreeCount--; // TK
+    if (!strcmp(cmd, "scoresd")) {
+        if (cls.mod != MOD_NONE && cls.mod != MOD_41) {
+            int slotIndex = 1;
+            int slotIndexOffset = cls.mod == MOD_42 ? 11 : 12;
+            if (atoi(Cmd_Argv(slotIndex + slotIndexOffset)) == clc.clientNum) {
+                if (cl.snap.ps.persistant[PERS_TEAM] == TEAM_RED || cl.snap.ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+                    int victimNum = atoi(Cmd_Argv(slotIndex));
+                    int victimTeam = atoi(Info_ValueForKey(cl.gameState.stringData + cl.gameState.stringOffsets[544 + victimNum], "t"));
+                    if (victimTeam == cl.snap.ps.persistant[PERS_TEAM]) {
+                        cl.spreeCount--; // TK
+                    } else {
+                        cl.spreeCount++; // KILL OPPONENT
+                    }
                 } else {
-                    cl.spreeCount++; // KILL OPPONENT
+                    cl.spreeCount++;     // KILL ENEMY
                 }
-            } else {
-                cl.spreeCount++;     // KILL ENEMY
+                // clamp so we can begin right from 0 if we do to many tks
+                cl.spreeCount = (int) Com_Clamp(0, cl.spreeCount, cl.spreeCount);
             }
-            // clamp so we can begin right from 0 if we do to many tks
-            cl.spreeCount = (int) Com_Clamp(0, cl.spreeCount, cl.spreeCount);
         }
     }
     
@@ -881,15 +883,19 @@ void CL_InitCGame(void) {
     }
 
     // read modversion so we can turn the engine for Urban Terror 4.2/4.3
-    char *modversion = Cvar_VariableString("ui_modversion");
-    if (modversion != NULL) {
-        if (Q_strsub(modversion, "4.2")) {
-            cls.mod = MOD_42;
-        } else if (Q_strsub(modversion, "4.3")) {
-            cls.mod = MOD_43;
-        } else {
-            cls.mod = MOD_41;
-        }
+    const char *modversion = Cvar_VariableString("ui_modversion");
+    if (Q_strsub(modversion, "4.3")) {
+        Com_Printf("CL_InitCGame: working in Urban Terror 4.3 mode (ui_modversion=%s)", modversion);
+        cls.mod = MOD_43;
+    } else if (Q_strsub(modversion, "4.2")) {
+        Com_Printf("CL_InitCGame: working in Urban Terror 4.2 mode (ui_modversion=%s)", modversion);
+        cls.mod = MOD_42;
+    } else if (Q_strsub(modversion, "4.1")) {
+        Com_Printf("CL_InitCGame: working in Urban Terror 4.1 mode (ui_modversion=%s)", modversion);
+        cls.mod = MOD_41;
+    } else {
+        Com_Printf("CL_InitCGame: non-optimized game detected (ui_modversion=%s)", modversion);
+        cls.mod = MOD_NONE;
     }
 
     // clear anything that got printed
@@ -948,7 +954,7 @@ or bursted delayed packets.
 #define    RESET_TIME    500
 
 void CL_AdjustTimeDelta(void) {
-    int        resetTime;
+//    int        resetTime;
     int        newDelta;
     int        deltaDelta;
 
@@ -959,12 +965,12 @@ void CL_AdjustTimeDelta(void) {
         return;
     }
 
-    // if the current time is WAY off, just correct to the current value
-    if (com_sv_running->integer) {
-        resetTime = 100;
-    } else {
-        resetTime = RESET_TIME;
-    }
+//    // if the current time is WAY off, just correct to the current value
+//    if (com_sv_running->integer) {
+//        resetTime = 100;
+//    } else {
+//        resetTime = RESET_TIME;
+//    }
 
     newDelta = cl.snap.serverTime - cls.realtime;
     deltaDelta = abs(newDelta - cl.serverTimeDelta);
