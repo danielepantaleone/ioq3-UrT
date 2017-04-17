@@ -900,6 +900,27 @@ void Cvar_Update(vmCvar_t *vmCvar) {
     vmCvar->integer = cv->integer;
 }
 
+void Cvar_Search_f (void)  {
+
+    cvar_t *var;
+
+    if (Cmd_Argc() != 2) {
+        Com_Printf("Usage: cvarsearch <variable>\n");
+        return;
+    }
+
+    for (var = cvar_vars; var; var = var->next) {
+        if (Q_strisub(var->name, Cmd_Argv(1))) {
+            if (Q_stricmp(var->string, var->resetString)) {
+                Com_Printf(S_COLOR_YELLOW "%s  " S_COLOR_WHITE "'%s" S_COLOR_WHITE "' [default='" S_COLOR_CYAN "%s" S_COLOR_WHITE "']\n", var->name, var->string, var->resetString);
+            } else {
+                Com_Printf(S_COLOR_YELLOW "%s  " S_COLOR_WHITE "'%s" S_COLOR_WHITE "'\n", var->name, var->string);
+            }
+        }
+    }
+
+}
+
 /*
 ============
 Cvar_Init
@@ -909,12 +930,13 @@ Reads in all archived cvars
 */
 void Cvar_Init (void) {
     cvar_cheats = Cvar_Get("sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO);
-    Cmd_AddCommand ("toggle", Cvar_Toggle_f);
-    Cmd_AddCommand ("set", Cvar_Set_f);
-    Cmd_AddCommand ("sets", Cvar_SetS_f);
-    Cmd_AddCommand ("setu", Cvar_SetU_f);
-    Cmd_AddCommand ("seta", Cvar_SetA_f);
-    Cmd_AddCommand ("reset", Cvar_Reset_f);
-    Cmd_AddCommand ("cvarlist", Cvar_List_f);
-    Cmd_AddCommand ("cvar_restart", Cvar_Restart_f);
+    Cmd_AddCommand("toggle", Cvar_Toggle_f);
+    Cmd_AddCommand("set", Cvar_Set_f);
+    Cmd_AddCommand("sets", Cvar_SetS_f);
+    Cmd_AddCommand("setu", Cvar_SetU_f);
+    Cmd_AddCommand("seta", Cvar_SetA_f);
+    Cmd_AddCommand("reset", Cvar_Reset_f);
+    Cmd_AddCommand("cvarlist", Cvar_List_f);
+    Cmd_AddCommand("cvar_restart", Cvar_Restart_f);
+    Cmd_AddCommand("cvarsearch", Cvar_Search_f);
 }

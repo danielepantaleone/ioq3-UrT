@@ -56,6 +56,7 @@ videogame Urban Terror 4.x serie (http://www.urbanterror.info).
 * Improved in-game console
 * Improved windows dedicated console readability
 * Unlock `snaps` cvar from game module constraint
+* Added `cvarsearch` command to lookup cvars by partial names
 
 ## New CVARs
 
