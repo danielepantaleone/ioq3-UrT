@@ -22,7 +22,7 @@ videogame Urban Terror 4.x serie (http://www.urbanterror.info).
     - `sudo apt-get install libsdl1.2-dev libxxf86vm-dev libc6-dev-i386`
     - `sudo apt-get install mingw-w64 gcc-mingw-w64-base gcc-mingw-w64 binutils-mingw-w64`
 * Switch to the `scripts` directory
-* Run either `make-mingw32.sh`
+* Run `make-mingw32.sh`
 
 ## Addons & Improvements
 
